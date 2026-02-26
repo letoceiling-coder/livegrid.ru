@@ -1,3 +1,18 @@
+/**
+ * Vite configuration — livegrid.ru frontend.
+ *
+ * Key decisions:
+ *   - base: "/"          Абсолютные пути к ассетам. Требуется для SPA served from Nginx root.
+ *   - outDir: "dist"     Стандартный output, Nginx читает из frontend/dist/.
+ *   - sourcemap: false   Не раскрываем исходники в production.
+ *   - manualChunks       Разбивка на chunks по библиотекам для лучшего кэширования.
+ *   - lovable-tagger     Подключается только в mode=development (не попадает в production bundle).
+ *
+ * Build команда: npm run build
+ * Dev команда:   npm run dev  (порт 8080, hmr.overlay=false)
+ *
+ * @see https://vitejs.dev/config/
+ */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";

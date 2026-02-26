@@ -1,12 +1,49 @@
 /**
  * API client — axios instance pointed at the Laravel backend.
  *
- * Base URL is set via VITE_API_URL env variable.
- * Falls back to /api/v1 (same-origin, works behind Nginx proxy).
+ * ## Configuration
  *
- * Usage:
- *   import api from '@/lib/api';
- *   const { data } = await api.get('/pages/home');
+ * Base URL читается из `VITE_API_URL` (бакается в бандл при сборке).
+ * В production: `https://livegrid.ru/api/v1`
+ * В development: `http://localhost:8000/api/v1`
+ * Fallback: `/api/v1` (same-origin, работает через Nginx proxy).
+ *
+ * ## Request interceptor
+ *
+ * Автоматически добавляет `Authorization: Bearer <token>` если токен
+ * присутствует в `localStorage` (ключ `livegrid_api_token`).
+ *
+ * ## Response interceptor
+ *
+ * Laravel оборачивает ответы в конверт `{ success, data, message }`.
+ * Interceptor автоматически извлекает `data`, чтобы вызывающий код
+ * получал данные напрямую без вложенности.
+ *
+ * ## 401 handling
+ *
+ * При получении 401 токен очищается из localStorage.
+ * Если пользователь находился в `/admin/*`, перенаправляется на `/login`.
+ *
+ * ## Usage
+ *
+ * ```ts
+ * import api from '@/lib/api';
+ *
+ * // GET: данные уже unwrapped из { success, data: ... }
+ * const { data: page } = await api.get('/pages/home');
+ *
+ * // POST
+ * const { data: newPage } = await api.post('/admin/pages', payload);
+ *
+ * // Error handling
+ * try {
+ *   await api.post('/auth/login', creds);
+ * } catch (e: AxiosError) {
+ *   console.error(e.response?.data?.message); // "The provided credentials are incorrect."
+ * }
+ * ```
+ *
+ * @module api
  */
 
 import axios, { type AxiosResponse } from "axios";

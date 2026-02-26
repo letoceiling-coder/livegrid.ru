@@ -11,6 +11,23 @@ use App\Services\PageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Admin pages controller.
+ *
+ * CRUD for Page resources. All routes require auth:sanctum middleware.
+ * Delegates business logic to PageService; controller is thin.
+ *
+ * Routes (prefix: /api/v1/admin/pages):
+ *   GET    /           — paginated list
+ *   GET    /{page}     — single page with sections
+ *   POST   /           — create page
+ *   PUT    /{page}     — update page
+ *   DELETE /{page}     — delete page
+ *
+ * @see \App\Services\PageService
+ * @see \App\Http\Requests\Api\V1\StorePageRequest
+ * @see \App\Http\Requests\Api\V1\UpdatePageRequest
+ */
 class PageController extends Controller
 {
     use ApiResponse;
@@ -20,8 +37,11 @@ class PageController extends Controller
     ) {}
 
     /**
-     * GET /api/v1/admin/pages
-     * List all pages (paginated).
+     * Return a paginated list of all pages.
+     *
+     * @queryParam per_page int  Items per page (default 15). Example: 10
+     *
+     * @return JsonResponse  200: { success, data: LengthAwarePaginator<Page> }
      */
     public function index(Request $request): JsonResponse
     {
@@ -32,8 +52,13 @@ class PageController extends Controller
     }
 
     /**
-     * GET /api/v1/admin/pages/{page}
-     * Show a single page by ID (admin).
+     * Show a single page with eager-loaded sections.
+     *
+     * Uses route model binding — 404 if page not found.
+     * Admin endpoint: returns pages regardless of is_published status.
+     *
+     * @param Page $page  Route model bound by {id}
+     * @return JsonResponse  200: { success, data: Page + sections[] }
      */
     public function show(Page $page): JsonResponse
     {
@@ -43,8 +68,13 @@ class PageController extends Controller
     }
 
     /**
-     * POST /api/v1/admin/pages
      * Create a new page.
+     *
+     * Request is validated by StorePageRequest (slug uniqueness, required fields).
+     * Delegates creation to PageService.
+     *
+     * @param StorePageRequest $request  Validated request (title, slug, meta_*, is_published)
+     * @return JsonResponse  201: { success, message, data: Page }
      */
     public function store(StorePageRequest $request): JsonResponse
     {
@@ -54,8 +84,14 @@ class PageController extends Controller
     }
 
     /**
-     * PUT /api/v1/admin/pages/{page}
      * Update an existing page.
+     *
+     * All fields are optional (PATCH semantics via UpdatePageRequest).
+     * Slug uniqueness check ignores the current page's own slug.
+     *
+     * @param UpdatePageRequest $request  Validated partial update payload
+     * @param Page              $page     Route model bound by {id}
+     * @return JsonResponse  200: { success, message, data: Page }
      */
     public function update(UpdatePageRequest $request, Page $page): JsonResponse
     {
@@ -65,8 +101,13 @@ class PageController extends Controller
     }
 
     /**
-     * DELETE /api/v1/admin/pages/{page}
      * Delete a page.
+     *
+     * Hard delete — no soft deletes configured for Page model.
+     * Associated sections are cascade-deleted at DB level.
+     *
+     * @param Page $page  Route model bound by {id}
+     * @return JsonResponse  200: { success, message, data: null }
      */
     public function destroy(Page $page): JsonResponse
     {
