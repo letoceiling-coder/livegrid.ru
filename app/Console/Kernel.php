@@ -12,7 +12,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Feed analysis: runs every day at 03:00 server time.
+        // Feed updates weekly per documentation — daily run detects changes early.
+        // Change to ->weeklyOn(1, '03:00') once feed schedule is confirmed.
+        $schedule->command('feed:analyze')
+                 ->dailyAt('03:00')
+                 ->withoutOverlapping()          // skip if previous run is still in progress
+                 ->sendOutputTo(storage_path('logs/feed-cron.log'))
+                 ->onFailure(function () {
+                     \Illuminate\Support\Facades\Log::channel('feed')
+                         ->error('feed:analyze scheduled run failed');
+                 });
     }
 
     /**

@@ -114,6 +114,16 @@ return [
             'handler' => NullHandler::class,
         ],
 
+        // Dedicated channel for all feed-related operations.
+        // Logs to storage/logs/feed-YYYY-MM-DD.log, rotated daily, kept 30 days.
+        // Usage: Log::channel('feed')->info(...)
+        'feed' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/feed.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 30,
+        ],
+
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
