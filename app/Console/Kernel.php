@@ -12,13 +12,38 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // Feed analysis: runs every day at 03:00 server time.
-        // Feed updates weekly per documentation — daily run detects changes early.
-        // Change to ->weeklyOn(1, '03:00') once feed schedule is confirmed.
-        $schedule->command('feed:analyze')
+        // ── Feed pipeline ─────────────────────────────────────────────────────
+        //
+        // Stage 1 — collect: download raw JSON at 03:00
+        // Stage 2 — inspect: analyze schema at 03:30 (after collect finishes)
+        //
+        // Feed updates weekly per documentation.
+        // Daily run detects changes early; change to ->weeklyOn(1, '03:00')
+        // once feed schedule is confirmed.
+
+        $schedule->command('feed:collect')
                  ->dailyAt('03:00')
-                 ->withoutOverlapping()          // skip if previous run is still in progress
-                 ->sendOutputTo(storage_path('logs/feed-cron.log'))
+                 ->withoutOverlapping()
+                 ->appendOutputTo(storage_path('logs/feed-collect.log'))
+                 ->onFailure(function () {
+                     \Illuminate\Support\Facades\Log::channel('feed')
+                         ->error('feed:collect scheduled run failed');
+                 });
+
+        $schedule->command('feed:inspect --dump-entities')
+                 ->dailyAt('03:30')
+                 ->withoutOverlapping()
+                 ->appendOutputTo(storage_path('logs/feed-inspect.log'))
+                 ->onFailure(function () {
+                     \Illuminate\Support\Facades\Log::channel('feed')
+                         ->error('feed:inspect scheduled run failed');
+                 });
+
+        // Legacy combined command (kept for compatibility, runs after inspect)
+        $schedule->command('feed:analyze')
+                 ->dailyAt('04:00')
+                 ->withoutOverlapping()
+                 ->appendOutputTo(storage_path('logs/feed-analyze.log'))
                  ->onFailure(function () {
                      \Illuminate\Support\Facades\Log::channel('feed')
                          ->error('feed:analyze scheduled run failed');

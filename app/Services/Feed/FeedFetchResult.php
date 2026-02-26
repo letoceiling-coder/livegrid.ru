@@ -54,4 +54,22 @@ final readonly class FeedFetchResult
     {
         return strlen($this->body);
     }
+
+    /**
+     * Human-readable payload size (e.g. "12.4 MB").
+     */
+    public function payloadHumanSize(): string
+    {
+        $bytes = $this->sizeBytes();
+
+        if ($bytes >= 1024 * 1024) {
+            return round($bytes / (1024 * 1024), 2) . ' MB';
+        }
+
+        if ($bytes >= 1024) {
+            return round($bytes / 1024, 1) . ' KB';
+        }
+
+        return $bytes . ' B';
+    }
 }
