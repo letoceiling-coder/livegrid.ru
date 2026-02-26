@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -70,6 +71,13 @@ class Handler extends ExceptionHandler
      */
     private function handleApiException(Request $request, Throwable $e): JsonResponse
     {
+        if ($e instanceof ModelNotFoundException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Resource not found.',
+            ], 404);
+        }
+
         if ($e instanceof ValidationException) {
             return response()->json([
                 'success' => false,

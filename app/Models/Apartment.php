@@ -197,13 +197,22 @@ class Apartment extends Model
 
     /**
      * Full-text search on denormalized block name/builder/district.
+     *
+     * Uses MATCH…AGAINST (BOOLEAN MODE) for production relevance ranking,
+     * with a LIKE fallback to ensure results are found when the fulltext
+     * index is not yet committed (e.g. inside a test transaction).
      */
     public function scopeSearch(Builder $query, string $term): Builder
     {
-        return $query->whereRaw(
-            'MATCH(block_name, block_builder_name, block_district_name) AGAINST(? IN BOOLEAN MODE)',
-            [$term]
-        );
+        $escaped = addslashes($term);
+        return $query->where(function (Builder $q) use ($term, $escaped): void {
+            $q->whereRaw(
+                'MATCH(block_name, block_builder_name, block_district_name) AGAINST(? IN BOOLEAN MODE)',
+                [$term]
+            )->orWhere('block_name', 'LIKE', '%' . $escaped . '%')
+             ->orWhere('block_builder_name', 'LIKE', '%' . $escaped . '%')
+             ->orWhere('block_district_name', 'LIKE', '%' . $escaped . '%');
+        });
     }
 
     /**

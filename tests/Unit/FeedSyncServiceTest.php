@@ -36,13 +36,7 @@ class FeedSyncServiceTest extends TestCase
 
         $this->service = new FeedSyncService($client, $storage);
 
-        // Pre-seed rooms (crm_ids 0–6) so FK constraint on apartments.rooms_crm_id is satisfied.
-        // In real sync, rooms are upserted before apartments.
-        $now = now();
-        DB::table('rooms')->insert(
-            array_map(fn (int $i) => ['crm_id' => $i, 'name' => "Room $i", 'created_at' => $now, 'updated_at' => $now],
-            range(0, 6))
-        );
+        // NOTE: room records are seeded per-test in apartment upsert tests (see seedRooms()).
     }
 
     // ── upsertRegions ─────────────────────────────────────────────────────────
@@ -94,6 +88,8 @@ class FeedSyncServiceTest extends TestCase
 
     public function test_upsert_apartments_sets_last_seen_at(): void
     {
+        $this->seedRooms(); // rooms must exist before apartments FK check
+
         $block    = Block::factory()->create();
         $building = Building::factory()->create(['block_id' => $block->id]);
 
@@ -123,6 +119,8 @@ class FeedSyncServiceTest extends TestCase
 
     public function test_upsert_apartments_updates_existing(): void
     {
+        $this->seedRooms(); // rooms must exist before apartments FK check
+
         $block    = Block::factory()->create();
         $building = Building::factory()->create(['block_id' => $block->id]);
 
@@ -245,6 +243,22 @@ class FeedSyncServiceTest extends TestCase
         $count = Apartment::withDeleted()->count();
 
         $this->assertEquals(2, $count);
+    }
+
+    /**
+     * Seed rooms 0–6 for FK constraint satisfaction on apartments.rooms_crm_id.
+     * Must be called explicitly in tests that call upsertApartments() or
+     * insert apartments via DB directly with a non-null rooms_crm_id.
+     */
+    private function seedRooms(): void
+    {
+        $now = now();
+        DB::table('rooms')->insert(
+            array_map(
+                fn (int $i) => ['crm_id' => $i, 'name' => "Room $i", 'created_at' => $now, 'updated_at' => $now],
+                range(0, 6)
+            )
+        );
     }
 
     protected function tearDown(): void
