@@ -26,3 +26,11 @@ yarn-error.log
 
 # Deploy log
 /storage/logs/deploy.log
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.vite/
+frontend/coverage/

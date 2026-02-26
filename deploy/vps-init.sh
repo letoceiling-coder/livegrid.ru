@@ -22,9 +22,11 @@ export DEBIAN_FRONTEND=noninteractive
 REPO="https://github.com/letoceiling-coder/livegrid.ru.git"
 BRANCH="main"
 PROJECT_PATH="/var/www/livegrid/backend"
+FRONTEND_PATH="${PROJECT_PATH}/frontend"
 DOMAIN="livegrid.ru"
 CERTBOT_EMAIL="admin@livegrid.ru"
 PHP_VER="8.2"
+NODE_VER="20"
 DB_NAME="livegrid"
 DB_USER="livegrid_user"
 DB_PASS="$(openssl rand -base64 32 | tr -d '/+=' | head -c 24)"
@@ -49,7 +51,7 @@ sep
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 1 — System update
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 1/10 — System update"
+log "STEP 1/13 — System update"
 apt-get update -y -q
 apt-get upgrade -y -q
 ok "System updated"
@@ -57,7 +59,7 @@ ok "System updated"
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 2 — Install packages
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 2/10 — Installing packages"
+log "STEP 2/13 — Installing packages"
 
 apt-get install -y -q \
     nginx \
@@ -104,7 +106,7 @@ composer --version
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 3 — MySQL — create database and user
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 3/10 — Configure MySQL"
+log "STEP 3/13 — Configure MySQL"
 
 # Ensure MySQL is running
 systemctl start mysql
@@ -127,7 +129,7 @@ ok "MySQL: database '${DB_NAME}', user '${DB_USER}' created"
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 4 — Clone / update repository
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 4/10 — Clone repository"
+log "STEP 4/13 — Clone repository"
 
 mkdir -p "$(dirname "${PROJECT_PATH}")"
 
@@ -148,7 +150,7 @@ ok "Repository ready at ${PROJECT_PATH}"
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 5 — Production .env
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 5/10 — Create production .env"
+log "STEP 5/13 — Create production .env"
 
 cd "${PROJECT_PATH}"
 
@@ -209,7 +211,7 @@ fi
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 6 — Composer + Artisan setup
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 6/10 — Composer install + Laravel setup"
+log "STEP 6/13 — Composer install + Laravel setup"
 
 cd "${PROJECT_PATH}"
 COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
@@ -226,7 +228,7 @@ ok "Laravel setup complete"
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 7 — Permissions
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 7/10 — Permissions"
+log "STEP 7/13 — Permissions"
 
 chown -R "${WEB_USER}:${WEB_USER}" "${PROJECT_PATH}"
 find "${PROJECT_PATH}" -type f -exec chmod 644 {} \;
@@ -241,7 +243,7 @@ ok "Permissions set"
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 8 — Nginx (HTTP first, HTTPS after certbot)
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 8/10 — Nginx configuration"
+log "STEP 8/13 — Nginx configuration"
 
 NGINX_CONF="/etc/nginx/sites-available/${DOMAIN}"
 mkdir -p /var/www/certbot
@@ -295,7 +297,7 @@ ok "Nginx started (HTTP)"
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 9 — SSL via Certbot
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 9/10 — SSL Let's Encrypt"
+log "STEP 9/13 — SSL Let's Encrypt"
 
 # Check if domain resolves to this server
 SERVER_IP=$(curl -s https://api.ipify.org || curl -s https://ifconfig.me || echo "unknown")
@@ -332,7 +334,7 @@ ok "Certbot auto-renewal configured"
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 10 — Firewall (UFW) + GitHub SSH deploy key
 # ──────────────────────────────────────────────────────────────────────────────
-log "STEP 10/10 — Firewall + SSH Deploy Key"
+log "STEP 10/13 — Firewall + SSH Deploy Key"
 
 # Firewall
 ufw --force reset
@@ -355,6 +357,72 @@ fi
 # ──────────────────────────────────────────────────────────────────────────────
 # FINAL STATUS REPORT
 # ──────────────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 11 — Node 20 LTS
+# ──────────────────────────────────────────────────────────────────────────────
+log "STEP 11/13 — Install Node.js ${NODE_VER} LTS"
+
+if command -v node &>/dev/null && node --version | grep -q "^v${NODE_VER}"; then
+    ok "Node $(node --version) already installed"
+else
+    # NodeSource binary distribution (fast, no compilation)
+    curl -fsSL "https://deb.nodesource.com/setup_${NODE_VER}.x" | bash -
+    apt-get install -y -q nodejs
+    ok "Node $(node --version) installed"
+fi
+
+node --version
+npm --version
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 12 — Clone / update frontend
+# ──────────────────────────────────────────────────────────────────────────────
+log "STEP 12/13 — Frontend: npm install & build"
+
+# Frontend is a subdirectory of the same monorepo (already cloned in step 4)
+# FRONTEND_PATH = ${PROJECT_PATH}/frontend
+
+if [[ -f "${FRONTEND_PATH}/package.json" ]]; then
+    cd "${FRONTEND_PATH}"
+
+    # Write production env (VITE vars baked into the build)
+    cat > .env.production <<FRONTENV
+VITE_API_URL=https://${DOMAIN}/api/v1
+FRONTENV
+
+    echo "  Installing npm dependencies..."
+    npm ci --prefer-offline 2>/dev/null || npm install
+
+    echo "  Building React SPA..."
+    npm run build
+
+    chown -R "${WEB_USER}:${WEB_USER}" "${FRONTEND_PATH}/dist" 2>/dev/null || true
+    ok "Frontend built → ${FRONTEND_PATH}/dist ($(du -sh ${FRONTEND_PATH}/dist | cut -f1))"
+else
+    warn "Frontend package.json not found at ${FRONTEND_PATH}"
+    warn "Make sure the frontend/ directory is committed to the repository"
+fi
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 13 — Apply full HTTPS Nginx config (SPA + API)
+# ──────────────────────────────────────────────────────────────────────────────
+log "STEP 13/13 — Apply production Nginx config"
+
+# Check if SSL certificate exists (certbot ran in step 9)
+if [[ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]]; then
+    # Apply the full HTTPS config from repo
+    if [[ -f "${PROJECT_PATH}/deploy/nginx/${DOMAIN}" ]]; then
+        cp "${PROJECT_PATH}/deploy/nginx/${DOMAIN}" "/etc/nginx/sites-available/${DOMAIN}"
+        nginx -t && systemctl reload nginx
+        ok "Full HTTPS Nginx config applied (SPA + API)"
+    else
+        warn "deploy/nginx/${DOMAIN} not found — keeping current Nginx config"
+    fi
+else
+    warn "SSL certificate not yet obtained — keeping HTTP-only Nginx config"
+    warn "After certbot run: cp ${PROJECT_PATH}/deploy/nginx/${DOMAIN} /etc/nginx/sites-available/${DOMAIN} && nginx -t && systemctl reload nginx"
+fi
+
 sep
 echo ""
 echo -e "${CYAN}  SERVICES STATUS${NC}"
@@ -377,10 +445,12 @@ cat <<REPORT
   ╔═══════════════════════════════════════════════════════╗
   ║           VPS INIT COMPLETE ✅                        ║
   ╠═══════════════════════════════════════════════════════╣
-  ║  Domain   : https://${DOMAIN}
+  ║  Frontend : https://${DOMAIN}
   ║  API test : https://${DOMAIN}/api/v1/pages/home
-  ║  Project  : ${PROJECT_PATH}
+  ║  Backend  : ${PROJECT_PATH}
+  ║  Frontend : ${FRONTEND_PATH}/dist
   ║  PHP      : $(php -r 'echo PHP_VERSION;')
+  ║  Node     : $(node --version 2>/dev/null || echo 'N/A')
   ║  DB Name  : ${DB_NAME}
   ║  DB User  : ${DB_USER}
   ║  DB Pass  : ${DB_PASS}
