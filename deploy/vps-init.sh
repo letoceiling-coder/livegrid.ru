@@ -191,10 +191,19 @@ DEPLOY_PATH=${PROJECT_PATH}
 DEPLOY_BRANCH=${BRANCH}
 DEPLOY_DOMAIN=${DOMAIN}
 ENV
-    php artisan key:generate --force
-    ok ".env created and APP_KEY generated"
+    # Generate APP_KEY directly without artisan (vendor/ not installed yet)
+    RAW_KEY="$(openssl rand -base64 32)"
+    APP_KEY_VAL="base64:${RAW_KEY}"
+    sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY_VAL}|" .env
+    ok ".env created, APP_KEY generated (openssl)"
 else
-    warn ".env already exists — skipping (run 'php artisan key:generate' if APP_KEY is empty)"
+    warn ".env already exists — skipping"
+    # Ensure APP_KEY is set if empty
+    if grep -q "^APP_KEY=$" .env; then
+        RAW_KEY="$(openssl rand -base64 32)"
+        sed -i "s|^APP_KEY=.*|APP_KEY=base64:${RAW_KEY}|" .env
+        ok "APP_KEY was empty, generated new one"
+    fi
 fi
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -203,7 +212,7 @@ fi
 log "STEP 6/10 — Composer install + Laravel setup"
 
 cd "${PROJECT_PATH}"
-composer install --no-dev --optimize-autoloader --no-interaction
+COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
 
 php artisan migrate --force
 php artisan db:seed --force || warn "Seeder failed or no seeders (non-fatal)"
