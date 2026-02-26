@@ -101,7 +101,11 @@ class Apartment extends Model
         return $this->belongsTo(Finishing::class, 'finishing_id');
     }
 
-    public function room(): BelongsTo
+    /**
+     * Room type reference (studios, 1-room, etc).
+     * Named roomType to avoid conflict with the `room` integer column.
+     */
+    public function roomType(): BelongsTo
     {
         return $this->belongsTo(Room::class, 'rooms_crm_id', 'crm_id');
     }

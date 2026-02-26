@@ -64,7 +64,7 @@ class ApartmentController extends Controller
         ]);
 
         $query = Apartment::query()
-            ->with(['finishing', 'buildingType', 'room']);
+            ->with(['finishing', 'buildingType', 'roomType']);
 
         // ── Price filter ─────────────────────────────────────────────────────
         if ($request->filled('price_min') && $request->filled('price_max')) {
@@ -154,7 +154,7 @@ class ApartmentController extends Controller
 
     public function show(string $id): ApartmentResource|Response
     {
-        $apartment = Apartment::with(['building', 'block', 'finishing', 'buildingType', 'room'])
+        $apartment = Apartment::with(['building', 'block', 'finishing', 'buildingType', 'roomType'])
             ->findOrFail($id);
 
         return new ApartmentResource($apartment);

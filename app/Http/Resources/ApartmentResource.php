@@ -17,9 +17,9 @@ class ApartmentResource extends JsonResource
             'id'          => $this->id,
             'crm_id'      => $this->crm_id,
 
-            // Rooms
+            // Rooms (room = integer count; roomType = related Room model)
             'room'        => $this->room,
-            'room_label'  => $this->whenLoaded('room', fn () => $this->room?->name),
+            'room_label'  => $this->whenLoaded('roomType', fn () => $this->roomType?->name),
 
             // Physical
             'floor'       => $this->floor,

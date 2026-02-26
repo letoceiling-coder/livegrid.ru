@@ -17,7 +17,7 @@ use Throwable;
  *  4. After sync: mark apartments not seen in last 5 minutes as is_deleted=true
  *  5. Log: total imported / updated / soft-deleted / duration
  */
-final class FeedSyncService
+class FeedSyncService
 {
     private const CHUNK_SIZE = 1000;
 
@@ -464,7 +464,8 @@ final class FeedSyncService
             $records = [];
             foreach ($chunk as $row) {
                 $record = $transform($row);
-                if (!empty($record[$uniqueKey])) {
+                // Use isset + strict check to allow 0 as a valid crm_id (studios)
+                if (isset($record[$uniqueKey]) && $record[$uniqueKey] !== '' && $record[$uniqueKey] !== null) {
                     $records[] = $record;
                 }
             }

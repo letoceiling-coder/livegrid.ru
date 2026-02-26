@@ -35,6 +35,14 @@ class FeedSyncServiceTest extends TestCase
         $storage = Mockery::mock(FeedFileStorage::class);
 
         $this->service = new FeedSyncService($client, $storage);
+
+        // Pre-seed rooms (crm_ids 0–6) so FK constraint on apartments.rooms_crm_id is satisfied.
+        // In real sync, rooms are upserted before apartments.
+        $now = now();
+        DB::table('rooms')->insert(
+            array_map(fn (int $i) => ['crm_id' => $i, 'name' => "Room $i", 'created_at' => $now, 'updated_at' => $now],
+            range(0, 6))
+        );
     }
 
     // ── upsertRegions ─────────────────────────────────────────────────────────
