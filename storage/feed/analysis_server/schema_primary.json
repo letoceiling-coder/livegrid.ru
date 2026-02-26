@@ -1,0 +1,272 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:53+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/about.json",
+        "analysis_seconds": 0.0001,
+        "max_depth_reached": 4,
+        "array_sample_size": 5
+    },
+    "stats": {
+        "total_fields": 16,
+        "total_entities": 1,
+        "max_depth": 4,
+        "id_fields_count": 1,
+        "nullable_fields": 0,
+        "enum_candidates": 3,
+        "type_distribution": {
+            "string": 14,
+            "object": 2
+        },
+        "root_is_list": true,
+        "root_keys": []
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "item_count": 9,
+            "id_field": null,
+            "parent": null,
+            "direct_fields": [],
+            "foreign_keys": []
+        }
+    },
+    "fields": {
+        "[].name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "blocks",
+            "enum_values": {
+                "blocks": 1,
+                "builders": 1,
+                "regions": 1,
+                "subways": 1,
+                "rooms": 1
+            }
+        },
+        "[].description": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Жилые комплексы",
+            "enum_values": {
+                "Жилые комплексы": 1,
+                "Застройщики": 1,
+                "Районы": 1,
+                "Метро": 1,
+                "Комнатность": 1
+            }
+        },
+        "[].props_description": {
+            "type": "object",
+            "depth": 2,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].props_description.district": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "ID региона",
+            "enum_values": []
+        },
+        "[].props_description.locations": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "ID локаций",
+            "enum_values": []
+        },
+        "[].props_description.subway": {
+            "type": "object",
+            "depth": 3,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].props_description.subway.subway_id": {
+            "type": "string",
+            "depth": 4,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "ID метро",
+            "enum_values": []
+        },
+        "[].props_description.subway.distance_time": {
+            "type": "string",
+            "depth": 4,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Расстояние (в минутах)",
+            "enum_values": []
+        },
+        "[].props_description.subway.distance_type": {
+            "type": "string",
+            "depth": 4,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Тип расстояния (1 - пешком, 2 - транспортом)",
+            "enum_values": []
+        },
+        "[].props_description.geometry": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Геометка ЖК",
+            "enum_values": []
+        },
+        "[].props_description.renderer": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Рендеры ЖК",
+            "enum_values": []
+        },
+        "[].props_description.progress": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Ход строительства",
+            "enum_values": []
+        },
+        "[].props_description.plan": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 1,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Ген. план",
+            "enum_values": []
+        },
+        "[].url": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "https://dataout.trendagent.ru/msk/blocks.json",
+            "enum_values": {
+                "https://dataout.trendagent.ru/msk/blocks.json": 1,
+                "https://dataout.trendagent.ru/msk/builders.json": 1,
+                "https://dataout.trendagent.ru/msk/regions.json": 1,
+                "https://dataout.trendagent.ru/msk/subways.json": 1,
+                "https://dataout.trendagent.ru/msk/rooms.json": 1
+            }
+        },
+        "[].scope": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "all",
+            "enum_values": []
+        },
+        "[].exported_at": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "2026-02-23T05:07:17.748Z",
+            "enum_values": []
+        }
+    },
+    "id_fields": [
+        "[].props_description.subway.subway_id"
+    ],
+    "nullable_fields": [],
+    "always_present": [
+        "[].name",
+        "[].description",
+        "[].props_description",
+        "[].props_description.district",
+        "[].props_description.locations",
+        "[].props_description.subway",
+        "[].props_description.subway.subway_id",
+        "[].props_description.subway.distance_time",
+        "[].props_description.subway.distance_type",
+        "[].props_description.geometry",
+        "[].props_description.renderer",
+        "[].props_description.progress",
+        "[].props_description.plan",
+        "[].url",
+        "[].scope",
+        "[].exported_at"
+    ],
+    "enum_candidates": [
+        "[].name",
+        "[].description",
+        "[].url"
+    ]
+}

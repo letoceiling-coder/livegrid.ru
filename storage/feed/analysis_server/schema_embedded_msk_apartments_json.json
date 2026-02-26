@@ -1,0 +1,975 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:54+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/apartments.json",
+        "analysis_seconds": 0.0004,
+        "max_depth_reached": 4,
+        "array_sample_size": 5
+    },
+    "stats": {
+        "total_fields": 53,
+        "total_entities": 2,
+        "max_depth": 4,
+        "id_fields_count": 5,
+        "nullable_fields": 0,
+        "enum_candidates": 34,
+        "type_distribution": {
+            "string": 24,
+            "int": 8,
+            "array": 7,
+            "float": 6,
+            "bool": 5,
+            "object": 2,
+            "mixed": 1
+        },
+        "root_is_list": true,
+        "root_keys": []
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "item_count": 62214,
+            "id_field": null,
+            "parent": null,
+            "direct_fields": [],
+            "foreign_keys": []
+        },
+        "[].block_subway[]": {
+            "path": "[].block_subway[]",
+            "item_count": 2,
+            "id_field": "[].block_subway[].subway_id",
+            "parent": "[]",
+            "direct_fields": {
+                "[].block_subway[].distance_time": {
+                    "type": "int",
+                    "depth": 4,
+                    "occurrences": 8,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": false,
+                    "example": "10",
+                    "enum_values": {
+                        "10": 5,
+                        "15": 3
+                    }
+                },
+                "[].block_subway[].distance_type": {
+                    "type": "int",
+                    "depth": 4,
+                    "occurrences": 8,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": false,
+                    "example": "2",
+                    "enum_values": []
+                },
+                "[].block_subway[].subway_id": {
+                    "type": "string",
+                    "depth": 4,
+                    "occurrences": 8,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": true,
+                    "example": "5a71bfed4d6d151bfb2cbf3e",
+                    "enum_values": {
+                        "5a72c7664d6d151bfb2cd344": 3,
+                        "5a73231f8db39c490c9c573d": 3,
+                        "5a71bfed4d6d151bfb2cbf3e": 2
+                    }
+                }
+            },
+            "foreign_keys": [
+                {
+                    "field": "[].block_subway[].subway_id",
+                    "field_name": "subway_id",
+                    "target_hint": "subway"
+                }
+            ]
+        }
+    },
+    "fields": {
+        "[]._id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5ab0d45222c0f32f76dacbce",
+            "enum_values": {
+                "5ab0d45222c0f32f76dacbce": 1,
+                "5ab116c722c0f32f76dae2d6": 1,
+                "5ba8a51201e8ad788fc0e89a": 1,
+                "5ba8b0ce01e8ad788fc0ef86": 1,
+                "5ba8b0ce01e8ad788fc0ef8b": 1
+            }
+        },
+        "[].area_balconies_total": {
+            "type": "mixed",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "2.16",
+            "enum_values": {
+                "5.8": 2,
+                "2.16": 1,
+                "0": 1,
+                "3.2": 1
+            }
+        },
+        "[].area_given": {
+            "type": "float",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "78.4",
+            "enum_values": {
+                "65.4": 2,
+                "78.4": 1,
+                "76.96": 1,
+                "81.2": 1
+            }
+        },
+        "[].area_kitchen": {
+            "type": "float",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "29.36",
+            "enum_values": {
+                "21.9": 2,
+                "29.36": 1,
+                "25.48": 1,
+                "11.6": 1
+            }
+        },
+        "[].area_rooms": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "12.39+10.05+9.31",
+            "enum_values": {
+                "17+12.6": 2,
+                "12.39+10.05+9.31": 1,
+                "10.84+12.87+11.25": 1,
+                "17.6+14.4+14.8": 1
+            }
+        },
+        "[].area_rooms_total": {
+            "type": "float",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "31.75",
+            "enum_values": {
+                "29.6": 2,
+                "31.75": 1,
+                "34.96": 1,
+                "46.8": 1
+            }
+        },
+        "[].area_total": {
+            "type": "float",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "77.32",
+            "enum_values": {
+                "62.5": 2,
+                "77.32": 1,
+                "76.96": 1,
+                "79.6": 1
+            }
+        },
+        "[].block_address": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "деревня Раздоры, тер Мякининское шоссе, 1-й км",
+            "enum_values": {
+                "ул. Красная Сосна": 3,
+                "деревня Раздоры, тер Мякининское шоссе, 1-й км": 2
+            }
+        },
+        "[].block_builder": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "5aab8b38befcdf11383e2a72",
+            "enum_values": {
+                "5aaa3fb6befcdf11383e0395": 3,
+                "5aab8b38befcdf11383e2a72": 2
+            }
+        },
+        "[].block_builder_name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "ГК Самолет. Москва",
+            "enum_values": {
+                "ГК ФСК. Москва": 3,
+                "ГК Самолет. Москва": 2
+            }
+        },
+        "[].block_city": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "5a5cb42159042faa9a218d04",
+            "enum_values": []
+        },
+        "[].block_crm_id": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5896",
+            "enum_values": {
+                "651584": 3,
+                "5896": 2
+            }
+        },
+        "[].block_district": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "5a9524725c4252352408c6fd",
+            "enum_values": {
+                "5a71ba534d6d151bfb2cbcdc": 3,
+                "5a9524725c4252352408c6fd": 2
+            }
+        },
+        "[].block_district_name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "ГО Одинцовский, МО",
+            "enum_values": {
+                "Ярославский": 3,
+                "ГО Одинцовский, МО": 2
+            }
+        },
+        "[].block_geometry": {
+            "type": "object",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].block_geometry.type": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Point",
+            "enum_values": []
+        },
+        "[].block_geometry.coordinates": {
+            "type": "array",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].block_geometry.coordinates[]": {
+            "type": "float",
+            "depth": 4,
+            "occurrences": 10,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "37.376071215112",
+            "enum_values": {
+                "37.683110833168": 3,
+                "55.850493285025": 3,
+                "37.376071215112": 2,
+                "55.799514052598": 2
+            }
+        },
+        "[].block_id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5aab910cbefcdf11383e2be9",
+            "enum_values": {
+                "5ba3bb6f01e8ad788fc08e17": 3,
+                "5aab910cbefcdf11383e2be9": 2
+            }
+        },
+        "[].block_iscity": {
+            "type": "bool",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "false",
+            "enum_values": {
+                "true": 3,
+                "false": 2
+            }
+        },
+        "[].block_name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Sky Sputnik",
+            "enum_values": {
+                "Настроение": 3,
+                "Sky Sputnik": 2
+            }
+        },
+        "[].block_renderer": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].block_renderer[]": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "68f76121299fbc2749333714",
+            "enum_values": {
+                "64b92d3dfb595c6c55068c4d": 3,
+                "68f76121299fbc2749333714": 2
+            }
+        },
+        "[].block_subway": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].block_subway[]": {
+            "type": "object",
+            "depth": 3,
+            "occurrences": 8,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].block_subway[].distance_time": {
+            "type": "int",
+            "depth": 4,
+            "occurrences": 8,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "10",
+            "enum_values": {
+                "10": 5,
+                "15": 3
+            }
+        },
+        "[].block_subway[].distance_type": {
+            "type": "int",
+            "depth": 4,
+            "occurrences": 8,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "2",
+            "enum_values": []
+        },
+        "[].block_subway[].subway_id": {
+            "type": "string",
+            "depth": 4,
+            "occurrences": 8,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5a71bfed4d6d151bfb2cbf3e",
+            "enum_values": {
+                "5a72c7664d6d151bfb2cd344": 3,
+                "5a73231f8db39c490c9c573d": 3,
+                "5a71bfed4d6d151bfb2cbf3e": 2
+            }
+        },
+        "[].block_subway_name": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].block_subway_name[]": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 8,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Строгино",
+            "enum_values": {
+                "ВДНХ": 3,
+                "Ростокино": 3,
+                "Строгино": 2
+            }
+        },
+        "[].building_bank": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].building_bank[]": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 17,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "5da70ce423868403eff8debe",
+            "enum_values": {
+                "58c665588b6aa52311afa03b": 3,
+                "58c665588b6aa52311afa03c": 3,
+                "58c665588b6aa52311afa040": 3,
+                "58c665588b6aa52311afa042": 3,
+                "58c665588b6aa52311afa044": 3,
+                "5da70ce423868403eff8debe": 2
+            }
+        },
+        "[].building_contract": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].building_contract[]": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "58c665588b6aa52311afa020",
+            "enum_values": []
+        },
+        "[].building_deadline": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "2019-06-30T09:00:00.000Z",
+            "enum_values": {
+                "2021-09-30T12:00:00.000Z": 3,
+                "2019-06-30T09:00:00.000Z": 1,
+                "2019-06-30T12:00:00.000Z": 1
+            }
+        },
+        "[].building_id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5aabeb6abefcdf11383e52ff",
+            "enum_values": {
+                "5ba49f9801e8ad788fc09527": 2,
+                "5aabeb6abefcdf11383e52ff": 1,
+                "5aabdd6dbefcdf11383e4c41": 1,
+                "5ba49eee01e8ad788fc094e3": 1
+            }
+        },
+        "[].building_installment": {
+            "type": "bool",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "false",
+            "enum_values": []
+        },
+        "[].building_mortgage": {
+            "type": "bool",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "true",
+            "enum_values": []
+        },
+        "[].building_name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "5",
+            "enum_values": {
+                "1": 2,
+                "2": 2,
+                "5": 1
+            }
+        },
+        "[].building_queue": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "1",
+            "enum_values": []
+        },
+        "[].building_subsidy": {
+            "type": "bool",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "false",
+            "enum_values": []
+        },
+        "[].building_type": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "58c665588b6aa52311afa01a",
+            "enum_values": {
+                "58c665588b6aa52311afa017": 3,
+                "58c665588b6aa52311afa01a": 2
+            }
+        },
+        "[].building_voen_mortgage": {
+            "type": "bool",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "false",
+            "enum_values": []
+        },
+        "[].finishing": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "58c665588b6aa52311afa028",
+            "enum_values": {
+                "58c665588b6aa52311afa028": 3,
+                "60643eaab7391d1e9e27aed6": 2
+            }
+        },
+        "[].floor": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "4",
+            "enum_values": {
+                "4": 1,
+                "33": 1,
+                "9": 1,
+                "16": 1,
+                "21": 1
+            }
+        },
+        "[].floors": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "35",
+            "enum_values": {
+                "23": 2,
+                "35": 1,
+                "33": 1,
+                "22": 1
+            }
+        },
+        "[].height": {
+            "type": "float",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "2.8",
+            "enum_values": []
+        },
+        "[].number": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "24",
+            "enum_values": {
+                "24": 1,
+                "468": 1,
+                "169": 1,
+                "668": 1,
+                "688": 1
+            }
+        },
+        "[].plan": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].plan[]": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "https://cdn-dataout.trendagent.ru/images/e/y/kntf5epqgqh90743s0tgzvh3.png",
+            "enum_values": {
+                "https://cdn-dataout.trendagent.ru/images/t/2/h2a1lla4no0b3l4i77lgqmde.png": 2,
+                "https://cdn-dataout.trendagent.ru/images/e/y/kntf5epqgqh90743s0tgzvh3.png": 1,
+                "https://cdn-dataout.trendagent.ru/images/6/s/spcpy9qecmscbtabrovvzdpq.png": 1,
+                "https://cdn-dataout.trendagent.ru/images/w/0/z2r1waau07obx455o84zlrry.png": 1
+            }
+        },
+        "[].price": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "19963949",
+            "enum_values": {
+                "19963949": 1,
+                "29090085": 1,
+                "29850265": 1,
+                "23020800": 1,
+                "23282400": 1
+            }
+        },
+        "[].room": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "3",
+            "enum_values": {
+                "3": 3,
+                "23": 2
+            }
+        },
+        "[].wc_count": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "3",
+            "enum_values": {
+                "3": 3,
+                "2": 2
+            }
+        }
+    },
+    "id_fields": [
+        "[]._id",
+        "[].block_crm_id",
+        "[].block_id",
+        "[].block_subway[].subway_id",
+        "[].building_id"
+    ],
+    "nullable_fields": [],
+    "always_present": [
+        "[]._id",
+        "[].area_balconies_total",
+        "[].area_given",
+        "[].area_kitchen",
+        "[].area_rooms",
+        "[].area_rooms_total",
+        "[].area_total",
+        "[].block_address",
+        "[].block_builder",
+        "[].block_builder_name",
+        "[].block_city",
+        "[].block_crm_id",
+        "[].block_district",
+        "[].block_district_name",
+        "[].block_geometry",
+        "[].block_geometry.type",
+        "[].block_geometry.coordinates",
+        "[].block_geometry.coordinates[]",
+        "[].block_id",
+        "[].block_iscity",
+        "[].block_name",
+        "[].block_renderer",
+        "[].block_renderer[]",
+        "[].block_subway",
+        "[].block_subway[]",
+        "[].block_subway[].distance_time",
+        "[].block_subway[].distance_type",
+        "[].block_subway[].subway_id",
+        "[].block_subway_name",
+        "[].block_subway_name[]",
+        "[].building_bank",
+        "[].building_bank[]",
+        "[].building_contract",
+        "[].building_contract[]",
+        "[].building_deadline",
+        "[].building_id",
+        "[].building_installment",
+        "[].building_mortgage",
+        "[].building_name",
+        "[].building_queue",
+        "[].building_subsidy",
+        "[].building_type",
+        "[].building_voen_mortgage",
+        "[].finishing",
+        "[].floor",
+        "[].floors",
+        "[].height",
+        "[].number",
+        "[].plan",
+        "[].plan[]",
+        "[].price",
+        "[].room",
+        "[].wc_count"
+    ],
+    "enum_candidates": [
+        "[]._id",
+        "[].area_balconies_total",
+        "[].area_given",
+        "[].area_kitchen",
+        "[].area_rooms",
+        "[].area_rooms_total",
+        "[].area_total",
+        "[].block_address",
+        "[].block_builder",
+        "[].block_builder_name",
+        "[].block_crm_id",
+        "[].block_district",
+        "[].block_district_name",
+        "[].block_geometry.coordinates[]",
+        "[].block_id",
+        "[].block_iscity",
+        "[].block_name",
+        "[].block_renderer[]",
+        "[].block_subway[].distance_time",
+        "[].block_subway[].subway_id",
+        "[].block_subway_name[]",
+        "[].building_bank[]",
+        "[].building_deadline",
+        "[].building_id",
+        "[].building_name",
+        "[].building_type",
+        "[].finishing",
+        "[].floor",
+        "[].floors",
+        "[].number",
+        "[].plan[]",
+        "[].price",
+        "[].room",
+        "[].wc_count"
+    ]
+}

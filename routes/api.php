@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ApartmentController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\FilterController;
 use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\PublicPageController;
@@ -25,6 +27,12 @@ Route::prefix('v1')->group(function () {
     // -------------------------------------------------------------------------
     Route::get('/pages/{slug}', [PublicPageController::class, 'show'])
         ->where('slug', '[a-z0-9-]+');
+
+    // ── Real estate API ──────────────────────────────────────────────────────
+    Route::get('/apartments', [ApartmentController::class, 'index']);
+    Route::get('/apartments/{id}', [ApartmentController::class, 'show'])
+        ->where('id', '[a-f0-9]{24}');
+    Route::get('/filters', [FilterController::class, 'index']);
 
     // -------------------------------------------------------------------------
     // Auth routes

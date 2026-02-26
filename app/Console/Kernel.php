@@ -48,6 +48,16 @@ class Kernel extends ConsoleKernel
                      \Illuminate\Support\Facades\Log::channel('feed')
                          ->error('feed:analyze scheduled run failed');
                  });
+
+        // Production DB sync — runs after discovery (04:30)
+        $schedule->command('feed:sync')
+                 ->dailyAt('04:30')
+                 ->withoutOverlapping()
+                 ->appendOutputTo(storage_path('logs/feed-sync.log'))
+                 ->onFailure(function () {
+                     \Illuminate\Support\Facades\Log::channel('feed')
+                         ->error('feed:sync scheduled run failed');
+                 });
     }
 
     /**

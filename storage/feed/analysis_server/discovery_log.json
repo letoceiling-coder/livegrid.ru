@@ -1,0 +1,126 @@
+{
+    "primary_url": "https://dataout.trendagent.ru/msk/about.json",
+    "started_at": "2026-02-26T14:33:09+00:00",
+    "collected_files": [
+        {
+            "url": "https://dataout.trendagent.ru/msk/about.json",
+            "label": "primary",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/c634476662c86e437c21d64d3302a22a/2026-02-26_14-33-09.json",
+            "bytes": 3265,
+            "human": "3.2 KB",
+            "checksum": "aed0bdfd8ac1310ea971ef8f6ac4b630bab192a6",
+            "http": 200,
+            "seconds": 0.229
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/blocks.json",
+            "label": "embedded_msk_blocks_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/b2300cd778610259e16dd63168f8fafe/2026-02-26_14-33-14.json",
+            "bytes": 5090198,
+            "human": "4.85 MB",
+            "checksum": "f4c6b8a9624601d7eb6b6a17abedda39141f697a",
+            "http": 200,
+            "seconds": 4.92
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/builders.json",
+            "label": "embedded_msk_builders_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/1c0e1aaf7dff197396cb93ac66081383/2026-02-26_14-33-14.json",
+            "bytes": 59806,
+            "human": "58.4 KB",
+            "checksum": "de98c6791b9d33ec6b47615fd6ad71fa30ecd975",
+            "http": 200,
+            "seconds": 0.115
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/regions.json",
+            "label": "embedded_msk_regions_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/04820708ba1cb4e557cb6236566ae5dc/2026-02-26_14-33-14.json",
+            "bytes": 19951,
+            "human": "19.5 KB",
+            "checksum": "418d12dd16b0a90b87cb32339c2327947528f95c",
+            "http": 200,
+            "seconds": 0.102
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/subways.json",
+            "label": "embedded_msk_subways_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/8b1a46a6a96a47121f9db1ba06ca9ff5/2026-02-26_14-33-14.json",
+            "bytes": 49356,
+            "human": "48.2 KB",
+            "checksum": "3893f2a5b2354eba3dfcbe9759391afd2c81c680",
+            "http": 200,
+            "seconds": 0.104
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/rooms.json",
+            "label": "embedded_msk_rooms_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/0ed4bf1db1f00bfd6f62992d57e611eb/2026-02-26_14-33-14.json",
+            "bytes": 2643,
+            "human": "2.6 KB",
+            "checksum": "fb8066ceb5c9ee6bed784b1f186b63856f6e05ae",
+            "http": 200,
+            "seconds": 0.077
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/finishings.json",
+            "label": "embedded_msk_finishings_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/7f188936e9bac1bd9a5f5efa28727e74/2026-02-26_14-33-15.json",
+            "bytes": 722,
+            "human": "722 B",
+            "checksum": "97f767d977a3fbf6386c08dd06e61d9d0be37d6d",
+            "http": 200,
+            "seconds": 0.09
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/buildingtypes.json",
+            "label": "embedded_msk_buildingtypes_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/39d46f1f120c866512aa9a4c0b1decd5/2026-02-26_14-33-15.json",
+            "bytes": 1107,
+            "human": "1.1 KB",
+            "checksum": "b63c01e64c250ee11341f9916d5067202bb6650d",
+            "http": 200,
+            "seconds": 0.084
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/buildings.json",
+            "label": "embedded_msk_buildings_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/844c86f148ee937b32c5c7459f51b532/2026-02-26_14-33-26.json",
+            "bytes": 12023498,
+            "human": "11.47 MB",
+            "checksum": "1382dd83c7fe0173a105e65294a0107b3b6c03e2",
+            "http": 200,
+            "seconds": 11.471
+        },
+        {
+            "url": "https://dataout.trendagent.ru/msk/apartments.json",
+            "label": "embedded_msk_apartments_json",
+            "path": "/var/www/livegrid/backend/storage/feed/raw/e495d74eddf60789d0219079e9a457ec/2026-02-26_14-35-51.json",
+            "bytes": 143926077,
+            "human": "137.26 MB",
+            "checksum": "3355dfc499f35d1da77a2402a41f7b73bd8b6f86",
+            "http": 200,
+            "seconds": 143.276
+        }
+    ],
+    "discovered_endpoints": [
+        "https://dataout.trendagent.ru/msk/about.json",
+        "https://dataout.trendagent.ru/msk/blocks.json",
+        "https://dataout.trendagent.ru/msk/builders.json",
+        "https://dataout.trendagent.ru/msk/regions.json",
+        "https://dataout.trendagent.ru/msk/subways.json",
+        "https://dataout.trendagent.ru/msk/rooms.json",
+        "https://dataout.trendagent.ru/msk/finishings.json",
+        "https://dataout.trendagent.ru/msk/buildingtypes.json",
+        "https://dataout.trendagent.ru/msk/buildings.json",
+        "https://dataout.trendagent.ru/msk/apartments.json"
+    ],
+    "pagination_info": [],
+    "region_filter": null,
+    "errors": [],
+    "finished_at": "2026-02-26T14:35:52+00:00",
+    "total_files": 10,
+    "total_bytes": 161176623,
+    "total_size_mb": 153.71,
+    "total_endpoints": 10
+}

@@ -1,0 +1,104 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:53+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/buildingtypes.json",
+        "analysis_seconds": 0,
+        "max_depth_reached": 2,
+        "array_sample_size": 5
+    },
+    "stats": {
+        "total_fields": 3,
+        "total_entities": 1,
+        "max_depth": 2,
+        "id_fields_count": 2,
+        "nullable_fields": 0,
+        "enum_candidates": 3,
+        "type_distribution": {
+            "string": 2,
+            "int": 1
+        },
+        "root_is_list": true,
+        "root_keys": []
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "item_count": 11,
+            "id_field": null,
+            "parent": null,
+            "direct_fields": [],
+            "foreign_keys": []
+        }
+    },
+    "fields": {
+        "[]._id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "58c665588b6aa52311afa017",
+            "enum_values": {
+                "58c665588b6aa52311afa017": 1,
+                "58c665588b6aa52311afa018": 1,
+                "58c665588b6aa52311afa019": 1,
+                "58c665588b6aa52311afa01a": 1,
+                "59a6b44ed1a1925f7cc990d1": 1
+            }
+        },
+        "[].name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Монолитный",
+            "enum_values": {
+                "Монолитный": 1,
+                "Панельный": 1,
+                "Кирпичный": 1,
+                "Кирпично-монолитный": 1,
+                "Газобетон-монолит": 1
+            }
+        },
+        "[].crm_id": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "0",
+            "enum_values": [
+                1,
+                1,
+                1,
+                1,
+                1
+            ]
+        }
+    },
+    "id_fields": [
+        "[]._id",
+        "[].crm_id"
+    ],
+    "nullable_fields": [],
+    "always_present": [
+        "[]._id",
+        "[].name",
+        "[].crm_id"
+    ],
+    "enum_candidates": [
+        "[]._id",
+        "[].name",
+        "[].crm_id"
+    ]
+}
