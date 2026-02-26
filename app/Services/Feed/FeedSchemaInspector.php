@@ -82,7 +82,7 @@ final class FeedSchemaInspector
         // Persist
         if ($reset) {
             DB::table('feed_schema_analysis')
-                ->where('source_url', $sourceUrl)
+                ->where('source_hash', md5($sourceUrl))
                 ->delete();
         }
 
@@ -234,10 +234,14 @@ final class FeedSchemaInspector
         $now   = now()->toDateTimeString();
         $rows  = [];
 
+        $sourceHash = md5($sourceUrl);
+
         foreach ($this->fieldMap as $path => $entry) {
             $rows[] = [
                 'source_url'       => $sourceUrl,
+                'source_hash'      => $sourceHash,
                 'path'             => $path,
+                'path_hash'        => md5($path),
                 'type'             => $entry['type'],
                 'occurrences'      => $entry['occurrences'],
                 'null_count'       => $entry['null_count'],
@@ -255,14 +259,14 @@ final class FeedSchemaInspector
         foreach (array_chunk($rows, 200) as $chunk) {
             DB::table('feed_schema_analysis')->upsert(
                 $chunk,
-                ['source_url', 'path'],                          // unique keys
+                ['source_hash', 'path_hash'],                    // unique keys (hash columns)
                 ['type', 'occurrences', 'null_count', 'example_value', 'updated_at'] // columns to update on duplicate
             );
         }
 
         // Post-processing: mark fields that always appear (null_count == 0)
         DB::table('feed_schema_analysis')
-            ->where('source_url', $sourceUrl)
+            ->where('source_hash', md5($sourceUrl))
             ->where('null_count', 0)
             ->update(['is_always_present' => true, 'updated_at' => $now]);
     }

@@ -227,7 +227,7 @@ class FeedAnalyzeCommand extends Command
     private function dumpTopPaths(string $url): void
     {
         $paths = \Illuminate\Support\Facades\DB::table('feed_schema_analysis')
-            ->where('source_url', $url)
+            ->where('source_hash', md5($url))
             ->orderByDesc('occurrences')
             ->limit(50)
             ->get(['path', 'type', 'occurrences', 'example_value', 'depth']);

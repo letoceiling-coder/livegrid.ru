@@ -45,6 +45,7 @@ final class FeedStorageService
 
         $id = DB::table('feed_raw_snapshots')->insertGetId([
             'source_url'       => $result->url,
+            'source_hash'      => md5($result->url),
             'source_label'     => $result->label,
             'payload'          => $savePayload ? $result->body : null,
             'checksum'         => $checksum,
@@ -85,7 +86,7 @@ final class FeedStorageService
     public function getLatestSnapshot(string $url): ?object
     {
         return DB::table('feed_raw_snapshots')
-            ->where('source_url', $url)
+            ->where('source_hash', md5($url))
             ->orderByDesc('created_at')
             ->first();
     }
@@ -96,7 +97,7 @@ final class FeedStorageService
     public function isChanged(string $url, string $checksum): bool
     {
         $latest = DB::table('feed_raw_snapshots')
-            ->where('source_url', $url)
+            ->where('source_hash', md5($url))
             ->orderByDesc('created_at')
             ->value('checksum');
 
@@ -204,7 +205,7 @@ final class FeedStorageService
 
         // Get IDs of all snapshots for this URL, ordered newest first
         $idsToKeep = DB::table('feed_raw_snapshots')
-            ->where('source_url', $url)
+            ->where('source_hash', md5($url))
             ->orderByDesc('created_at')
             ->limit($keep)
             ->pluck('id');
@@ -214,7 +215,7 @@ final class FeedStorageService
         }
 
         $deleted = DB::table('feed_raw_snapshots')
-            ->where('source_url', $url)
+            ->where('source_hash', md5($url))
             ->whereNotIn('id', $idsToKeep)
             ->delete();
 

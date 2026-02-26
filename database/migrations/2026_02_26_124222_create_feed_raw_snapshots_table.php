@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\Schema;
  * Raw feed snapshots.
  *
  * Each row = one complete download of a feed endpoint.
- * Purpose: keep the history of what the feed looked like over time,
- * detect changes between runs, avoid re-analysis if feed hasn't changed.
+ * purpose: history of feed state, change detection, raw payload archive.
  *
- * payload is stored as LONGTEXT because real-estate feeds can be 50-200 MB.
- * checksum (SHA-1) allows quick equality checks without reading full payload.
+ * NOTE on source_url indexing:
+ *   MySQL max key length is 3072 bytes (utf8mb4 = 4 bytes/char).
+ *   varchar(2048) would require 8192 bytes → exceeds limit.
+ *   Solution: store full URL in TEXT, add source_hash VARCHAR(32) (MD5)
+ *   and index on source_hash. Application must set source_hash = MD5(source_url).
  */
 return new class extends Migration
 {
@@ -21,20 +23,24 @@ return new class extends Migration
         Schema::create('feed_raw_snapshots', function (Blueprint $table) {
             $table->id();
 
-            // Which endpoint this snapshot belongs to
-            $table->string('source_url', 2048)->comment('Feed endpoint URL');
+            // Full endpoint URL stored as TEXT (not indexable directly)
+            $table->text('source_url')->comment('Feed endpoint URL (full)');
 
-            // Short label derived from the URL, for display/filtering
+            // MD5 hash of source_url for fast indexed lookups
+            // Application must populate: md5($url)
+            $table->char('source_hash', 32)->index()->comment('MD5(source_url) for indexing');
+
+            // Short label derived from URL, for display/filtering
             $table->string('source_label', 255)->nullable()->comment('Human-readable label, e.g. "primary"');
 
-            // The complete raw JSON response body
+            // Complete raw JSON response body
             $table->longText('payload')->nullable()->comment('Full JSON payload; nullable if save_payload=false');
 
             // SHA-1 hash of payload — compare with previous run to detect changes
-            $table->string('checksum', 40)->index()->comment('SHA-1 of raw payload');
+            $table->char('checksum', 40)->index()->comment('SHA-1 of raw payload');
 
             // Byte size of the payload
-            $table->unsignedBigInteger('payload_bytes')->default(0)->comment('Size in bytes');
+            $table->unsignedBigInteger('payload_bytes')->default(0);
 
             // Top-level object counts (best-effort auto-detected)
             $table->unsignedInteger('objects_count')->default(0)->comment('Count of root-level objects/items');
@@ -43,8 +49,8 @@ return new class extends Migration
             $table->unsignedInteger('apartments_count')->default(0)->comment('Detected apartments / квартиры');
 
             // HTTP response metadata
-            $table->unsignedSmallInteger('http_status')->nullable()->comment('HTTP response code');
-            $table->float('download_seconds')->nullable()->comment('Time to download in seconds');
+            $table->unsignedSmallInteger('http_status')->nullable();
+            $table->float('download_seconds')->nullable();
 
             // Whether the feed changed since last snapshot
             $table->boolean('is_changed')->default(true)->comment('False if checksum matches previous run');
@@ -52,7 +58,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent()->index();
 
             // For finding the latest snapshot of a given endpoint
-            $table->index(['source_url', 'created_at']);
+            $table->index(['source_hash', 'created_at']);
         });
     }
 
