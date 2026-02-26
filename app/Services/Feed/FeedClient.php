@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Log;
  * IMPORTANT: Feed endpoints are only reachable from IP 85.198.64.93.
  * Running this locally will result in a connection error or 403.
  */
-final class FeedClient
+class FeedClient
 {
     /** @var array{timeout:int, retry_times:int, retry_sleep_ms:int, verify_ssl:bool} */
     private array $httpConfig;

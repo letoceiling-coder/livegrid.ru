@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Log;
  *       ├── report.json                          ← combined schema (all endpoints)
  *       └── relationships.json                   ← combined entity graph
  */
-final class FeedFileStorage
+class FeedFileStorage
 {
     private string $base;
     private string $rawDir;

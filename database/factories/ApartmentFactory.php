@@ -32,7 +32,7 @@ class ApartmentFactory extends Factory
             'building_id'           => $buildingId,
             'block_id'              => $blockId,
             'room'                  => $room,
-            'rooms_crm_id'          => $room <= 4 ? $room : null,
+            'rooms_crm_id'          => null, // FK to rooms.crm_id — set null in tests to avoid constraint
             'floor'                 => $this->faker->numberBetween(1, 25),
             'floors_total'          => 25,
             'number'                => (string) $this->faker->numberBetween(1, 500),
@@ -72,7 +72,7 @@ class ApartmentFactory extends Factory
     /** Force a specific room count */
     public function rooms(int $room): static
     {
-        return $this->state(['room' => $room, 'rooms_crm_id' => $room <= 4 ? $room : null]);
+        return $this->state(['room' => $room, 'rooms_crm_id' => null]);
     }
 
     /** Force a specific price */
