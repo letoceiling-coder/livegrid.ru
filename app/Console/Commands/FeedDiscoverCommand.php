@@ -57,7 +57,10 @@ class FeedDiscoverCommand extends Command
         $this->banner();
 
         // ── Resolve primary URL ───────────────────────────────────────────────
-        $primaryUrl = $this->option('url') ?: config('feed.endpoints.primary');
+        // config('feed.endpoints') is a numeric array (array_filter of env vars)
+        $primaryUrl = $this->option('url')
+            ?: config('feed.endpoints.primary')                       // legacy named key
+            ?: collect(config('feed.endpoints', []))->first();        // numeric array fallback
 
         if (!$primaryUrl) {
             $this->error('No feed endpoint configured.');

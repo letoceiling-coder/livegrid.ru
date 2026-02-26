@@ -434,7 +434,9 @@ final class FeedDiscoveryService
 
         $urlPattern = '/https?:\/\/[^\s"\'<>]+/';
 
-        $scan = function (mixed $value, string $path) use (&$scan, &$found, $baseHost, $urlPattern): void {
+        // depth-aware scan: scan ALL fields at depth 0-1 (flat object fields),
+        // limit to first 5 items at depth ≥ 2 (array-of-objects internals).
+        $scan = function (mixed $value, string $path, int $depth = 0) use (&$scan, &$found, $baseHost, $urlPattern): void {
             if (is_string($value) && strlen($value) > 10) {
                 if (preg_match($urlPattern, $value, $match)) {
                     $url      = $match[0];
@@ -447,15 +449,17 @@ final class FeedDiscoveryService
                         $found[$label] = $url;
                     }
                 }
-            } elseif (is_array($value)) {
-                foreach (array_slice($value, 0, 3) as $k => $v) {
-                    $scan($v, "{$path}.{$k}");
+            } elseif (is_array($value) && $depth < 4) {
+                // Scan all fields at shallow depth; cap array items at deeper levels
+                $limit = $depth <= 1 ? count($value) : min(count($value), 5);
+                foreach (array_slice($value, 0, $limit) as $k => $v) {
+                    $scan($v, "{$path}.{$k}", $depth + 1);
                 }
             }
         };
 
         foreach ($decoded as $key => $value) {
-            $scan($value, (string) $key);
+            $scan($value, (string) $key, 0);
         }
 
         return $found;
