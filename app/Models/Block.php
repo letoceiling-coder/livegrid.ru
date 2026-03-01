@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use App\Models\Builder as BuilderModel;
 
 /**
  * Residential complex (ЖК) from blocks.json feed.
@@ -33,6 +34,9 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property float|null $min_area
  * @property float|null $max_area
  * @property array|null $images
+ * @property float|null $price_from         Materialized: MIN(apartments.price) for active units
+ * @property int|null   $units_count        Materialized: COUNT of active apartments
+ * @property \Illuminate\Support\Carbon|null $nearest_deadline_at Materialized: MIN(building_deadline_at)
  */
 class Block extends Model
 {
@@ -47,20 +51,73 @@ class Block extends Model
         'lat', 'lng', 'geometry_json', 'location',
         'is_city', 'status', 'deadline_at',
         'min_price', 'max_price', 'min_area', 'max_area', 'images',
+        // Materialized aggregates — updated by FeedSyncService::updateBlockAggregates()
+        'price_from', 'units_count', 'nearest_deadline_at',
     ];
 
     protected $casts = [
-        'is_city'       => 'boolean',
-        'deadline_at'   => 'date',
-        'geometry_json' => 'array',
-        'images'        => 'array',
-        'lat'           => 'decimal:7',
-        'lng'           => 'decimal:7',
-        'min_price'     => 'decimal:2',
-        'max_price'     => 'decimal:2',
-        'min_area'      => 'decimal:2',
-        'max_area'      => 'decimal:2',
+        'is_city'              => 'boolean',
+        'deadline_at'          => 'date',
+        'nearest_deadline_at'  => 'date',
+        'geometry_json'        => 'array',
+        'images'               => 'array',
+        // float → JSON number (not string)
+        'lat'                  => 'float',
+        'lng'                  => 'float',
+        'min_price'            => 'float',
+        'max_price'            => 'float',
+        'min_area'             => 'float',
+        'max_area'             => 'float',
+        // Materialized aggregate columns
+        'price_from'           => 'float',
+        'units_count'          => 'integer',
     ];
+
+    // ── Accessors ────────────────────────────────────────────────────────────
+
+    /**
+     * Generate URL-friendly slug from block name + id.
+     * Format: "zhk-snezhnyy-barс-697c6dcaebae21b1814e0b76"
+     */
+    public function getSlugAttribute(): string
+    {
+        $slug = $this->transliterate($this->name);
+        return $slug . '-' . $this->id;
+    }
+
+    /**
+     * Simple Cyrillic → Latin transliteration (ISO 9 subset).
+     */
+    private function transliterate(string $text): string
+    {
+        $map = [
+            'а' => 'a',   'б' => 'b',   'в' => 'v',   'г' => 'g',
+            'д' => 'd',   'е' => 'e',   'ё' => 'yo',  'ж' => 'zh',
+            'з' => 'z',   'и' => 'i',   'й' => 'y',   'к' => 'k',
+            'л' => 'l',   'м' => 'm',   'н' => 'n',   'о' => 'o',
+            'п' => 'p',   'р' => 'r',   'с' => 's',   'т' => 't',
+            'у' => 'u',   'ф' => 'f',   'х' => 'kh',  'ц' => 'ts',
+            'ч' => 'ch',  'ш' => 'sh',  'щ' => 'shch','ъ' => '',
+            'ы' => 'y',   'ь' => '',    'э' => 'e',   'ю' => 'yu',
+            'я' => 'ya',
+            'А' => 'A',   'Б' => 'B',   'В' => 'V',   'Г' => 'G',
+            'Д' => 'D',   'Е' => 'E',   'Ё' => 'Yo',  'Ж' => 'Zh',
+            'З' => 'Z',   'И' => 'I',   'Й' => 'Y',   'К' => 'K',
+            'Л' => 'L',   'М' => 'M',   'Н' => 'N',   'О' => 'O',
+            'П' => 'P',   'Р' => 'R',   'С' => 'S',   'Т' => 'T',
+            'У' => 'U',   'Ф' => 'F',   'Х' => 'Kh',  'Ц' => 'Ts',
+            'Ч' => 'Ch',  'Ш' => 'Sh',  'Щ' => 'Shch','Ъ' => '',
+            'Ы' => 'Y',   'Ь' => '',    'Э' => 'E',   'Ю' => 'Yu',
+            'Я' => 'Ya',
+        ];
+
+        $slug = strtr($text, $map);
+        $slug = mb_strtolower($slug);
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        $slug = trim($slug, '-');
+
+        return $slug;
+    }
 
     // ── Relations ────────────────────────────────────────────────────────────
 
@@ -71,7 +128,7 @@ class Block extends Model
 
     public function builder(): BelongsTo
     {
-        return $this->belongsTo(Builder::class, 'builder_id');
+        return $this->belongsTo(BuilderModel::class, 'builder_id');
     }
 
     public function subways(): BelongsToMany

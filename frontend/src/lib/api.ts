@@ -49,8 +49,11 @@
 import axios, { type AxiosResponse } from "axios";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-
-const BASE_URL = import.meta.env.VITE_API_URL ?? "/api/v1";
+// Локально (livegrid.loc) всегда идём в локальный API; иначе — env или same-origin.
+const BASE_URL =
+  typeof window !== "undefined" && window.location.hostname === "livegrid.loc"
+    ? "http://livegrid.loc/api/v1"
+    : (import.meta.env.VITE_API_URL ?? "/api/v1");
 
 // ─── Axios instance ───────────────────────────────────────────────────────────
 

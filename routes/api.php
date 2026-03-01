@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Api\V1\ApartmentController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BlockController;
 use App\Http\Controllers\Api\V1\FilterController;
 use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\PublicPageController;
 use App\Http\Controllers\Api\V1\SectionController;
+use App\Http\Controllers\Api\V1\SimilarController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,9 +31,28 @@ Route::prefix('v1')->group(function () {
         ->where('slug', '[a-z0-9-]+');
 
     // ── Real estate API ──────────────────────────────────────────────────────
+
+    // Apartments
     Route::get('/apartments', [ApartmentController::class, 'index']);
     Route::get('/apartments/{id}', [ApartmentController::class, 'show'])
         ->where('id', '[a-f0-9]{24}');
+
+    // Blocks (ЖК / residential complexes)
+    Route::get('/blocks', [BlockController::class, 'index']);
+    Route::get('/blocks/filters', [BlockController::class, 'filters']);
+    Route::get('/blocks/map', [BlockController::class, 'forMap']);
+    Route::get('/blocks/{id}', [BlockController::class, 'show'])
+        ->where('id', '[a-f0-9]{24}');
+    Route::get('/blocks/{id}/apartments', [BlockController::class, 'apartments'])
+        ->where('id', '[a-f0-9]{24}');
+
+    // Similar (related items)
+    Route::get('/apartments/{id}/similar', [SimilarController::class, 'apartments'])
+        ->where('id', '[a-f0-9]{24}');
+    Route::get('/blocks/{id}/similar', [SimilarController::class, 'blocks'])
+        ->where('id', '[a-f0-9]{24}');
+
+    // Filters (shared filter options for frontend)
     Route::get('/filters', [FilterController::class, 'index']);
 
     // -------------------------------------------------------------------------

@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Set DirectoryIndex priority: serve index.html for SPA
+    DirectoryIndex index.html index.php
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -14,8 +17,24 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Send Requests To Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
+    # Send API Requests To Laravel Front Controller...
+    RewriteCond %{REQUEST_URI} ^/api/
     RewriteRule ^ index.php [L]
+
+    # Send Sanctum Requests To Laravel Front Controller...
+    RewriteCond %{REQUEST_URI} ^/sanctum/
+    RewriteRule ^ index.php [L]
+
+    # Serve existing static files directly
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Handle Front Controller For Laravel (non-existent paths starting with specific prefixes)
+    RewriteCond %{REQUEST_URI} ^/(admin|logout|login)/
+    RewriteRule ^ index.php [L]
+
+    # SPA Fallback: All other non-existent paths → index.html (React Router)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ /index.html [L]
 </IfModule>

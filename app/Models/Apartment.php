@@ -22,15 +22,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $floors_total
  * @property string|null $number
  * @property int|null $wc_count
- * @property string|null $area_total
- * @property string|null $area_living
- * @property string|null $area_kitchen
+ * @property float|null $area_total
+ * @property float|null $area_living
+ * @property float|null $area_kitchen
  * @property string|null $area_given
  * @property string|null $area_balconies
  * @property string|null $area_rooms
- * @property string|null $area_rooms_total
- * @property string|null $price
- * @property string|null $price_per_meter
+ * @property float|null $area_rooms_total
+ * @property float|null $price
+ * @property float|null $price_per_meter
  * @property string|null $finishing_id
  * @property string|null $building_type_id
  * @property string|null $plan_url
@@ -72,16 +72,18 @@ class Apartment extends Model
         'is_deleted'           => 'boolean',
         'last_seen_at'         => 'datetime',
         'building_deadline_at' => 'date',
-        'area_total'           => 'decimal:2',
-        'area_living'          => 'decimal:2',
-        'area_kitchen'         => 'decimal:2',
+        // float → JSON number (not string); precision is fine for display purposes.
+        // area_given / area_balconies / area_rooms are rarely shown — keep as-is.
+        'area_total'           => 'float',
+        'area_living'          => 'float',
+        'area_kitchen'         => 'float',
         'area_given'           => 'decimal:2',
         'area_balconies'       => 'decimal:2',
-        'area_rooms_total'     => 'decimal:2',
-        'price'                => 'decimal:2',
-        'price_per_meter'      => 'decimal:2',
-        'block_lat'            => 'decimal:7',
-        'block_lng'            => 'decimal:7',
+        'area_rooms_total'     => 'float',
+        'price'                => 'float',
+        'price_per_meter'      => 'float',
+        'block_lat'            => 'float',
+        'block_lng'            => 'float',
     ];
 
     // ── Relations ────────────────────────────────────────────────────────────
@@ -218,7 +220,8 @@ class Apartment extends Model
     /**
      * Geo filter: apartments whose block is within $radius meters of ($lat, $lng).
      *
-     * Uses ST_Distance_Sphere — works with DECIMAL columns, no spatial index needed.
+     * Optimization: Uses bounding box filter first (uses idx_geo index),
+     * then applies precise ST_Distance_Sphere check.
      *
      * @param Builder $query
      * @param float $lat
@@ -227,8 +230,28 @@ class Apartment extends Model
      */
     public function scopeGeoRadius(Builder $query, float $lat, float $lng, int $radius): Builder
     {
-        return $query->whereNotNull('block_lat')
+        // Calculate bounding box (approximate degrees per meter)
+        // Latitude: ~111,320 meters per degree (constant)
+        // Longitude: varies by latitude (111,320 * cos(latitude))
+        $latDelta = $radius / 111320.0;
+        $lngDelta = $radius / (111320.0 * cos(deg2rad($lat)));
+
+        $minLat = $lat - $latDelta;
+        $maxLat = $lat + $latDelta;
+        $minLng = $lng - $lngDelta;
+        $maxLng = $lng + $lngDelta;
+
+        // Use idx_geo_compound index for efficient bounding box filtering
+        // This index covers: (is_deleted, block_lat, block_lng)
+        $query->from(\Illuminate\Support\Facades\DB::raw('apartments USE INDEX (idx_geo_compound)'));
+
+        return $query->where('is_deleted', 0)
+            ->whereNotNull('block_lat')
             ->whereNotNull('block_lng')
+            // Bounding box filter (uses idx_geo_compound index for range scan)
+            ->whereBetween('block_lat', [$minLat, $maxLat])
+            ->whereBetween('block_lng', [$minLng, $maxLng])
+            // Precise distance check (applied after bounding box reduces rows)
             ->whereRaw(
                 'ST_Distance_Sphere(POINT(block_lng, block_lat), POINT(?, ?)) <= ?',
                 [$lng, $lat, $radius]

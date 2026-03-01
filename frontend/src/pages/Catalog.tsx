@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, SlidersHorizontal, Grid3X3, List, ChevronDown } from 'lucide-react';
 import Header from '@/components/Header';
 import FooterSection from '@/components/FooterSection';
@@ -22,6 +22,39 @@ import building2 from '@/assets/building2.jpg';
 import building3 from '@/assets/building3.jpg';
 import building4 from '@/assets/building4.jpg';
 import { cn } from '@/lib/utils';
+import { getApartments, type ApartmentListItem } from '@/lib/apartments-api';
+
+const images = [building1, building2, building3, building4];
+
+function formatPrice(value: number): string {
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')} млн`;
+  }
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(0)} тыс`;
+  }
+  return String(value);
+}
+
+function apartmentToProperty(item: ApartmentListItem, imagePlaceholder: string): PropertyData {
+  const areaTotal = item.area?.total;
+  const address = [item.block?.district?.name, item.block?.builder?.name].filter(Boolean).join(', ') || '—';
+  const badges: string[] = [];
+  if (item.building?.deadline_at) {
+    const y = item.building.deadline_at.slice(0, 4);
+    badges.push(`Сдача ${y}`);
+  }
+  return {
+    image: (item.plan_url && (item.plan_url.startsWith('http') || item.plan_url.startsWith('/'))) ? item.plan_url : imagePlaceholder,
+    title: item.block?.name ?? 'Объект',
+    price: formatPrice(Number(item.price)),
+    address,
+    area: areaTotal != null ? `${Math.round(areaTotal)} м²` : undefined,
+    rooms: item.room_label,
+    badges: badges.length ? badges : undefined,
+    slug: item.id,
+  };
+}
 
 /* ── filter data ── */
 const filterSections = [
@@ -31,19 +64,6 @@ const filterSections = [
   { title: 'Спальни', items: ['Студия', '1+', '2+', '3+', '4+', '5+'] },
   { title: 'Ванные', items: ['1+', '2+', '3+', '4+'] },
 ];
-
-/* ── mock properties ── */
-const images = [building1, building2, building3, building4];
-
-const allProperties: PropertyData[] = Array.from({ length: 60 }, (_, i) => ({
-  image: images[i % 4],
-  title: ['ЖК Снегири', 'КП Черкизово', 'ЖК Смородина', 'Таунхаусы в центре'][i % 4],
-  price: ['от 5.6 млн', 'от 16.6 млн', 'от 3.8 млн', 'от 32.8 млн'][i % 4],
-  address: ['Москва, ул. Снежная 12', 'МО, д. Черкизово', 'Москва, ул. Ягодная 5', 'Москва, Центральный р-н'][i % 4],
-  area: ['24 м²', '120 м²', '32 м²', '180 м²'][i % 4],
-  rooms: ['Студия', '3 комн.', '1 комн.', '4 комн.'][i % 4],
-  badges: i % 5 === 0 ? ['Распродано'] : i % 7 === 0 ? ['Скидка'] : undefined,
-}));
 
 const perPageOptions = [15, 30, 50, 100];
 const tabs = ['Объекты', 'Избранное'];
@@ -57,11 +77,40 @@ const Catalog = () => {
   const [activeViewTab, setActiveViewTab] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<'price' | 'area_total' | 'building_deadline_at' | 'floor'>('price');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const [list, setList] = useState<PropertyData[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    getApartments({
+      page: currentPage,
+      per_page: perPage,
+      sort: sortBy,
+      order: sortOrder,
+    })
+      .then((res) => {
+        const placeholder = images[0];
+        setList((res.data || []).map((item) => apartmentToProperty(item, placeholder)));
+        setTotalPages(res.meta?.last_page ?? 1);
+        setTotal(res.meta?.total ?? 0);
+      })
+      .catch((err) => {
+        setError(err?.response?.data?.message ?? err?.message ?? 'Ошибка загрузки');
+        setList([]);
+      })
+      .finally(() => setLoading(false));
+  }, [currentPage, perPage, sortBy, sortOrder]);
 
   const toggle = (key: string) => setChecked(p => ({ ...p, [key]: !p[key] }));
 
-  const totalPages = Math.ceil(allProperties.length / perPage);
-  const paged = allProperties.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const paged = list;
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,8 +153,13 @@ const Catalog = () => {
             </button>
             {sortOpen && (
               <div className="absolute top-full mt-1 right-0 bg-card border border-border rounded-xl shadow-lg z-30 py-1 min-w-[180px]">
-                {['По цене ↑', 'По цене ↓', 'По площади', 'По дате'].map((s, i) => (
-                  <button key={i} className="w-full text-left px-4 py-2 text-sm hover:bg-secondary transition-colors" onClick={() => setSortOpen(false)}>{s}</button>
+                {[
+                  { label: 'По цене ↑', sort: 'price' as const, order: 'asc' as const },
+                  { label: 'По цене ↓', sort: 'price' as const, order: 'desc' as const },
+                  { label: 'По площади', sort: 'area_total' as const, order: 'asc' as const },
+                  { label: 'По дате', sort: 'building_deadline_at' as const, order: 'asc' as const },
+                ].map((s, i) => (
+                  <button key={i} className="w-full text-left px-4 py-2 text-sm hover:bg-secondary transition-colors" onClick={() => { setSortBy(s.sort); setSortOrder(s.order); setSortOpen(false); }}>{s.label}</button>
                 ))}
               </div>
             )}
@@ -196,11 +250,31 @@ const Catalog = () => {
 
           {/* Property grid */}
           <div className="flex-1 min-w-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {paged.map((p, i) => (
-                <PropertyCard key={i} data={p} />
-              ))}
-            </div>
+            {error && (
+              <div className="rounded-xl border border-destructive/50 bg-destructive/10 text-destructive px-4 py-3 text-sm mb-4">
+                {error}
+              </div>
+            )}
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse">
+                    <div className="h-[280px] bg-muted" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-4 bg-muted rounded w-1/2" />
+                      <div className="h-3 bg-muted rounded w-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {paged.map((p, i) => (
+                  <PropertyCard key={p.slug ?? i} data={p} />
+                ))}
+              </div>
+            )}
 
             {/* BLOCK 4 — Pagination */}
             <div className="flex flex-col sm:flex-row items-center justify-between mt-8 gap-4">

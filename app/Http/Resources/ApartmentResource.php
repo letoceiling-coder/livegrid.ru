@@ -55,11 +55,14 @@ class ApartmentResource extends JsonResource
             // Media
             'plan_url' => $this->plan_url,
 
-            // Block (residential complex) — denormalized
+            // Block (residential complex) — denormalized + eager-loaded extras
             'block' => [
-                'id'             => $this->block_id,
-                'name'           => $this->block_name,
-                'is_city'        => $this->block_is_city,
+                'id'          => $this->block_id,
+                'name'        => $this->block_name,
+                'is_city'     => $this->block_is_city,
+                'description' => $this->whenLoaded('block', fn () => $this->block?->description),
+                'address'     => $this->whenLoaded('block', fn () => $this->block?->address),
+                'images'      => $this->whenLoaded('block', fn () => $this->block?->images ?? []),
                 'district' => [
                     'id'   => $this->block_district_id,
                     'name' => $this->block_district_name,
@@ -74,10 +77,15 @@ class ApartmentResource extends JsonResource
                 ],
             ],
 
-            // Building
+            // Building — load relation for name/queue/floors_total/height
             'building' => [
-                'id'          => $this->building_id,
-                'deadline_at' => $this->building_deadline_at?->toDateString(),
+                'id'           => $this->building_id,
+                'name'         => $this->whenLoaded('building', fn () => $this->building?->name),
+                'queue'        => $this->whenLoaded('building', fn () => $this->building?->queue),
+                'floors_total' => $this->whenLoaded('building', fn () => $this->building?->floors_total),
+                'height'       => $this->whenLoaded('building', fn () => $this->building?->height),
+                'deadline_at'  => $this->building_deadline_at?->toDateString(),
+                'banks'        => $this->whenLoaded('building', fn () => $this->building?->banks ?? []),
             ],
         ];
     }

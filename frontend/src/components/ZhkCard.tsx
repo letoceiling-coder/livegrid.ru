@@ -12,6 +12,18 @@ export interface ZhkData {
   badges: string[];
   apartments: ZhkApartment[];
   slug?: string;
+  /** для вида «строки» */
+  address?: string;
+  builderName?: string;
+  statusLabel?: string;
+  /** "Сдан" если срок сдачи в прошлом, иначе deadline_label */
+  statusText?: string;
+  /** ближайшее метро (до 3 станций) */
+  subways?: Array<{ name: string; travel_time?: number; travel_type?: number | string; line_color?: string }>;
+  /** цена в рублях для отображения «от X ₽» */
+  priceRaw?: number;
+  /** Цены по типам комнат: { "0": цена студии, "1": цена 1к, "2": цена 2к, ... } */
+  roomPrices?: Record<string, number>;
 }
 
 const ZhkCard = ({ data }: { data: ZhkData }) => {
@@ -105,11 +117,21 @@ const ZhkCard = ({ data }: { data: ZhkData }) => {
       </div>
 
       {/* Info area - fixed position below image */}
-      <div className="absolute bottom-0 left-0 right-0 p-4" style={{ top: '250px' }}>
+      <div className="absolute bottom-0 left-0 right-0 p-4 z-10" style={{ top: '250px' }}>
         <div className="flex justify-between items-start gap-2">
-          <div>
-            <h3 className="font-semibold text-sm">{data.name}</h3>
+          <div className="min-w-0">
+            <h3 className="font-semibold text-sm truncate" title={data.name}>{data.name}</h3>
             <p className="text-xs text-muted-foreground mt-0.5">{data.unitsCount}</p>
+            {data.address && (
+              <p className="text-xs text-muted-foreground mt-1 truncate" title={data.address}>
+                {data.address}
+              </p>
+            )}
+            {data.builderName && (
+              <p className="text-xs text-muted-foreground truncate" title={data.builderName}>
+                Застройщик: {data.builderName}
+              </p>
+            )}
           </div>
           <div className="text-right shrink-0">
             <span className="font-bold text-sm">{data.price}</span>
@@ -124,14 +146,17 @@ const ZhkCard = ({ data }: { data: ZhkData }) => {
         </button>
       </div>
 
-      {/* Apartment overlay - absolute, no layout shift */}
-      <div className={cn(
-        "absolute left-0 right-0 bottom-0 bg-card/95 backdrop-blur-sm px-4 py-3 z-20 transition-all duration-[250ms] ease-in-out will-change-transform",
-        "opacity-0 translate-y-5 pointer-events-none",
-        "group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto",
-        tapped && "opacity-100 translate-y-0 pointer-events-auto"
-      )}>
-        {data.apartments.slice(0, 4).map((apt, i) => (
+      {/* Apartment overlay — при наведении поверх нижней части карточки */}
+      <div
+        className={cn(
+          "absolute left-0 right-0 bottom-0 z-20 bg-card border-t border-border shadow-[0_-4px_12px_rgba(0,0,0,0.08)] backdrop-blur-sm px-4 py-3 transition-all duration-300 ease-out will-change-transform",
+          "opacity-0 translate-y-full pointer-events-none",
+          "group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto",
+          tapped && "opacity-100 translate-y-0 pointer-events-auto"
+        )}
+      >
+        <div className="text-xs font-medium text-muted-foreground mb-2">Квартиры</div>
+        {(data.apartments.length > 0 ? data.apartments : [{ type: 'Квартиры', area: '—', price: data.price }]).slice(0, 4).map((apt, i) => (
           <div key={i} className="flex justify-between items-center py-1.5 border-b border-border last:border-0 gap-2">
             <span className="text-primary text-xs font-medium whitespace-nowrap">{apt.type}</span>
             <span className="text-xs text-muted-foreground whitespace-nowrap">{apt.area}</span>

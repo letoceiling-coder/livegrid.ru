@@ -21,7 +21,7 @@ class FilterController extends Controller
 {
     public function index(): JsonResponse
     {
-        $data = Cache::remember('api.filters', 1800, function () {
+        $data = Cache::remember('filters:v1', 3600, function () {
             return [
                 'rooms'      => $this->getRooms(),
                 'districts'  => $this->getDistricts(),
