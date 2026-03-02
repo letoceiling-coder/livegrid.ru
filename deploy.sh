@@ -17,7 +17,7 @@ D="$FE/dist"
 mkdir -p "$D"
 cp -f "$FE/index.html" "$D/" 2>/dev/null || true
 [ -d "$FE/assets" ] && rm -rf "$D/assets" && cp -r "$FE/assets" "$D/"
-for f in favicon.svg favicon.ico logo.svg placeholder.svg robots.txt contacts-city.jpg buildings-promo.png; do
+for f in favicon.svg favicon.ico logo.svg placeholder.svg robots.txt contacts.png buildings-promo.png; do
   [ -f "$FE/$f" ] && cp -f "$FE/$f" "$D/"
 done
 chown -R www-data:www-data "$D"
