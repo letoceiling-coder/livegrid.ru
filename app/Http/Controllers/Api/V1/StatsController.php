@@ -24,7 +24,7 @@ class StatsController extends Controller
         $stats = [
             'total_objects' => Apartment::where('is_deleted', 0)->count(),
             'total_users' => User::count(),
-            'total_regions' => Block::distinct('region_id')->whereNotNull('region_id')->count(),
+            'total_regions' => Block::distinct('district_id')->whereNotNull('district_id')->count(),
             'years_on_market' => 10, // Статичное значение
         ];
 
