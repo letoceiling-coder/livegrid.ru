@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\PublicPageController;
 use App\Http\Controllers\Api\V1\SectionController;
 use App\Http\Controllers\Api\V1\SimilarController;
+use App\Http\Controllers\Api\V1\StatsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -54,6 +55,10 @@ Route::prefix('v1')->group(function () {
 
     // Filters (shared filter options for frontend)
     Route::get('/filters', [FilterController::class, 'index']);
+
+    // Statistics (platform stats for homepage)
+    Route::get('/stats/platform', [StatsController::class, 'platform']);
+    Route::get('/stats/general', [StatsController::class, 'general']);
 
     // -------------------------------------------------------------------------
     // Auth routes
