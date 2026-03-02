@@ -58,6 +58,9 @@ Route::prefix('v1')->group(function () {
     // Filters (shared filter options for frontend)
     Route::get('/filters', [FilterController::class, 'index']);
 
+    // Live search (ЖК + квартиры)
+    Route::get('/search', [SearchController::class, 'index']);
+
     // Statistics (platform stats for homepage)
     Route::get('/stats/platform', [StatsController::class, 'platform']);
     Route::get('/stats/general', [StatsController::class, 'general']);
