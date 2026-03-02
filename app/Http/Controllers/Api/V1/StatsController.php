@@ -36,12 +36,13 @@ class StatsController extends Controller
      * 
      * Возвращает общую статистику для hero секции:
      * - Общее количество квартир
-     * - Количество по категориям (если нужно)
+     * - Общее количество жилых комплексов
      */
     public function general(): JsonResponse
     {
         $stats = [
             'total_apartments' => Apartment::where('is_deleted', 0)->count(),
+            'total_blocks' => Block::where('status', 1)->count(), // status = 1 (активные)
         ];
 
         return response()->json($stats);

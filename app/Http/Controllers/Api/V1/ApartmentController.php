@@ -56,7 +56,9 @@ class ApartmentController extends Controller
             'floor_max'     => ['nullable', 'integer', 'min:1'],
             'deadline_from' => ['nullable', 'date_format:Y-m-d'],
             'deadline_to'   => ['nullable', 'date_format:Y-m-d'],
-            'is_city'       => ['nullable', 'boolean'],
+            'is_city'       => ['nullable', 'sometimes', 'in:true,false,1,0'],
+            'is_hot'        => ['nullable', 'sometimes', 'in:true,false,1,0'],
+            'is_start_sales' => ['nullable', 'sometimes', 'in:true,false,1,0'],
             'search'        => ['nullable', 'string', 'max:200'],
             'lat'           => ['nullable', 'numeric', 'between:-90,90'],
             'lng'           => ['nullable', 'numeric', 'between:-180,180'],
@@ -155,6 +157,16 @@ class ApartmentController extends Controller
         // ── Is city ───────────────────────────────────────────────────────────
         if ($request->has('is_city')) {
             $query->where('block_is_city', filter_var($request->is_city, FILTER_VALIDATE_BOOLEAN));
+        }
+
+        // ── Is hot ────────────────────────────────────────────────────────────
+        if ($request->filled('is_hot') && $request->boolean('is_hot')) {
+            $query->where('is_hot', true);
+        }
+
+        // ── Is start sales ────────────────────────────────────────────────────
+        if ($request->filled('is_start_sales') && $request->boolean('is_start_sales')) {
+            $query->where('is_start_sales', true);
         }
 
         // ── Fulltext search ───────────────────────────────────────────────────

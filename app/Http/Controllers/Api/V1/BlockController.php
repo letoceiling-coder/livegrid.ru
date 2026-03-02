@@ -121,25 +121,40 @@ class BlockController extends Controller
         $query->with(['subways' => fn ($q) => $q->orderBy('block_subway.travel_time')]);
         $paginator = $query->paginate($perPage)->withQueryString();
 
-        // ── Attach room prices for each block (bulk query) ───────────────────
+        // ── Attach room_groups and room_prices for each block (bulk query) ────
         $blockIds = $paginator->pluck('id')->all();
         if (count($blockIds) > 0) {
-            $roomPricesByBlock = DB::table('apartments')
-                ->whereIn('block_id', $blockIds)
-                ->where('is_deleted', false)
+            $roomGroupsRaw = DB::table('apartments')
+                ->leftJoin('rooms', 'apartments.rooms_crm_id', '=', 'rooms.crm_id')
+                ->whereIn('apartments.block_id', $blockIds)
+                ->where('apartments.is_deleted', false)
                 ->selectRaw('
-                    block_id,
-                    room,
-                    MIN(price) as price_from
+                    apartments.block_id,
+                    apartments.room,
+                    MIN(apartments.price) as price_from,
+                    MIN(apartments.area_total) as area_from,
+                    MAX(apartments.area_total) as area_to,
+                    MAX(rooms.name) as room_label
                 ')
-                ->groupBy('block_id', 'room')
-                ->orderBy('room')
-                ->get()
-                ->groupBy('block_id')
-                ->map(fn ($prices) => $prices->mapWithKeys(fn ($p) => [(string)$p->room => (float)$p->price_from]));
+                ->groupBy('apartments.block_id', 'apartments.room')
+                ->orderBy('apartments.block_id')
+                ->orderBy('apartments.room')
+                ->get();
 
-            $paginator->each(function ($block) use ($roomPricesByBlock) {
-                $block->room_prices = $roomPricesByBlock[$block->id] ?? (object)[];
+            $roomGroupsByBlock = $roomGroupsRaw->groupBy('block_id')->map(function ($groups) {
+                return $groups->map(fn ($g) => (object)[
+                    'room' => (int) $g->room,
+                    'room_label' => $g->room_label ?: ($g->room == 0 ? 'Студия' : $g->room . '-комнатная'),
+                    'price_from' => (float) $g->price_from,
+                    'area_from' => $g->area_from !== null ? (float) $g->area_from : null,
+                    'area_to' => $g->area_to !== null ? (float) $g->area_to : null,
+                ])->values()->all();
+            });
+
+            $paginator->each(function ($block) use ($roomGroupsByBlock) {
+                $groups = $roomGroupsByBlock[$block->id] ?? [];
+                $block->room_groups = $groups;
+                $block->room_prices = collect($groups)->mapWithKeys(fn ($g) => [(string) $g->room => $g->price_from])->toArray();
             });
         }
 

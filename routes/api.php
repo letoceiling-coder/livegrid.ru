@@ -5,11 +5,13 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BlockController;
 use App\Http\Controllers\Api\V1\FilterController;
 use App\Http\Controllers\Api\V1\MediaController;
+use App\Http\Controllers\Api\V1\NewsController;
 use App\Http\Controllers\Api\V1\PageController;
 use App\Http\Controllers\Api\V1\PublicPageController;
 use App\Http\Controllers\Api\V1\SectionController;
 use App\Http\Controllers\Api\V1\SimilarController;
 use App\Http\Controllers\Api\V1\StatsController;
+use App\Http\Controllers\Api\V1\LeadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -59,6 +61,14 @@ Route::prefix('v1')->group(function () {
     // Statistics (platform stats for homepage)
     Route::get('/stats/platform', [StatsController::class, 'platform']);
     Route::get('/stats/general', [StatsController::class, 'general']);
+
+    // News
+    Route::get('/news', [NewsController::class, 'index']);
+    Route::get('/news/categories', [NewsController::class, 'categories']);
+    Route::get('/news/{slug}', [NewsController::class, 'show']);
+
+    // Leads (ипотека, подбор и т.д.)
+    Route::post('/leads', [LeadController::class, 'store']);
 
     // -------------------------------------------------------------------------
     // Auth routes

@@ -67,8 +67,16 @@ class BlockListResource extends JsonResource
                 ])->values()->take(3)->all()
             ),
 
-            // ── Room prices (lazy-loaded via appends, available when called) ────────
-            'room_prices' => $this->when(isset($this->room_prices), fn () => $this->room_prices),
+            // ── Room groups & prices (attached in BlockController::index) ───────────
+            'room_prices'  => $this->when(isset($this->room_prices), fn () => $this->room_prices),
+            'room_groups'  => $this->when(isset($this->room_groups), fn () =>
+                collect($this->room_groups ?? [])->map(fn ($g) => [
+                    'room'       => (int) $g->room,
+                    'room_label' => $g->room_label ?? '—',
+                    'price_from' => $g->price_from !== null ? (float) $g->price_from : null,
+                    'area_from'  => $g->area_from !== null ? (float) $g->area_from : null,
+                ])->values()->all()
+            ),
         ];
     }
 

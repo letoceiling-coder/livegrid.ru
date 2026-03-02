@@ -64,12 +64,14 @@ class Apartment extends Model
         'block_builder_id', 'block_builder_name',
         'block_lat', 'block_lng', 'block_is_city',
         'building_deadline_at',
-        'is_deleted', 'last_seen_at',
+        'is_deleted', 'is_hot', 'is_start_sales', 'last_seen_at',
     ];
 
     protected $casts = [
         'block_is_city'        => 'boolean',
         'is_deleted'           => 'boolean',
+        'is_hot'               => 'boolean',
+        'is_start_sales'       => 'boolean',
         'last_seen_at'         => 'datetime',
         'building_deadline_at' => 'date',
         // float → JSON number (not string); precision is fine for display purposes.
