@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, Grid3X3, List, ChevronDown, Map } from 'lucide-react';
+import { Search, SlidersHorizontal, Grid3X3, List, ChevronDown, ChevronUp, Map } from 'lucide-react';
 import Header from '@/components/Header';
 import FooterSection from '@/components/FooterSection';
 import PropertyCard from '@/components/PropertyCard';
@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { useApartments, type ApartmentFilters } from '@/hooks/useApartments';
 import { useFilters } from '@/hooks/useFilters';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { type ApartmentListItem } from '@/types/apartment';
 
 // ── Helper: Parse URL search params to filters ─────────────────────────────────
@@ -247,6 +248,10 @@ const Catalog = () => {
   const [activeViewTab, setActiveViewTab] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [catalogMoreOpen, setCatalogMoreOpen] = useState(true);
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const [districtSearch, setDistrictSearch] = useState('');
+  const [builderSearch, setBuilderSearch] = useState('');
   const [searchValue, setSearchValue] = useState(urlFilters.search || '');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list'); // 'list' or 'map'
 
@@ -547,216 +552,259 @@ const Catalog = () => {
       {/* BLOCK 2 & 3 — Sidebar + Grid */}
       <div className="max-w-[1400px] mx-auto px-4 pb-8">
         <div className="flex gap-6">
-          {/* Left sidebar filters — desktop */}
-          <aside className={cn("w-[240px] shrink-0 space-y-6 hidden lg:block")}>
+          {/* Left sidebar filters — desktop, compact */}
+          <aside className={cn("w-[200px] shrink-0 space-y-4 hidden lg:block")}>
             {filtersLoading ? (
-              <div className="space-y-6">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i}>
-                    <Skeleton className="h-5 w-24 mb-3" />
-                    <div className="space-y-2.5">
-                      {[1, 2, 3].map((j) => (
-                        <Skeleton key={j} className="h-5 w-full" />
-                      ))}
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-16 w-full" />
               </div>
             ) : filterOptions ? (
               <>
-                {/* Rooms */}
+                {/* Rooms — chips */}
                 {filterOptions.rooms.length > 0 && (
                   <div>
-                    <h3 className="font-bold text-sm mb-3">Комнаты</h3>
-                <div className="space-y-2.5">
-                      {filterOptions.rooms.map((room) => (
-                        <label key={room.value} className="flex items-center gap-2.5 cursor-pointer text-sm">
-                          <Checkbox
-                            checked={selectedRooms.includes(Number(room.value))}
-                            onCheckedChange={() => handleRoomToggle(Number(room.value))}
-                          />
-                          {room.label}
-                        </label>
-                      ))}
+                    <h3 className="font-bold text-xs mb-2 text-muted-foreground">Комнаты</h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {filterOptions.rooms.map((room) => {
+                        const active = selectedRooms.includes(Number(room.value));
+                        return (
+                          <button
+                            key={room.value}
+                            type="button"
+                            onClick={() => handleRoomToggle(Number(room.value))}
+                            className={cn(
+                              "px-2.5 py-1 rounded-lg text-xs font-medium transition-colors",
+                              active ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+                            )}
+                          >
+                            {room.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {/* Districts */}
-                {filterOptions.districts.length > 0 && (
-                  <div>
-                    <h3 className="font-bold text-sm mb-3">Район</h3>
-                    <div className="space-y-2.5 max-h-[300px] overflow-y-auto">
-                      {filterOptions.districts.map((district) => (
-                        <label key={district.id} className="flex items-center gap-2.5 cursor-pointer text-sm">
-                          <Checkbox
-                            checked={selectedDistricts.includes(district.id)}
-                            onCheckedChange={() => handleDistrictToggle(district.id)}
-                          />
-                          {district.name}
-                        </label>
-                      ))}
+                {/* Ещё фильтры — collapsible */}
+                <Collapsible open={catalogMoreOpen} onOpenChange={setCatalogMoreOpen}>
+                  <CollapsibleTrigger asChild>
+                    <button className="flex items-center justify-between w-full py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                      Ещё фильтры {catalogMoreOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="space-y-3 pt-2">
+                      {/* Districts */}
+                      {filterOptions.districts.length > 0 && (
+                        <div>
+                          <div className="relative mb-1.5">
+                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                            <input
+                              type="text"
+                              placeholder="Район..."
+                              value={districtSearch}
+                              onChange={(e) => setDistrictSearch(e.target.value)}
+                              className="w-full pl-6 pr-2 py-1.5 rounded border border-border bg-background text-xs outline-none"
+                            />
+                          </div>
+                          <div className="space-y-1 max-h-[140px] overflow-y-auto">
+                            {filterOptions.districts
+                              .filter((d) => !districtSearch || (d.name ?? '').toLowerCase().includes(districtSearch.toLowerCase()))
+                              .map((district) => (
+                                <label key={district.id} className="flex items-center gap-2 cursor-pointer text-xs">
+                                  <Checkbox
+                                    checked={selectedDistricts.includes(district.id)}
+                                    onCheckedChange={() => handleDistrictToggle(district.id)}
+                                    className="w-3.5 h-3.5"
+                                  />
+                                  <span className="truncate">{district.name ?? ''}</span>
+                                </label>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Builders */}
+                      {filterOptions.builders.length > 0 && (
+                        <div>
+                          <div className="relative mb-1.5">
+                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                            <input
+                              type="text"
+                              placeholder="Застройщик..."
+                              value={builderSearch}
+                              onChange={(e) => setBuilderSearch(e.target.value)}
+                              className="w-full pl-6 pr-2 py-1.5 rounded border border-border bg-background text-xs outline-none"
+                            />
+                          </div>
+                          <div className="space-y-1 max-h-[120px] overflow-y-auto">
+                            {filterOptions.builders
+                              .filter((b) => !builderSearch || (b.name ?? '').toLowerCase().includes(builderSearch.toLowerCase()))
+                              .map((builder) => (
+                                <label key={builder.id} className="flex items-center gap-2 cursor-pointer text-xs">
+                                  <Checkbox
+                                    checked={selectedBuilders.includes(builder.id)}
+                                    onCheckedChange={() => handleBuilderToggle(builder.id)}
+                                    className="w-3.5 h-3.5"
+                                  />
+                                  <span className="truncate">{builder.name ?? ''}</span>
+                                </label>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Finishings */}
+                      {filterOptions.finishings.length > 0 && (
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-medium text-muted-foreground">Отделка</h4>
+                          {filterOptions.finishings.map((finishing) => (
+                            <label key={finishing.id} className="flex items-center gap-2 cursor-pointer text-xs">
+                              <Checkbox
+                                checked={selectedFinishings.includes(finishing.id)}
+                                onCheckedChange={() => handleFinishingToggle(finishing.id)}
+                                className="w-3.5 h-3.5"
+                              />
+                              {finishing.name}
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
+                  </CollapsibleContent>
+                </Collapsible>
 
-                {/* Builders */}
-                {filterOptions.builders.length > 0 && (
-                  <div>
-                    <h3 className="font-bold text-sm mb-3">Застройщик</h3>
-                    <div className="space-y-2.5 max-h-[300px] overflow-y-auto">
-                      {filterOptions.builders.map((builder) => (
-                        <label key={builder.id} className="flex items-center gap-2.5 cursor-pointer text-sm">
-                        <Checkbox
-                            checked={selectedBuilders.includes(builder.id)}
-                            onCheckedChange={() => handleBuilderToggle(builder.id)}
-                        />
-                          {builder.name}
-                      </label>
-                      ))}
-                </div>
-              </div>
-                )}
-
-                {/* Finishings */}
-                {filterOptions.finishings.length > 0 && (
-                  <div>
-                    <h3 className="font-bold text-sm mb-3">Отделка</h3>
-                    <div className="space-y-2.5">
-                      {filterOptions.finishings.map((finishing) => (
-                        <label key={finishing.id} className="flex items-center gap-2.5 cursor-pointer text-sm">
-                          <Checkbox
-                            checked={selectedFinishings.includes(finishing.id)}
-                            onCheckedChange={() => handleFinishingToggle(finishing.id)}
-                          />
-                          {finishing.name}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Clear filters button */}
                 {(selectedRooms.length > 0 || selectedDistricts.length > 0 || selectedBuilders.length > 0 || selectedFinishings.length > 0 || searchValue) && (
                   <button
                     onClick={handleClearFilters}
-                    className="w-full px-4 py-2 rounded-xl border border-border text-sm hover:bg-secondary transition-colors"
+                    className="w-full px-3 py-1.5 rounded-lg border border-border text-xs hover:bg-secondary transition-colors"
                   >
-                    Сбросить фильтры
+                    Сбросить
                   </button>
                 )}
               </>
             ) : null}
           </aside>
 
-          {/* Mobile filter offcanvas */}
+          {/* Mobile filter offcanvas — compact */}
           {showFilters && (
             <div className="fixed inset-0 z-[90] bg-background overflow-y-auto lg:hidden">
-              <div className="px-4 py-6">
-                <div className="flex items-center justify-between mb-6">
-                  <span className="font-bold">Фильтры</span>
+              <div className="px-4 py-4 pb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-bold text-sm">Фильтры</span>
                   <button className="text-sm font-medium text-primary" onClick={() => setShowFilters(false)}>Закрыть ✕</button>
                 </div>
                 {filtersLoading ? (
-                  <div className="space-y-6">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i}>
-                        <Skeleton className="h-5 w-24 mb-3" />
-                    <div className="space-y-2.5">
-                          {[1, 2, 3].map((j) => (
-                            <Skeleton key={j} className="h-5 w-full" />
-                          ))}
-                        </div>
-                    </div>
-                    ))}
+                  <div className="space-y-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-32 w-full" />
                   </div>
                 ) : filterOptions ? (
                   <>
-                    {/* Rooms */}
                     {filterOptions.rooms.length > 0 && (
-                      <div className="mb-6">
-                        <h3 className="font-bold text-sm mb-3">Комнаты</h3>
-                        <div className="space-y-2.5">
-                          {filterOptions.rooms.map((room) => (
-                            <label key={room.value} className="flex items-center gap-2.5 cursor-pointer text-sm">
-                              <Checkbox
-                                checked={selectedRooms.includes(Number(room.value))}
-                                onCheckedChange={() => handleRoomToggle(Number(room.value))}
-                              />
-                              {room.label}
-                            </label>
-                          ))}
+                      <div className="mb-4">
+                        <h3 className="font-bold text-xs mb-2 text-muted-foreground">Комнаты</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {filterOptions.rooms.map((room) => {
+                            const active = selectedRooms.includes(Number(room.value));
+                            return (
+                              <button
+                                key={room.value}
+                                type="button"
+                                onClick={() => handleRoomToggle(Number(room.value))}
+                                className={cn(
+                                  "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                                  active ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+                                )}
+                              >
+                                {room.label}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
 
-                    {/* Districts */}
-                    {filterOptions.districts.length > 0 && (
-                      <div className="mb-6">
-                        <h3 className="font-bold text-sm mb-3">Район</h3>
-                        <div className="space-y-2.5 max-h-[200px] overflow-y-auto">
-                          {filterOptions.districts.map((district) => (
-                            <label key={district.id} className="flex items-center gap-2.5 cursor-pointer text-sm">
-                              <Checkbox
-                                checked={selectedDistricts.includes(district.id)}
-                                onCheckedChange={() => handleDistrictToggle(district.id)}
+                    <Collapsible open={mobileMoreOpen} onOpenChange={setMobileMoreOpen}>
+                      <CollapsibleTrigger asChild>
+                        <button className="flex items-center justify-between w-full py-2 text-sm font-medium text-muted-foreground hover:text-foreground mb-2">
+                          Район, застройщик, отделка {mobileMoreOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-4">
+                        {filterOptions.districts.length > 0 && (
+                          <div>
+                            <div className="relative mb-2">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                              <input
+                                type="text"
+                                placeholder="Поиск района..."
+                                value={districtSearch}
+                                onChange={(e) => setDistrictSearch(e.target.value)}
+                                className="w-full pl-9 pr-3 py-2 rounded-lg border border-border bg-background text-sm"
                               />
-                              {district.name}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Builders */}
-                    {filterOptions.builders.length > 0 && (
-                      <div className="mb-6">
-                        <h3 className="font-bold text-sm mb-3">Застройщик</h3>
-                        <div className="space-y-2.5 max-h-[200px] overflow-y-auto">
-                          {filterOptions.builders.map((builder) => (
-                            <label key={builder.id} className="flex items-center gap-2.5 cursor-pointer text-sm">
-                              <Checkbox
-                                checked={selectedBuilders.includes(builder.id)}
-                                onCheckedChange={() => handleBuilderToggle(builder.id)}
+                            </div>
+                            <div className="space-y-1.5 max-h-[160px] overflow-y-auto">
+                              {filterOptions.districts
+                                .filter((d) => !districtSearch || (d.name ?? '').toLowerCase().includes(districtSearch.toLowerCase()))
+                                .map((district) => (
+                                  <label key={district.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                                    <Checkbox checked={selectedDistricts.includes(district.id)} onCheckedChange={() => handleDistrictToggle(district.id)} />
+                                    <span className="truncate">{district.name ?? ''}</span>
+                                  </label>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                        {filterOptions.builders.length > 0 && (
+                          <div>
+                            <div className="relative mb-2">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                              <input
+                                type="text"
+                                placeholder="Поиск застройщика..."
+                                value={builderSearch}
+                                onChange={(e) => setBuilderSearch(e.target.value)}
+                                className="w-full pl-9 pr-3 py-2 rounded-lg border border-border bg-background text-sm"
                               />
-                              {builder.name}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                            </div>
+                            <div className="space-y-1.5 max-h-[140px] overflow-y-auto">
+                              {filterOptions.builders
+                                .filter((b) => !builderSearch || (b.name ?? '').toLowerCase().includes(builderSearch.toLowerCase()))
+                                .map((builder) => (
+                                  <label key={builder.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                                    <Checkbox checked={selectedBuilders.includes(builder.id)} onCheckedChange={() => handleBuilderToggle(builder.id)} />
+                                    <span className="truncate">{builder.name ?? ''}</span>
+                                  </label>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                        {filterOptions.finishings.length > 0 && (
+                          <div className="space-y-1.5">
+                            <h4 className="text-xs font-medium text-muted-foreground">Отделка</h4>
+                            {filterOptions.finishings.map((finishing) => (
+                              <label key={finishing.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                                <Checkbox checked={selectedFinishings.includes(finishing.id)} onCheckedChange={() => handleFinishingToggle(finishing.id)} />
+                                {finishing.name}
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </CollapsibleContent>
+                    </Collapsible>
 
-                    {/* Finishings */}
-                    {filterOptions.finishings.length > 0 && (
-                      <div className="mb-6">
-                        <h3 className="font-bold text-sm mb-3">Отделка</h3>
-                        <div className="space-y-2.5">
-                          {filterOptions.finishings.map((finishing) => (
-                            <label key={finishing.id} className="flex items-center gap-2.5 cursor-pointer text-sm">
-                              <Checkbox
-                                checked={selectedFinishings.includes(finishing.id)}
-                                onCheckedChange={() => handleFinishingToggle(finishing.id)}
-                              />
-                              {finishing.name}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Clear filters */}
                     {(selectedRooms.length > 0 || selectedDistricts.length > 0 || selectedBuilders.length > 0 || selectedFinishings.length > 0 || searchValue) && (
-                      <button
-                        onClick={handleClearFilters}
-                        className="w-full px-4 py-2 rounded-xl border border-border text-sm hover:bg-secondary transition-colors mb-4"
-                      >
+                      <button onClick={handleClearFilters} className="w-full px-4 py-2 rounded-xl border border-border text-sm hover:bg-secondary mb-4">
                         Сбросить фильтры
                       </button>
                     )}
                   </>
                 ) : null}
-                <button className="w-full bg-primary text-primary-foreground py-3 rounded-full font-medium text-sm" onClick={() => setShowFilters(false)}>
-                  Применить
+                <button className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium text-sm mt-4" onClick={() => setShowFilters(false)}>
+                  Показать результаты
                 </button>
               </div>
             </div>

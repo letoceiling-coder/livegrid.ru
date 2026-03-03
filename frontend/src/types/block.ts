@@ -47,8 +47,17 @@ export interface BlockListItem {
     travel_type: string;
   }>;
 
-  /** Min prices by room type: key = crm_id (0=studio, 1=1к, 2=2к...) */
+  /** Min prices by room type: key = room number (0=studio, 1=1к, 2=2к...) */
   room_prices?: Record<string, number>;
+
+  /** Room type groups for card overlay (room_label, price_from, area_from) */
+  room_groups?: Array<{
+    room: number;
+    room_label: string;
+    price_from: number | null;
+    area_from: number | null;
+    area_to?: number | null;
+  }>;
 }
 
 /** Laravel paginator meta block (reused from apartment types) */

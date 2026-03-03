@@ -469,13 +469,13 @@ const ZhkDetail = () => {
                   Отправить заявку
                 </button>
               </div>
+              {/* Соцсети закомментированы
               <div className="flex gap-2 mt-4 justify-center">
                 {['VK', 'TG', 'YT', 'OK'].map((s) => (
-                  <a key={s} href="#" className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-xs font-bold hover:bg-primary hover:text-primary-foreground transition-colors">
-                    {s}
-                  </a>
+                  <a key={s} href="#" className="w-9 h-9 rounded-full bg-secondary ...">{s}</a>
                 ))}
               </div>
+              */}
             </div>
           </div>
         </div>

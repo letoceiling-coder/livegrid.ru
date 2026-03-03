@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import api from '@/lib/api';
-import { formatPrice, formatDeadline } from '@/lib/format';
+import { formatPrice, formatArea } from '@/lib/format';
 import { type ZhkData } from '@/components/ZhkCard';
 import {
   type BlockListItem,
@@ -38,36 +38,39 @@ export interface UseBlocksResult {
  * expected by ZhkCard.
  *
  * Mapping:
- *   images      = images[] (array of image URLs)
- *   name        = name
- *   price       = formatPrice(price_from)
- *   unitsCount  = `В продаже ${units_count} квартир`
- *   slug        = id
- *   badges      = [] (empty — not available in list API)
- *   apartments  = [] (empty — not available in list API, requires detail endpoint)
+ *   images     = images[] (array of image URLs)
+ *   name       = name
+ *   price      = formatPrice(price_from)
+ *   unitsCount = `В продаже ${units_count} квартир`
+ *   slug       = id
+ *   badges     = block.badges ?? [] (from feed when available)
+ *   apartments = from room_groups: type=room_label, area=formatArea(area_from), price=formatPrice(price_from)
  */
 function toZhkData(block: BlockListItem): ZhkData {
-  // Format price: "от 5.6 млн" or "—" if null
   const price = formatPrice(block.price_from);
 
-  // Format units count: "В продаже 226 квартир"
   const unitsCount =
     block.units_count > 0
       ? `В продаже ${block.units_count.toLocaleString('ru-RU')} ${getUnitsLabel(block.units_count)}`
       : 'Нет в продаже';
 
-  // Format deadline using deadline_at (ISO date) → "I кв. 2026"
-  // Note: API also provides deadline_label, but we format it ourselves per requirements
-  const deadlineLabel = formatDeadline(block.deadline_at);
+  // room_groups → ZhkApartment[] (max 4)
+  const apartments: ZhkData['apartments'] = (block.room_groups ?? [])
+    .slice(0, 4)
+    .map((g) => ({
+      type: g.room_label,
+      area: g.area_from != null ? formatArea(g.area_from) : '—',
+      price: g.price_from != null ? formatPrice(g.price_from) : '—',
+    }));
 
   return {
     images: block.images && block.images.length > 0 ? block.images : [],
     name: block.name,
     price,
     unitsCount,
-    slug: block.id,
-    badges: [], // Not available in list API — would require detail endpoint
-    apartments: [], // Not available in list API — would require detail endpoint
+    slug: block.slug ?? block.id,
+    badges: (block as BlockListItem & { badges?: string[] }).badges ?? [],
+    apartments,
   };
 }
 

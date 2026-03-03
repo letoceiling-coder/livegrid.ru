@@ -22,13 +22,13 @@ const ContactsSection = React.forwardRef<HTMLElement>((_, ref) => (
             <MapPin className="w-5 h-5 text-primary shrink-0" />
             <p className="text-sm">Москва, ул. Примерная, д. 1</p>
           </div>
+          {/* Соцсети закомментированы
           <div className="flex gap-3 pt-4">
             {['VK', 'TG', 'YT', 'OK'].map((s, i) => (
-              <a key={i} href="#" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xs font-bold hover:bg-primary hover:text-primary-foreground transition-colors">
-                {s}
-              </a>
+              <a key={i} href="#" className="w-10 h-10 rounded-full bg-secondary ...">{s}</a>
             ))}
           </div>
+          */}
         </div>
         <div className="bg-accent rounded-2xl flex items-center justify-center min-h-[300px]">
           <span className="text-3xl font-bold text-primary">VIDEO</span>

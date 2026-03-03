@@ -19,6 +19,7 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import Ipoteka from "./pages/Ipoteka";
 import Favorites from "./pages/Favorites";
+import ContactsPage from "./pages/ContactsPage";
 
 // Admin pages
 const AdminLayout = lazy(() => import("./admin/layout/AdminLayout"));
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/ipoteka" element={<Ipoteka />} />
             <Route path="/favorites" element={<Favorites />} />
+            <Route path="/contacts" element={<ContactsPage />} />
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminLayout />}>

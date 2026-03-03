@@ -6,6 +6,7 @@ const menuItems = [
   { label: 'Новостройки', href: '/catalog-zhk' },
   { label: 'Квартиры', href: '/catalog?type=apartments' },
   { label: 'Ипотека', href: '/ipoteka' },
+  { label: 'Контакты', href: '/contacts' },
 ];
 
 interface BurgerMenuProps { open: boolean; onClose: () => void; }

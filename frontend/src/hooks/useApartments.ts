@@ -67,13 +67,14 @@ function toPropertyData(apt: ApartmentListItem): PropertyData {
   const areaTotal = apt.area?.total ?? null;
 
   return {
-    image:   apt.plan_url ?? '',
-    title:   `${roomLabel} · ${formatArea(areaTotal)}`,
-    price:   formatPrice(apt.price),
-    address: apt.block?.name ?? '—',
-    area:    formatArea(areaTotal),
-    rooms:   roomLabel,
-    slug:    apt.id,
+    image:     apt.plan_url ?? '',
+    title:     `${roomLabel} · ${formatArea(areaTotal)}`,
+    price:     formatPrice(apt.price),
+    address:   apt.block?.name ?? '—',
+    area:      formatArea(areaTotal),
+    rooms:     roomLabel,
+    slug:      apt.id,
+    priceRaw:  apt.price ?? null,
   };
 }
 
@@ -123,23 +124,8 @@ export function useApartments(
         signal: controller.signal,
       })
       .then((res) => {
-        console.log('[useApartments] Success', { dataLength: res.data?.data?.length });
-        // The axios interceptor does NOT unwrap paginator responses
-        // (no `success` key) — res.data IS the full paginator object.
         const paginator = res.data as unknown as PaginatedApartments;
         const rawItems  = paginator?.data ?? [];
-
-        // DEBUG: Проверка типов первого элемента
-        if (rawItems.length > 0) {
-          const first = rawItems[0];
-          console.log('[useApartments] First item types:', {
-            price: typeof first.price,
-            priceValue: first.price,
-            areaTotal: typeof first.area?.total,
-            areaTotalValue: first.area?.total,
-          });
-        }
-
         setItems(rawItems.map(toPropertyData));
         setMeta(paginator?.meta ?? null);
       })

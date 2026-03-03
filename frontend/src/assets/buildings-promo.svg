@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 140" fill="none" aria-hidden="true">
+  <!-- Grass block - isometric cube -->
+  <g transform="translate(30 95) scale(0.9)">
+    <path d="M0 45 L20 35 L60 35 L80 45 L60 55 L20 55 Z" fill="#5D4E37"/>
+    <path d="M20 55 L20 35 L60 35 L60 55 Z" fill="#4A3D2A"/>
+    <path d="M0 45 L20 35 L60 35 L80 45 L60 55 L20 55 Z" fill="#4A7C23"/>
+    <path d="M8 49 L28 39 L68 39 L88 49" fill="#5A9B2D"/>
+    <path d="M15 52 L35 42 L75 42 L95 52" fill="#3D6B1A"/>
+  </g>
+  <!-- Skyscraper - tall building with blue windows -->
+  <g transform="translate(75 20)">
+    <path d="M0 100 L0 15 L28 2 L28 87 Z" fill="#E5E5E5"/>
+    <path d="M28 2 L28 87 L56 100 L56 15 Z" fill="#D0D0D0"/>
+    <path d="M0 15 L28 2 L56 15 L28 28 Z" fill="#EEEEEE"/>
+    <g fill="#2563EB" opacity="0.85">
+      <rect x="4" y="22" width="6" height="10"/><rect x="14" y="22" width="6" height="10"/>
+      <rect x="4" y="36" width="6" height="10"/><rect x="14" y="36" width="6" height="10"/>
+      <rect x="4" y="50" width="6" height="10"/><rect x="14" y="50" width="6" height="10"/>
+      <rect x="4" y="64" width="6" height="10"/><rect x="14" y="64" width="6" height="10"/>
+      <rect x="4" y="78" width="6" height="10"/><rect x="14" y="78" width="6" height="10"/>
+      <rect x="32" y="22" width="6" height="10"/><rect x="42" y="22" width="6" height="10"/>
+      <rect x="32" y="36" width="6" height="10"/><rect x="42" y="36" width="6" height="10"/>
+      <rect x="32" y="50" width="6" height="10"/><rect x="42" y="50" width="6" height="10"/>
+    </g>
+  </g>
+  <!-- Small house - cream walls, dark roof, teal door -->
+  <g transform="translate(135 65)">
+    <path d="M0 55 L0 32 L25 18 L50 32 L50 55 Z" fill="#525252"/>
+    <path d="M0 32 L25 18 L50 32 L25 46 Z" fill="#404040"/>
+    <path d="M0 55 L12 55 L12 40 L25 32 L25 55 L50 55 L50 40 L38 32 L38 55 Z" fill="#EDE6DC"/>
+    <rect x="20" y="38" width="10" height="17" fill="#0EA5E9" rx="1"/>
+    <rect x="4" y="35" width="7" height="10" fill="#EDE6DC" stroke="#D4C9BC"/>
+    <rect x="39" y="35" width="7" height="10" fill="#EDE6DC" stroke="#D4C9BC"/>
+  </g>
+  <!-- Apartment building - balconies -->
+  <g transform="translate(195 50)">
+    <path d="M0 75 L0 20 L35 8 L35 63 Z" fill="#E8E2D8"/>
+    <path d="M35 8 L35 63 L70 75 L70 20 Z" fill="#D8D0C4"/>
+    <path d="M0 20 L35 8 L70 20 L35 32 Z" fill="#F0EBE2"/>
+    <g stroke="#4A4A4A" stroke-width="1.2" fill="none">
+      <path d="M6 42 L28 42 L28 50 L6 50 Z"/>
+      <path d="M6 56 L28 56 L28 64 L6 64 Z"/>
+      <path d="M42 42 L64 42 L64 50 L42 50 Z"/>
+      <path d="M42 56 L64 56 L64 64 L42 64 Z"/>
+    </g>
+    <rect x="10" y="32" width="5" height="6" fill="#333"/>
+    <rect x="19" y="32" width="5" height="6" fill="#333"/>
+    <rect x="46" y="32" width="5" height="6" fill="#333"/>
+    <rect x="55" y="32" width="5" height="6" fill="#333"/>
+  </g>
+</svg>

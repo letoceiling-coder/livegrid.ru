@@ -7,6 +7,7 @@ const navItems = [
   { label: 'Новостройки', href: '/catalog-zhk' },
   { label: 'Квартиры', href: '/catalog?type=apartments' },
   { label: 'Ипотека', href: '/ipoteka' },
+  { label: 'Контакты', href: '/contacts' },
 ];
 
 const Header = () => {

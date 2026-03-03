@@ -13,11 +13,81 @@ export interface PropertyData {
   badges?: string[];
   slug?: string;
   description?: string;
+  priceRaw?: number | null;
+  unitsCount?: number | null;
+  promoStrip?: string | null;
 }
 
-const PropertyCard = ({ data }: { data: PropertyData }) => {
+const PropertyCard = ({ data, variant }: { data: PropertyData; variant?: 'hotDeals' }) => {
   const [liked, setLiked] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const slug = data.slug || data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-zа-яё0-9-]/gi, '');
+
+  const isHotDeals = variant === 'hotDeals';
+
+  const priceDisplay = isHotDeals && data.priceRaw != null && data.priceRaw > 0
+    ? `от ${data.priceRaw.toLocaleString('ru-RU')} ₽`
+    : data.price;
+
+  if (isHotDeals) {
+    return (
+      <div className="group flex flex-col rounded-2xl overflow-hidden bg-card border border-border transition-[transform,box-shadow,opacity] duration-200 ease-out hover:shadow-lg hover:scale-[1.01]">
+        <Link to={`/object/${slug}`} className="flex flex-col flex-1 min-h-0">
+          <div className="relative h-[200px] lg:h-[220px] xl:h-[240px] overflow-hidden rounded-2xl bg-muted/60 shrink-0">
+            {!imgLoaded && (
+              <div className="absolute inset-0 bg-muted animate-pulse" aria-hidden />
+            )}
+            <img
+              src={data.image}
+              alt={data.title}
+              className="w-full h-full object-cover"
+              onLoad={() => setImgLoaded(true)}
+            />
+            {data.badges && data.badges.length > 0 && (
+              <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10 max-w-[80%]">
+                {data.badges.slice(0, 3).map((b, i) => (
+                  <span key={i} className="px-3 py-1 bg-white text-black rounded-full text-xs font-medium shadow-sm">{b}</span>
+                ))}
+              </div>
+            )}
+            <button
+              type="button"
+              className="absolute top-3 right-3 min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center z-10 bg-background/75 backdrop-blur-sm transition-opacity duration-200 hover:opacity-90 active:scale-95"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLiked(!liked); }}
+              aria-label={liked ? 'Убрать из избранного' : 'Добавить в избранное'}
+            >
+              <Heart className={cn("w-5 h-5", liked ? "fill-destructive text-destructive" : "text-muted-foreground")} />
+            </button>
+          </div>
+          <div className="flex flex-col flex-1 p-4 min-h-0">
+            <h3 className="font-semibold text-base truncate">{data.address}</h3>
+            {(data.unitsCount != null && data.unitsCount > 0) && (
+              <p className="text-sm text-muted-foreground mt-0.5">В продаже {data.unitsCount.toLocaleString('ru-RU')} квартир</p>
+            )}
+            {!(data.unitsCount != null && data.unitsCount > 0) && (data.rooms || data.area) ? (
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {[data.rooms, data.area].filter(Boolean).join(' · ')}
+              </p>
+            ) : null}
+            <div className="flex justify-between items-center gap-2 mt-2">
+              <span className="font-semibold text-sm shrink-0">{priceDisplay}</span>
+            </div>
+            <span className="text-primary text-sm font-medium mt-3 inline-block hover:opacity-80 transition-opacity">
+              Подробнее
+            </span>
+            {data.promoStrip && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <div className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
+                  {data.promoStrip}
+                </div>
+              </div>
+            )}
+          </div>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="group rounded-2xl overflow-hidden bg-card border border-border transition-[transform,box-shadow,opacity] duration-200 ease-out hover:shadow-lg hover:-translate-y-0.5">
       <Link to={`/object/${slug}`} className="block">
