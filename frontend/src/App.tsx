@@ -5,6 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import { lazy, Suspense } from "react";
+// New UI (strict-template / redesign)
+const RedesignIndex = lazy(() => import("./redesign/pages/RedesignIndex"));
+const RedesignCatalog = lazy(() => import("./redesign/pages/RedesignCatalog"));
+const RedesignComplex = lazy(() => import("./redesign/pages/RedesignComplex"));
+const RedesignApartment = lazy(() => import("./redesign/pages/RedesignApartment"));
+const RedesignMap = lazy(() => import("./redesign/pages/RedesignMap"));
+const RedesignLayouts = lazy(() => import("./redesign/pages/RedesignLayouts"));
+// Legacy pages (catalog apartments, news, auth, etc.)
 import Index from "./pages/Index";
 import Catalog from "./pages/Catalog";
 import CatalogZhk from "./pages/CatalogZhk";
@@ -58,11 +66,13 @@ const App = () => (
         <ScrollToTop />
         <Suspense fallback={<Loading />}>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/catalog" element={<CatalogZhk />} />
-            <Route path="/complex/:slug" element={<ZhkDetail />} />
-            <Route path="/apartment/:id" element={<ObjectDetail />} />
-            <Route path="/map" element={<MapPage />} />
+            {/* Main routes — new UI (strict-template) */}
+            <Route path="/" element={<RedesignIndex />} />
+            <Route path="/catalog" element={<RedesignCatalog />} />
+            <Route path="/complex/:slug" element={<RedesignComplex />} />
+            <Route path="/apartment/:id" element={<RedesignApartment />} />
+            <Route path="/map" element={<RedesignMap />} />
+            <Route path="/layouts/:complex" element={<RedesignLayouts />} />
             <Route path="/search" element={<SearchPage />} />
             {/* Legacy redirects — param preserved */}
             <Route path="/zhk/:slug" element={<LegacyRedirect toTemplate="/complex/:slug" paramKey="slug" />} />
