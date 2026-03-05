@@ -14,6 +14,13 @@ interface MapBlock {
   image: string | null;
 }
 
+export interface MapViewportBounds {
+  lat_min: number;
+  lat_max: number;
+  lng_min: number;
+  lng_max: number;
+}
+
 interface ZhkMapProps {
   filters?: BlockFilters;
   /** When provided, map fetches data; when omitted, pass blocks explicitly */
@@ -21,6 +28,8 @@ interface ZhkMapProps {
   onBlockClick?: (blockSlug: string) => void;
   /** Center map on this block slug and zoom to 15 */
   centerOnSlug?: string | null;
+  /** Called when map bounds change (drag only, debounced) */
+  onBoundsChange?: (viewport: MapViewportBounds) => void;
 }
 
 declare global {
@@ -123,18 +132,21 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
         } catch { /* ignore */ }
       };
 
-      const handleBoundsChange = () => {
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(emitBounds, BOUNDS_CHANGE_DEBOUNCE_MS);
+      const handleActionEnd = (e: any) => {
+        const action = e && typeof e.get === 'function' ? e.get('action') : null;
+        if (action === 'drag' || action === 'pan') {
+          if (debounceTimer) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(emitBounds, BOUNDS_CHANGE_DEBOUNCE_MS);
+        }
       };
 
-      map.events.add('boundschange', handleBoundsChange);
+      map.events.add('actionend', handleActionEnd);
       emitBounds();
 
       boundsCleanup = () => {
         if (debounceTimer) clearTimeout(debounceTimer);
         try {
-          map.events.remove('boundschange', handleBoundsChange);
+          map.events.remove('actionend', handleActionEnd);
         } catch { /* ignore */ }
       };
     }
@@ -227,7 +239,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
     }
   }, [ymapsReady, blocks, loadingBlocks, onBlockClick]);
 
-  // ── 5. Center on slug when selected from search ─────────────────────────
+  // ── 6. Center on slug when selected from search ─────────────────────────
   useEffect(() => {
     if (!centerOnSlug || !mapInstanceRef.current || blocks.length === 0) return;
     const block = blocks.find(b => b.slug === centerOnSlug);
