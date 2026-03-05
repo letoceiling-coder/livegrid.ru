@@ -64,7 +64,7 @@ export default function SearchDropdown({
                   role="option"
                   className="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg hover:bg-muted cursor-pointer transition-colors"
                   onClick={() => {
-                    navigate(`/zhk/${b.slug}`);
+                    navigate(`/complex/${b.slug}`);
                     onSelect();
                   }}
                 >
@@ -93,7 +93,7 @@ export default function SearchDropdown({
                   role="option"
                   className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left rounded-lg hover:bg-muted cursor-pointer transition-colors"
                   onClick={() => {
-                    navigate(`/object/${a.slug}`);
+                    navigate(`/apartment/${a.id}`);
                     onSelect();
                   }}
                 >

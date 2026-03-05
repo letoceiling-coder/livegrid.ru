@@ -4,8 +4,8 @@ import { Phone, Menu, LogIn, Heart } from 'lucide-react';
 import BurgerMenu from './BurgerMenu';
 
 const navItems = [
-  { label: 'Новостройки', href: '/catalog-zhk' },
-  { label: 'Квартиры', href: '/catalog?type=apartments' },
+  { label: 'Новостройки', href: '/catalog' },
+  { label: 'Квартиры', href: '/catalog-apartments' },
   { label: 'Ипотека', href: '/ipoteka' },
   { label: 'Контакты', href: '/contacts' },
 ];
@@ -31,9 +31,9 @@ const Header = () => {
             <Link to="/favorites" className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors cursor-pointer" title="Избранное">
               <Heart className="w-5 h-5 text-muted-foreground" />
             </Link>
-            <a href="tel:+74950000000" className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer min-h-[44px] items-center">
+            <a href="tel:+79045393434" className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer min-h-[44px] items-center">
               <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
-              <span>+7 (495) 000-00-00</span>
+              <span>+7 (904) 539-34-34</span>
             </a>
             <Link to="/login" className="bg-primary text-primary-foreground px-5 py-2 rounded-full text-sm font-medium hover:bg-primary/90 transition-opacity flex items-center gap-1.5 shrink-0 cursor-pointer">
               <LogIn className="w-4 h-4" />

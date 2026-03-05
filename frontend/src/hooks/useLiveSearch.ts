@@ -1,27 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import api from '@/lib/api';
+import { searchObjects, type SearchResults } from '@/api/searchApi';
 
-export interface SearchBlock {
-  id: string;
-  slug: string;
-  name: string;
-  district: string | null;
-  metro: string | null;
-  subtitle: string | null;
-}
-
-export interface SearchApartment {
-  id: string;
-  slug: string;
-  title: string;
-  block_name: string | null;
-  price: number | null;
-}
-
-export interface SearchResults {
-  residential_complexes: SearchBlock[];
-  apartments: SearchApartment[];
-}
+export type { SearchBlock, SearchApartment, SearchResults } from '@/api/searchApi';
 
 export function useLiveSearch(query: string) {
   const [results, setResults] = useState<SearchResults | null>(null);
@@ -48,11 +28,8 @@ export function useLiveSearch(query: string) {
       setLoading(true);
       setError(null);
 
-      api
-        .get<SearchResults>('/search', { params: { q }, signal: abortRef.current.signal })
-        .then((res) => {
-          setResults(res.data ?? { residential_complexes: [], apartments: [] });
-        })
+      searchObjects(q)
+        .then((data) => setResults(data ?? { residential_complexes: [], apartments: [] }))
         .catch((err) => {
           if (err.name === 'CanceledError' || err.name === 'AbortError') return;
           setError(err?.response?.data?.message ?? 'Ошибка поиска');

@@ -51,14 +51,8 @@ export function useFilters(): UseFiltersResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api
-      .get<{ data: FiltersData }>('/filters')
-      .then((res) => {
-        // The axios interceptor may unwrap responses
-        const data = res.data as unknown as { data: FiltersData } | FiltersData;
-        const filtersData = 'data' in data ? data.data : data;
-        setFilters(filtersData as FiltersData);
-      })
+    getFilters()
+      .then((filtersData) => setFilters(filtersData as FiltersData))
       .catch((err) => {
         const msg = err?.response?.data?.message ?? 'Ошибка загрузки фильтров';
         setError(msg);

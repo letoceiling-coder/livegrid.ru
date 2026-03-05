@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import api from '@/lib/api';
+import { getComplexApartments } from '@/api/blocksApi';
 import {
   type ApartmentListItem,
   type PaginatedApartments,
@@ -56,21 +56,7 @@ export function useBlockApartments(
   // Stable serialisation key — avoids infinite loops from object identity
   const filtersKey = JSON.stringify(filters);
 
-  // Track in-flight request for cancellation
   const abortRef = useRef<AbortController | null>(null);
-
-  // Extract ID from slug if needed
-  const extractId = (input: string): string => {
-    if (/^[a-f0-9]{24}$/i.test(input)) {
-      return input;
-    }
-    const parts = input.split('-');
-    const lastPart = parts[parts.length - 1];
-    if (/^[a-f0-9]{24}$/i.test(lastPart)) {
-      return lastPart;
-    }
-    return input.slice(-24);
-  };
 
   useEffect(() => {
     if (!slugOrId) {
@@ -79,9 +65,6 @@ export function useBlockApartments(
       return;
     }
 
-    const blockId = extractId(slugOrId);
-
-    // Cancel previous in-flight request
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -89,22 +72,10 @@ export function useBlockApartments(
     setLoading(true);
     setError(null);
 
-    api
-      .get<PaginatedApartments>(`/blocks/${blockId}/apartments`, {
-        params: {
-          ...filters,
-          page,
-          per_page: perPage,
-        },
-        signal: controller.signal,
-      })
-      .then((res) => {
-        // The axios interceptor may unwrap paginator responses
-        const paginator = res.data as unknown as PaginatedApartments;
-        const rawItems = paginator?.data ?? [];
-
-        setApartments(rawItems);
-        setMeta(paginator?.meta ?? null);
+    getComplexApartments(slugOrId, { ...filters, page, per_page: perPage })
+      .then(({ data: rawItems, meta: paginatorMeta }) => {
+        setApartments(rawItems ?? []);
+        setMeta(paginatorMeta ?? null);
       })
       .catch((err) => {
         // Ignore AbortError from cancelled requests

@@ -57,7 +57,7 @@ const ZhkCardRow = ({ block }: ZhkCardRowProps) => {
     <div className="group flex flex-col sm:flex-row rounded-2xl overflow-hidden bg-card border transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-0.5 border-border">
       {/* ── Image ──────────────────────────────────────────────────────────── */}
       <Link
-        to={`/zhk/${block.slug}`}
+        to={`/complex/${block.slug}`}
         className="block sm:w-[220px] lg:w-[260px] shrink-0 relative overflow-hidden"
       >
         <div className="h-[180px] sm:h-full min-h-[180px]">
@@ -88,7 +88,7 @@ const ZhkCardRow = ({ block }: ZhkCardRowProps) => {
         <div className="flex-1 min-w-0">
           {/* Name + deadline */}
           <div className="flex items-start justify-between gap-2 mb-2">
-            <Link to={`/zhk/${block.slug}`} className="block min-w-0">
+            <Link to={`/complex/${block.slug}`} className="block min-w-0">
               <h3 className="font-semibold text-base leading-tight hover:text-primary transition-colors truncate">
                 {block.name}
               </h3>
@@ -198,7 +198,7 @@ const ZhkCardRow = ({ block }: ZhkCardRowProps) => {
               </div>
             )}
             <Link
-              to={`/zhk/${block.slug}`}
+              to={`/complex/${block.slug}`}
               className="text-primary text-xs font-medium hover:underline block"
             >
               Подробнее →

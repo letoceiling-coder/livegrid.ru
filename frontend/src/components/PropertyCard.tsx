@@ -32,7 +32,7 @@ const PropertyCard = ({ data, variant }: { data: PropertyData; variant?: 'hotDea
   if (isHotDeals) {
     return (
       <div className="group flex flex-col rounded-2xl overflow-hidden bg-card border border-border transition-[transform,box-shadow,opacity] duration-200 ease-out hover:shadow-lg hover:scale-[1.01]">
-        <Link to={`/object/${slug}`} className="flex flex-col flex-1 min-h-0">
+        <Link to={`/apartment/${slug}`} className="flex flex-col flex-1 min-h-0">
           <div className="relative h-[200px] lg:h-[220px] xl:h-[240px] overflow-hidden rounded-2xl bg-muted/60 shrink-0">
             {!imgLoaded && (
               <div className="absolute inset-0 bg-muted animate-pulse" aria-hidden />
@@ -90,7 +90,7 @@ const PropertyCard = ({ data, variant }: { data: PropertyData; variant?: 'hotDea
 
   return (
     <div className="group rounded-2xl overflow-hidden bg-card border border-border transition-[transform,box-shadow,opacity] duration-200 ease-out hover:shadow-lg hover:-translate-y-0.5">
-      <Link to={`/object/${slug}`} className="block">
+      <Link to={`/apartment/${slug}`} className="block">
         <div className="relative h-[200px] overflow-hidden rounded-t-2xl bg-muted/60">
           <img
             src={data.image}

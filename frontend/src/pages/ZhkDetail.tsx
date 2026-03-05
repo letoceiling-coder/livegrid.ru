@@ -304,7 +304,7 @@ const ZhkDetail = () => {
                                   return (
                                     <Link
                                       key={flat.id}
-                                      to={`/object/${flat.id}`}
+                                      to={`/apartment/${flat.id}`}
                                       className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-md transition-shadow flex flex-col"
                                     >
                                       {/* Plan image */}
@@ -377,7 +377,7 @@ const ZhkDetail = () => {
                                       return (
                                         <tr key={flat.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
                                           <td className="px-3 py-2">
-                                            <Link to={`/object/${flat.id}`}>
+                                            <Link to={`/apartment/${flat.id}`}>
                                               {flat.plan_url ? (
                                                 <img src={flat.plan_url} alt="План" className="w-10 h-10 rounded object-contain bg-muted" />
                                               ) : (
@@ -386,35 +386,35 @@ const ZhkDetail = () => {
                                             </Link>
                                           </td>
                                           <td className="px-3 py-2 text-xs">
-                                            <Link to={`/object/${flat.id}`} className="hover:text-primary">{buildingName}</Link>
+                                            <Link to={`/apartment/${flat.id}`} className="hover:text-primary">{buildingName}</Link>
                                           </td>
                                           <td className="px-3 py-2">
-                                            <Link to={`/object/${flat.id}`} className="hover:text-primary">{flat.floor ?? '—'}</Link>
+                                            <Link to={`/apartment/${flat.id}`} className="hover:text-primary">{flat.floor ?? '—'}</Link>
                                           </td>
                                           <td className="px-3 py-2 text-xs">
-                                            <Link to={`/object/${flat.id}`} className="hover:text-primary">{flat.number ?? '—'}</Link>
+                                            <Link to={`/apartment/${flat.id}`} className="hover:text-primary">{flat.number ?? '—'}</Link>
                                           </td>
                                           <td className="px-3 py-2">
-                                            <Link to={`/object/${flat.id}`} className="hover:text-primary">{formatArea(flat.area?.total)}</Link>
+                                            <Link to={`/apartment/${flat.id}`} className="hover:text-primary">{formatArea(flat.area?.total)}</Link>
                                           </td>
                                           <td className="px-3 py-2">
-                                            <Link to={`/object/${flat.id}`} className="hover:text-primary">{formatArea(flat.area?.kitchen)}</Link>
+                                            <Link to={`/apartment/${flat.id}`} className="hover:text-primary">{formatArea(flat.area?.kitchen)}</Link>
                                           </td>
                                           <td className="px-3 py-2 text-xs">
-                                            <Link to={`/object/${flat.id}`} className="hover:text-primary">{flat.finishing?.name ?? '—'}</Link>
+                                            <Link to={`/apartment/${flat.id}`} className="hover:text-primary">{flat.finishing?.name ?? '—'}</Link>
                                           </td>
                                           <td className="px-3 py-2 font-medium text-xs">
-                                            <Link to={`/object/${flat.id}`} className="hover:text-primary">
+                                            <Link to={`/apartment/${flat.id}`} className="hover:text-primary">
                                               {flat.price ? `${flat.price.toLocaleString('ru-RU')} ₽` : 'Под запрос'}
                                             </Link>
                                           </td>
                                           <td className="px-3 py-2 text-xs">
-                                            <Link to={`/object/${flat.id}`} className="hover:text-primary">
+                                            <Link to={`/apartment/${flat.id}`} className="hover:text-primary">
                                               {flat.price_per_meter ? `${Math.round(flat.price_per_meter).toLocaleString('ru-RU')} ₽` : '—'}
                                             </Link>
                                           </td>
                                           <td className="px-3 py-2">
-                                            <Link to={`/object/${flat.id}`}>
+                                            <Link to={`/apartment/${flat.id}`}>
                                               <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 border border-amber-200 text-amber-800">
                                                 Свободна
                                               </span>

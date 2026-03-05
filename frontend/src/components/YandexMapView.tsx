@@ -249,7 +249,7 @@ export default function YandexMapView({ apartments, loading, onMapClick, classNa
           <b style="font-size: 14px; display: block; margin-bottom: 4px;">${roomLabel}</b>
           <span style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">${formatArea(areaTotal)}</span>
           <span style="font-size: 14px; font-weight: bold; display: block; margin-bottom: 8px;">${formatPrice(price)}</span>
-          <a href="/object/${apt.id}" style="display: inline-block; padding: 6px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Открыть</a>
+          <a href='/apartment/${apt.id}' style="display: inline-block; padding: 6px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Открыть</a>
         </div>
       `;
 

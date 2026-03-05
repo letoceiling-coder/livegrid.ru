@@ -41,13 +41,13 @@ const ZhkCard = ({ data }: { data: ZhkData }) => {
 
   const handleCardClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('[data-no-nav]')) return;
-    navigate(`/zhk/${slug}`);
+    navigate(`/complex/${slug}`);
   };
 
   const handleTap = (e: React.TouchEvent) => {
     if ((e.target as HTMLElement).closest('[data-no-nav]')) return;
     if (tapped) {
-      navigate(`/zhk/${slug}`);
+      navigate(`/complex/${slug}`);
     } else {
       setTapped(true);
     }
@@ -55,7 +55,7 @@ const ZhkCard = ({ data }: { data: ZhkData }) => {
 
   const handleDetailsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/zhk/${slug}`);
+    navigate(`/complex/${slug}`);
   };
 
   const handleSwipe = (e: React.TouchEvent) => {

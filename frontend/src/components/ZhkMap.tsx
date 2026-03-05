@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import api from '@/lib/api';
+import { getMapObjects } from '@/api/mapApi';
 import { formatPrice } from '@/lib/format';
 import { type BlockFilters } from '@/hooks/useBlocks';
 
@@ -16,6 +16,7 @@ interface MapBlock {
 
 interface ZhkMapProps {
   filters?: BlockFilters;
+  blocks?: MapBlock[];
   onBlockClick?: (blockSlug: string) => void;
 }
 
@@ -30,8 +31,8 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
   const mapInstanceRef = useRef<any>(null);
   const objectManagerRef = useRef<any>(null);
   const [ymapsReady, setYmapsReady] = useState(false);
-  const [blocks, setBlocks] = useState<MapBlock[]>([]);
-  const [loadingBlocks, setLoadingBlocks] = useState(true);
+  const [blocks, setBlocks] = useState<MapBlock[]>(externalBlocks ?? []);
+  const [loadingBlocks, setLoadingBlocks] = useState(externalBlocks == null);
 
   // ── 1. Load Yandex Maps API ─────────────────────────────────────────────
   useEffect(() => {
@@ -52,10 +53,15 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
     document.body.appendChild(script);
   }, []);
 
-  // ── 2. Fetch ALL blocks for map (no pagination) ─────────────────────────
+  // ── 2. Use external blocks or fetch via API layer ───────────────────────
   useEffect(() => {
+    if (externalBlocks !== undefined) {
+      setBlocks(externalBlocks);
+      setLoadingBlocks(false);
+      return;
+    }
     setLoadingBlocks(true);
-    const params: Record<string, any> = {};
+    const params: Record<string, unknown> = {};
     if (filters.district?.length) params.district = filters.district;
     if (filters.builder?.length) params.builder = filters.builder;
     if (filters.is_city !== undefined) params.is_city = filters.is_city;
@@ -63,15 +69,11 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
     if (filters.deadline_from) params.deadline_from = filters.deadline_from;
     if (filters.deadline_to) params.deadline_to = filters.deadline_to;
 
-    api
-      .get<{ data: MapBlock[] }>('/blocks/map', { params })
-      .then(res => {
-        const raw = (res.data as any)?.data ?? [];
-        setBlocks(raw);
-      })
+    getMapObjects(params)
+      .then((raw) => setBlocks(raw))
       .catch(() => setBlocks([]))
       .finally(() => setLoadingBlocks(false));
-  }, [JSON.stringify(filters)]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [externalBlocks, JSON.stringify(filters)]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── 3. Init map ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -144,7 +146,7 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
           </div>
         `,
         balloonContentFooter: `
-          <a href="/zhk/${block.slug}"
+          <a href='/complex/${block.slug}'
              style="display:block;margin-top:8px;color:#2563eb;font-size:13px;text-decoration:none;font-weight:500">
             Подробнее →
           </a>`,

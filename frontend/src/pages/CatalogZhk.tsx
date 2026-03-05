@@ -174,7 +174,7 @@ const CatalogZhkPage = () => {
           {viewMode === 'map' ? (
             <ZhkMap
               filters={appliedFilters}
-              onBlockClick={(blockSlug) => navigate(`/zhk/${blockSlug}`)}
+              onBlockClick={(blockSlug) => navigate(`/complex/${blockSlug}`)}
             />
           ) : loading ? (
             viewMode === 'list' ? (

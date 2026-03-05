@@ -271,10 +271,11 @@ const ApartmentGallery = ({ photos, planUrl, title }: GalleryProps) => {
 // ── Main component ────────────────────────────────────────────────────────────
 
 const ObjectDetail = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, id } = useParams<{ slug?: string; id?: string }>();
+  const apartmentId = id ?? slug;
   const [inComparison, setInComparison] = useState(false);
 
-  const { apartment, loading, error } = useApartmentDetail(slug);
+  const { apartment, loading, error } = useApartmentDetail(apartmentId);
 
   if (loading) return <PageSkeleton />;
 
@@ -347,7 +348,7 @@ const ObjectDetail = () => {
             <ChevronRight className="w-3 h-3 shrink-0" />
             <Link to="/catalog-zhk" className="hover:text-primary">Новостройки</Link>
             <ChevronRight className="w-3 h-3 shrink-0" />
-            <Link to={`/zhk/${blockSlug}`} className="hover:text-primary">{blockName}</Link>
+            <Link to={`/complex/${blockSlug}`} className="hover:text-primary">{blockName}</Link>
             <ChevronRight className="w-3 h-3 shrink-0" />
             <span className="text-foreground">
               {roomLabel}{areaTotal ? `, ${formatArea(areaTotal)}` : ''}
@@ -364,7 +365,7 @@ const ObjectDetail = () => {
         {/* ── Action buttons ───────────────────────────────────────────────── */}
         <div className="flex flex-wrap gap-2 mb-5">
           <Link
-            to={`/zhk/${blockSlug}`}
+            to={`/complex/${blockSlug}`}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card hover:bg-secondary text-sm transition-colors"
           >
             <Building2 className="w-4 h-4" />

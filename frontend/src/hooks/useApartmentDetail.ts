@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import api from '@/lib/api';
+import { getApartment } from '@/api/apartmentsApi';
 import { type ApartmentListItem } from '@/types/apartment';
 
 // ── Result shape ──────────────────────────────────────────────────────────────
@@ -40,16 +40,8 @@ export function useApartmentDetail(id: string | undefined): UseApartmentDetailRe
     setLoading(true);
     setError(null);
 
-    api
-      .get<{ data: ApartmentListItem }>(`/apartments/${id}`, {
-        signal: controller.signal,
-      })
-      .then((res) => {
-        // The axios interceptor may unwrap responses
-        const data = res.data as unknown as { data: ApartmentListItem } | ApartmentListItem;
-        const apartmentData = 'data' in data ? data.data : data;
-        setApartment(apartmentData as ApartmentListItem);
-      })
+    getApartment(id!)
+      .then((apartmentData) => setApartment(apartmentData))
       .catch((err) => {
         // Ignore AbortError from cancelled requests
         if (err?.code === 'ERR_CANCELED' || err?.name === 'AbortError') return;

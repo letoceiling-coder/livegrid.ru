@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import api from '@/lib/api';
+import { getApartments } from '@/api/apartmentsApi';
 import { formatArea, formatPrice } from '@/lib/format';
 import { type PropertyData } from '@/components/PropertyCard';
 import {
@@ -56,7 +56,7 @@ export interface UseApartmentsResult {
  *   address = block.name                    e.g. "ЖК Смородина"
  *   area    = formatArea(area.total)        e.g. "63.2 м²"
  *   rooms   = room_label                    e.g. "2-комнатная"
- *   slug    = id                            UUID for /object/:slug route
+ *   slug    = id                            id for /apartment/:id route
  */
 function toPropertyData(apt: ApartmentListItem): PropertyData {
   // Resolve room label: prefer API value, fall back to numeric derivation
@@ -114,20 +114,13 @@ export function useApartments(
     setLoading(true);
     setError(null);
 
-    api
-      .get<PaginatedApartments>('/apartments', {
-        params: {
-          ...filters,
-          page,
-          per_page: perPage,
-        },
-        signal: controller.signal,
-      })
-      .then((res) => {
-        const paginator = res.data as unknown as PaginatedApartments;
-        const rawItems  = paginator?.data ?? [];
-        setItems(rawItems.map(toPropertyData));
-        setMeta(paginator?.meta ?? null);
+    getApartments(
+      { ...filters, page, per_page: perPage },
+      controller.signal,
+    )
+      .then(({ data: rawItems, meta: paginatorMeta }) => {
+        setItems((rawItems ?? []).map(toPropertyData));
+        setMeta(paginatorMeta ?? null);
       })
       .catch((err) => {
         // Ignore AbortError from cancelled requests

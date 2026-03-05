@@ -220,7 +220,7 @@ export default function MapView({ apartments, loading, onMapClick, className }: 
               {formatPrice(selectedApartment.price)}
             </p>
             <a
-              href={`/object/${selectedApartment.id}`}
+              href={`/apartment/${selectedApartment.id}`}
               className="block w-full bg-primary text-primary-foreground text-center py-2 rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors"
             >
               Открыть

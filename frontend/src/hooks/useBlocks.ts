@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import api from '@/lib/api';
+import { getBlocks } from '@/api/blocksApi';
 import { formatPrice, formatArea } from '@/lib/format';
 import { type ZhkData } from '@/components/ZhkCard';
 import {
@@ -132,24 +132,14 @@ export function useBlocks(
     setLoading(true);
     setError(null);
 
-    api
-      .get<PaginatedBlocks>('/blocks', {
-        params: {
-          ...filters,
-          page,
-          per_page: perPage,
-        },
-        signal: controller.signal,
-      })
-      .then((res) => {
-        // The axios interceptor may unwrap responses, but paginator responses
-        // should be direct. Handle both cases.
-        const paginator = res.data as unknown as PaginatedBlocks;
-        const rawItems = paginator?.data ?? [];
-
-        setRawBlocks(rawItems);
-        setBlocks(rawItems.map(toZhkData));
-        setMeta(paginator?.meta ?? null);
+    getBlocks(
+      { ...filters, page, per_page: perPage },
+      controller.signal,
+    )
+      .then(({ data: rawItems, meta: paginatorMeta }) => {
+        setRawBlocks(rawItems ?? []);
+        setBlocks((rawItems ?? []).map(toZhkData));
+        setMeta(paginatorMeta ?? null);
       })
       .catch((err) => {
         // Ignore AbortError from cancelled requests

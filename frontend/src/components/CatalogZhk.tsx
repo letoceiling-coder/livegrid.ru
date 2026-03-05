@@ -13,7 +13,7 @@ const CatalogZhk = () => {
 
   const handleBlockClick = (blockSlug: string) => {
     setMapOpen(false);
-    navigate(`/zhk/${blockSlug}`);
+    navigate(`/complex/${blockSlug}`);
   };
 
   if (error) {
