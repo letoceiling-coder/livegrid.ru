@@ -7,6 +7,7 @@ import RedesignHeader from '@/redesign/components/RedesignHeader';
 import ComplexCard from '@/redesign/components/ComplexCard';
 import FilterSidebar from '@/redesign/components/FilterSidebar';
 import MapSearch from '@/redesign/components/MapSearch';
+import type { MapViewportBounds } from '@/components/ZhkMap';
 import { useCatalogBlocks } from '@/hooks/useCatalogBlocks';
 import { useMapObjects } from '@/hooks/useMapObjects';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
@@ -67,6 +68,10 @@ function buildURL(f: CatalogBlockFilters): URLSearchParams {
 
 type ViewMode = 'grid' | 'list' | 'map';
 
+const DEFAULT_VIEWPORT: MapViewportBounds = {
+  lat_min: 55.5, lat_max: 56.0, lng_min: 37.3, lng_max: 37.9,
+};
+
 const SkeletonCard = () => (
   <div className="rounded-2xl overflow-hidden bg-card border border-border animate-pulse" style={{ height: '420px', minHeight: '420px' }}>
     <div className="bg-muted h-[260px]" />
@@ -99,6 +104,7 @@ const RedesignCatalog = () => {
 
   const [filters, setFilters] = useState<CatalogBlockFilters>(initial);
   const [view, setView] = useState<ViewMode>('grid');
+  const [viewport, setViewport] = useState<MapViewportBounds | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [mapActive, setMapActive] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState(initial.search);
@@ -116,8 +122,8 @@ const RedesignCatalog = () => {
 
   const apiParams: BlockListParams = useMemo(() => {
     const p: BlockListParams = {
-      page: filters.page,
-      per_page: view === 'map' ? 100 : filters.per_page,
+      page: view === 'map' ? 1 : filters.page,
+      per_page: view === 'map' ? 500 : filters.per_page,
       sort: filters.sort,
       order: filters.order,
     };
@@ -133,18 +139,40 @@ const RedesignCatalog = () => {
 
   const displayedBlocks = useMemo(() => blocks.map(mapBlockToDisplay), [blocks]);
 
-  // Map view: fetch ALL blocks without viewport (no lat_min/lat_max/lng_min/lng_max)
+  const handleBoundsChange = useCallback((v: MapViewportBounds) => {
+    setViewport(prev => {
+      if (!prev) return v;
+      const t = 0.02;
+      if (Math.abs(v.lat_min - prev.lat_min) < t && Math.abs(v.lat_max - prev.lat_max) < t &&
+          Math.abs(v.lng_min - prev.lng_min) < t && Math.abs(v.lng_max - prev.lng_max) < t) return prev;
+      return v;
+    });
+  }, []);
+
   const mapParams: MapBlocksParams = useMemo(() => {
     const p: MapBlocksParams = {};
+    const v = viewport ?? DEFAULT_VIEWPORT;
+    p.lat_min = v.lat_min;
+    p.lat_max = v.lat_max;
+    p.lng_min = v.lng_min;
+    p.lng_max = v.lng_max;
     if (filters.search) p.search = filters.search;
     if (filters.district.length) p.district = filters.district;
     if (filters.builder.length) p.builder = filters.builder;
     if (filters.deadline_from) p.deadline_from = filters.deadline_from;
     if (filters.deadline_to) p.deadline_to = filters.deadline_to;
     return p;
-  }, [filters.search, filters.district, filters.builder, filters.deadline_from, filters.deadline_to]);
+  }, [viewport, filters.search, filters.district, filters.builder, filters.deadline_from, filters.deadline_to]);
+
   const { objects: mapBlocks } = useMapObjects(mapParams);
   const mapDisplayBlocks = useMemo(() => mapBlocks.map(mapBlockItemToDisplay), [mapBlocks]);
+
+  if (view === 'map') {
+    // eslint-disable-next-line no-console
+    console.log('list complexes', displayedBlocks.length);
+    // eslint-disable-next-line no-console
+    console.log('map complexes', mapDisplayBlocks.length);
+  }
 
   const totalCount = meta?.total ?? 0;
 
@@ -320,7 +348,14 @@ const RedesignCatalog = () => {
               </div>
             )}
             {view === 'map' && (
-              <MapSearch complexes={mapDisplayBlocks} activeSlug={mapActive} onSelect={setMapActive} fitAllMarkers />
+              <MapSearch
+                listComplexes={displayedBlocks}
+                mapComplexes={mapDisplayBlocks}
+                activeSlug={mapActive}
+                onSelect={setMapActive}
+                onViewportChange={handleBoundsChange}
+                fitBoundsOnce
+              />
             )}
 
             {!loading && displayedBlocks.length === 0 && (

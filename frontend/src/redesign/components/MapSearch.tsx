@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import type { BlockForDisplay } from '@/lib/blockDisplay';
 import { formatPrice } from '@/lib/format';
 import { MapPin, Building2 } from 'lucide-react';
+import type { MapViewportBounds } from '@/components/ZhkMap';
 
 declare global {
   interface Window { ymaps: any; }
@@ -10,19 +11,31 @@ declare global {
 
 const DEFAULT_CENTER = [55.751244, 37.618423];
 const DEFAULT_ZOOM = 11;
+const BOUNDS_CHANGE_DEBOUNCE_MS = 400;
+const VIEWPORT_THRESHOLD = 0.02;
 
 interface Props {
-  complexes: BlockForDisplay[];
+  /** All complexes for the list panel (~490) */
+  listComplexes: BlockForDisplay[];
+  /** Viewport-filtered complexes for map markers (~300–400) */
+  mapComplexes: BlockForDisplay[];
   activeSlug?: string | null;
   onSelect?: (slug: string) => void;
+  onViewportChange?: (v: MapViewportBounds) => void;
   height?: string;
-  fitAllMarkers?: boolean;
+  /** Fit map to markers only once on initial load */
+  fitBoundsOnce?: boolean;
 }
 
-const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh', fitAllMarkers }: Props) => {
+const MapSearch = ({ listComplexes, mapComplexes, activeSlug, onSelect, onViewportChange, height = '70vh', fitBoundsOnce }: Props) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const objectManagerRef = useRef<any>(null);
+  const onSelectRef = useRef(onSelect);
+  const onViewportChangeRef = useRef(onViewportChange);
+  onSelectRef.current = onSelect;
+  onViewportChangeRef.current = onViewportChange;
+  const initialBoundsFittedRef = useRef(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -36,21 +49,72 @@ const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh', fitAllMar
 
   useEffect(() => {
     if (!ready || !mapRef.current || mapInstance.current) return;
-    mapInstance.current = new window.ymaps.Map(mapRef.current, {
+    const map = new window.ymaps.Map(mapRef.current, {
       center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM,
       controls: ['zoomControl', 'geolocationControl'],
     });
+    mapInstance.current = map;
+
+    let boundsCleanup: (() => void) | undefined;
+    if (onViewportChangeRef.current) {
+      let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+      let lastViewport: MapViewportBounds | null = null;
+
+      const emitBounds = () => {
+        if (!mapInstance.current) return;
+        try {
+          const bounds = mapInstance.current.getBounds();
+          if (!bounds) return;
+          const lat_min = bounds[0][0];
+          const lat_max = bounds[1][0];
+          const lng_min = bounds[0][1];
+          const lng_max = bounds[1][1];
+          const viewport: MapViewportBounds = { lat_min, lat_max, lng_min, lng_max };
+          const changed = !lastViewport ||
+            Math.abs(viewport.lat_min - lastViewport.lat_min) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lat_max - lastViewport.lat_max) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lng_min - lastViewport.lng_min) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lng_max - lastViewport.lng_max) > VIEWPORT_THRESHOLD;
+          if (changed) {
+            lastViewport = viewport;
+            onViewportChangeRef.current?.(viewport);
+          }
+        } catch { /* ignore */ }
+      };
+
+      const handleActionEnd = (e: any) => {
+        const action = e?.get?.('action');
+        if (action === 'drag' || action === 'pan') {
+          if (debounceTimer) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(emitBounds, BOUNDS_CHANGE_DEBOUNCE_MS);
+        }
+      };
+
+      map.events.add('actionend', handleActionEnd);
+      emitBounds();
+
+      boundsCleanup = () => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        try { map.events.remove('actionend', handleActionEnd); } catch { /* ignore */ }
+      };
+    }
+
+    return () => {
+      boundsCleanup?.();
+      mapInstance.current?.destroy?.();
+      mapInstance.current = null;
+      objectManagerRef.current = null;
+      initialBoundsFittedRef.current = false;
+    };
   }, [ready]);
 
-  // ObjectManager — handle many markers (e.g. 490) without viewport filtering
   useEffect(() => {
     if (!ready || !mapInstance.current) return;
     const map = mapInstance.current;
 
     if (!objectManagerRef.current) {
       const om = new window.ymaps.ObjectManager({
-        clusterize: true,
-        gridSize: 64,
+        clusterize: true, gridSize: 64,
         clusterDisableClickZoom: false,
         clusterBalloonContentLayout: 'cluster#balloonCarousel',
       });
@@ -72,15 +136,12 @@ const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh', fitAllMar
       if (typeof om.removeAll === 'function') om.removeAll();
     } catch { /* ignore */ }
 
-    if (complexes.length === 0) return;
+    if (mapComplexes.length === 0) return;
 
-    const features = complexes.map(c => ({
+    const features = mapComplexes.map(c => ({
       type: 'Feature' as const,
       id: c.id,
-      geometry: {
-        type: 'Point' as const,
-        coordinates: c.coords as [number, number],
-      },
+      geometry: { type: 'Point' as const, coordinates: c.coords as [number, number] },
       properties: {
         blockSlug: c.slug,
         balloonContent: `<div><strong>${c.name}</strong><br/>от ${c.priceFrom?.toLocaleString?.() ?? 0} ₽<br/><a href="/complex/${c.slug}">Открыть ЖК</a></div>`,
@@ -89,25 +150,26 @@ const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh', fitAllMar
 
     om.add({ type: 'FeatureCollection' as const, features });
 
-    if (fitAllMarkers && map) {
+    if (fitBoundsOnce && !initialBoundsFittedRef.current && map) {
+      initialBoundsFittedRef.current = true;
       try {
         const bounds = om.getBounds();
         if (bounds) map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
       } catch { /* ignore */ }
     }
-  }, [complexes, ready, fitAllMarkers]);
+  }, [mapComplexes, ready, fitBoundsOnce]);
 
   const centerOn = useCallback((slug: string) => {
-    const c = complexes.find(x => x.slug === slug);
+    const c = listComplexes.find(x => x.slug === slug);
     if (c && mapInstance.current) mapInstance.current.setCenter(c.coords, 14, { duration: 400 });
     onSelect?.(slug);
-  }, [complexes, onSelect]);
+  }, [listComplexes, onSelect]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-4" style={{ height }}>
       <div ref={mapRef} className="flex-1 rounded-2xl overflow-hidden border border-border bg-muted min-h-[300px]" />
       <div className="w-full lg:w-[360px] overflow-y-auto space-y-2 shrink-0">
-        {complexes.map(c => (
+        {listComplexes.map(c => (
           <button
             key={c.slug}
             onClick={() => centerOn(c.slug)}
