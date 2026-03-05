@@ -212,10 +212,15 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
       id: String(block.id ?? index),
       geometry: {
         type: 'Point',
-        coordinates: [block.lng, block.lat],
+        coordinates: [block.lat, block.lng],
       },
       properties: {
         blockSlug: block.slug,
+        balloonContent: `<div class="map-balloon" style="min-width:200px;padding:6px 0">
+          <strong style="font-size:14px">${block.name}</strong><br/>
+          от ${formatPrice(block.price_from)}<br/>
+          <a href="/complex/${block.slug}" style="color:#2563eb;font-size:13px;text-decoration:none;font-weight:500">Подробнее →</a>
+        </div>`,
         balloonContentHeader: `<strong style="font-size:14px">${block.name}</strong>`,
         balloonContentBody: `
           <div style="min-width:200px;padding:6px 0">
