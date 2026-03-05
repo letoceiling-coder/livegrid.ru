@@ -209,10 +209,10 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
 
     const features = blocks.map((block, index) => ({
       type: 'Feature',
-      id: index,
+      id: String(block.id ?? index),
       geometry: {
         type: 'Point',
-        coordinates: [block.lat, block.lng],
+        coordinates: [block.lng, block.lat],
       },
       properties: {
         blockSlug: block.slug,
