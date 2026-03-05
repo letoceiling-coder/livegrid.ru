@@ -54,17 +54,32 @@ export interface MapBlockItem {
   image: string | null;
 }
 
-/** GET /api/v1/blocks — paginated list */
+/** GET /api/v1/blocks — paginated list. Backend does not accept sort/order. */
 export async function getBlocks(
   params: BlockListParams = {},
   signal?: AbortSignal
 ): Promise<{ data: BlockListItem[]; meta: PaginationMeta }> {
+  const { page = 1, per_page = 20, district, builder, is_city, search, deadline_from, deadline_to } = params;
+  const requestParams: Record<string, unknown> = {
+    page,
+    per_page: per_page ?? 20,
+  };
+  if (district?.length) requestParams.district = district;
+  if (builder?.length) requestParams.builder = builder;
+  if (is_city !== undefined) requestParams.is_city = is_city;
+  if (search) requestParams.search = search;
+  if (deadline_from) requestParams.deadline_from = deadline_from;
+  if (deadline_to) requestParams.deadline_to = deadline_to;
+
   const { data } = await api.get<PaginatedBlocks>('/blocks', {
-    params: { ...params, per_page: params.per_page ?? 20 },
+    params: requestParams,
     signal,
   });
   const raw = data as unknown as PaginatedBlocks;
-  return { data: raw?.data ?? [], meta: raw?.meta ?? { current_page: 1, last_page: 1, per_page: 20, total: 0, from: null, to: null, links: [], path: '' } };
+  const blocks = raw?.data ?? [];
+  // eslint-disable-next-line no-console
+  console.log('blocks api response', blocks.length);
+  return { data: blocks, meta: raw?.meta ?? { current_page: 1, last_page: 1, per_page: 20, total: 0, from: null, to: null, links: [], path: '' } };
 }
 
 /** GET /api/v1/blocks/{slug} — single block by slug or id */

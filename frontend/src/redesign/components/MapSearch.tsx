@@ -41,7 +41,7 @@ const MapSearch = ({ listComplexes, mapComplexes, activeSlug, onSelect, onViewpo
   useEffect(() => {
     if (window.ymaps) { window.ymaps.ready(() => setReady(true)); return; }
     const s = document.createElement('script');
-    s.src = 'https://api-maps.yandex.ru/2.1/?lang=ru_RU';
+    s.src = 'https://api-maps.yandex.ru/2.1/?apikey=a79c56f4-efea-471e-bee5-fe9226cd53fd&lang=ru_RU';
     s.async = true;
     s.onload = () => window.ymaps.ready(() => setReady(true));
     document.head.appendChild(s);

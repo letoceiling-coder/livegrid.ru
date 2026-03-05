@@ -56,7 +56,7 @@ class BlockController extends Controller
             'deadline_to'   => ['nullable', 'date_format:Y-m-d'],
             'sort'          => ['nullable', 'string', 'in:price_from,deadline,name'],
             'order'         => ['nullable', 'string', 'in:asc,desc'],
-            'per_page'      => ['nullable', 'integer', 'min:1', 'max:100'],
+            'per_page'      => ['nullable', 'integer', 'min:1', 'max:500'],
         ]);
 
         // ── Base query ────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ class BlockController extends Controller
         };
 
         // ── Pagination ────────────────────────────────────────────────────────
-        $perPage   = min((int) ($request->per_page ?? 20), 100);
+        $perPage   = min((int) ($request->per_page ?? 20), 500);
         $query->with(['subways' => fn ($q) => $q->orderBy('block_subway.travel_time')]);
         $paginator = $query->paginate($perPage)->withQueryString();
 
