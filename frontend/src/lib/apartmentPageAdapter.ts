@@ -48,7 +48,7 @@ export function mapApartmentToPageDisplay(
     pricePerMeter: raw.price_per_meter ?? (areaTotal > 0 ? Math.round(price / areaTotal) : 0),
     finishing: mapFinishing(raw.finishing?.name ?? null),
     status: 'available',
-    planImage: raw.plan_url ?? '/placeholder.svg',
+    planImage: raw.plan_url ?? block.images?.[0] ?? '/placeholder.svg',
     section: 1,
   };
 

@@ -30,6 +30,6 @@ export async function getApartments(
 
 /** GET /api/v1/apartments/{id} — single apartment by id (24 hex) */
 export async function getApartment(id: string): Promise<ApartmentListItem> {
-  const { data } = await api.get<ApartmentListItem>(`/apartments/${id}`);
-  return data as ApartmentListItem;
+  const { data } = await api.get<ApartmentListItem | { data: ApartmentListItem }>(`/apartments/${id}`);
+  return (data && typeof data === 'object' && 'data' in data ? (data as { data: ApartmentListItem }).data : data) as ApartmentListItem;
 }
