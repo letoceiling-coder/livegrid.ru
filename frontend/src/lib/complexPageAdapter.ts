@@ -25,6 +25,8 @@ function mapFinishing(name: string | null): Apartment['finishing'] {
 function mapApartment(a: ApartmentListItem, complexId: string): Apartment {
   const areaTotal = a.area?.total ?? 0;
   const price = a.price ?? 0;
+  // Всегда вычисляем ₽/м² из price/area — для единообразия (API price_per_meter часто null)
+  const pricePerMeter = areaTotal > 0 ? Math.round(price / areaTotal) : 0;
   return {
     id: a.id,
     complexId,
@@ -35,7 +37,7 @@ function mapApartment(a: ApartmentListItem, complexId: string): Apartment {
     floor: a.floor ?? 1,
     totalFloors: a.floors_total ?? 1,
     price,
-    pricePerMeter: areaTotal > 0 ? Math.round(price / areaTotal) : 0,
+    pricePerMeter,
     finishing: mapFinishing(a.finishing?.name ?? null),
     status: 'available',
     planImage: a.plan_url ?? '/placeholder.svg',

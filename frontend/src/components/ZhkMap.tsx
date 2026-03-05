@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getMapObjects } from '@/api/mapApi';
+import { getComplex } from '@/api/blocksApi';
 import { formatPrice } from '@/lib/format';
 import { type BlockFilters } from '@/hooks/useBlocks';
 
@@ -62,7 +63,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
     }
     const script = document.createElement('script');
     script.id = 'ymaps-script';
-    script.src = 'https://api-maps.yandex.ru/2.1/?lang=ru_RU';
+    script.src = 'https://api-maps.yandex.ru/2.1/?apikey=a79c56f4-efea-471e-bee5-fe9226cd53fd&lang=ru_RU';
     script.async = true;
     script.onload = () => window.ymaps.ready(() => setYmapsReady(true));
     document.body.appendChild(script);
@@ -161,26 +162,44 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
     };
   }, [ymapsReady, onBoundsChange]);
 
-  // ── 4. Render markers ───────────────────────────────────────────────────
+  const initialBoundsFittedRef = useRef(false);
+
+  // ── 4. Create ObjectManager once ────────────────────────────────────────
   useEffect(() => {
-    if (!ymapsReady || !mapInstanceRef.current || loadingBlocks) return;
+    if (!ymapsReady || !mapInstanceRef.current) return;
 
     const map = mapInstanceRef.current;
 
-    // Remove old object manager
-    if (objectManagerRef.current) {
-      map.geoObjects.remove(objectManagerRef.current);
-      objectManagerRef.current = null;
+    if (!objectManagerRef.current) {
+      const om = new window.ymaps.ObjectManager({
+        clusterize: true,
+        gridSize: 60,
+        clusterDisableClickZoom: false,
+        clusterBalloonContentLayout: 'cluster#balloonCarousel',
+      });
+
+      om.objects.events.add('click', (e: any) => {
+        const obj = om.objects.getById(e.get('objectId'));
+        if (obj && obj.properties?.blockSlug && onBlockClick) onBlockClick(obj.properties.blockSlug);
+      });
+
+      map.geoObjects.add(om);
+      objectManagerRef.current = om;
     }
+  }, [ymapsReady, onBlockClick]);
 
-    if (blocks.length === 0) return;
+  // ── 5. Update ObjectManager objects in place (do not recreate) ──────────
+  useEffect(() => {
+    if (!objectManagerRef.current || loadingBlocks) return;
 
-    const om = new window.ymaps.ObjectManager({
-      clusterize: true,
-      gridSize: 60,
-      clusterDisableClickZoom: false,
-      clusterBalloonContentLayout: 'cluster#balloonCarousel',
-    });
+    const om = objectManagerRef.current;
+
+    if (blocks.length === 0) {
+      try {
+        if (typeof om.removeAll === 'function') om.removeAll();
+      } catch { /* ignore */ }
+      return;
+    }
 
     const features = blocks.map((block, index) => ({
       type: 'Feature',
@@ -222,29 +241,35 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
       },
     }));
 
+    try {
+      if (typeof om.removeAll === 'function') om.removeAll();
+    } catch { /* ignore */ }
     om.add({ type: 'FeatureCollection', features });
 
-    om.objects.events.add('click', (e: any) => {
-      const obj = om.objects.getById(e.get('objectId'));
-      if (obj && onBlockClick) onBlockClick(obj.properties.blockSlug);
-    });
-
-    map.geoObjects.add(om);
-    objectManagerRef.current = om;
-
-    // Fit bounds
-    const bounds = om.getBounds();
-    if (bounds) {
-      map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
+    if (!initialBoundsFittedRef.current && mapInstanceRef.current) {
+      initialBoundsFittedRef.current = true;
+      const bounds = om.getBounds();
+      if (bounds) {
+        mapInstanceRef.current.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
+      }
     }
-  }, [ymapsReady, blocks, loadingBlocks, onBlockClick]);
+  }, [blocks, loadingBlocks]);
 
   // ── 6. Center on slug when selected from search ─────────────────────────
   useEffect(() => {
-    if (!centerOnSlug || !mapInstanceRef.current || blocks.length === 0) return;
+    if (!centerOnSlug || !mapInstanceRef.current) return;
+    const map = mapInstanceRef.current;
     const block = blocks.find(b => b.slug === centerOnSlug);
-    if (block && mapInstanceRef.current.setCenter) {
-      mapInstanceRef.current.setCenter([block.lat, block.lng], 15, { duration: 400 });
+    if (block && map.setCenter) {
+      map.setCenter([block.lat, block.lng], 15, { duration: 300 });
+    } else if (centerOnSlug && map.setCenter) {
+      getComplex(centerOnSlug).then((complex) => {
+        const lat = complex.geo?.lat ?? 55.75;
+        const lng = complex.geo?.lng ?? 37.62;
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.setCenter([lat, lng], 15, { duration: 300 });
+        }
+      }).catch(() => { /* ignore */ });
     }
   }, [centerOnSlug, blocks]);
 

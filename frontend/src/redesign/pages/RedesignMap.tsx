@@ -4,7 +4,7 @@ import { SlidersHorizontal, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RedesignHeader from '@/redesign/components/RedesignHeader';
 import FilterSidebar from '@/redesign/components/FilterSidebar';
-import ZhkMap from '@/components/ZhkMap';
+import ZhkMap, { type MapViewportBounds } from '@/components/ZhkMap';
 import { useMapObjects } from '@/hooks/useMapObjects';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useSearch } from '@/hooks/useSearch';
@@ -93,14 +93,19 @@ const RedesignMap = () => {
   const { filters: filterOptions, loading: filtersLoading } = useCatalogFilters();
 
   const mapParams: MapBlocksParams = useMemo(() => {
-    const p: MapBlocksParams = {};
+    const p: MapBlocksParams = {
+      lat_min: viewport.lat_min,
+      lat_max: viewport.lat_max,
+      lng_min: viewport.lng_min,
+      lng_max: viewport.lng_max,
+    };
     if (filters.search) p.search = filters.search;
     if (filters.district.length) p.district = filters.district;
     if (filters.builder.length) p.builder = filters.builder;
     if (filters.deadline_from) p.deadline_from = filters.deadline_from;
     if (filters.deadline_to) p.deadline_to = filters.deadline_to;
     return p;
-  }, [filters.search, filters.district, filters.builder, filters.deadline_from, filters.deadline_to]);
+  }, [viewport, filters.search, filters.district, filters.builder, filters.deadline_from, filters.deadline_to]);
 
   const { objects: blocks, loading, error } = useMapObjects(mapParams);
 
