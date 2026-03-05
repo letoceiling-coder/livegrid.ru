@@ -135,7 +135,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
             Math.abs(viewport.lng_max - lastViewport.lng_max) > VIEWPORT_THRESHOLD;
           if (changed) {
             lastViewport = viewport;
-            onBoundsChange(viewport);
+            onBoundsChangeRef.current?.(viewport);
           }
         } catch { /* ignore */ }
       };
@@ -187,7 +187,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
 
       om.objects.events.add('click', (e: any) => {
         const obj = om.objects.getById(e.get('objectId'));
-        if (obj && obj.properties?.blockSlug && onBlockClick) onBlockClick(obj.properties.blockSlug);
+        if (obj?.properties?.blockSlug) onBlockClickRef.current?.(obj.properties.blockSlug);
       });
 
       map.geoObjects.add(om);
@@ -197,9 +197,21 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
 
   // ── 5. Update ObjectManager objects in place (do not recreate) ──────────
   useEffect(() => {
-    if (!objectManagerRef.current || loadingBlocks) return;
-
+    const map = mapInstanceRef.current;
     const om = objectManagerRef.current;
+
+    // eslint-disable-next-line no-console
+    console.log('blocks effect', { blocksLen: blocks.length, loadingBlocks, hasMap: !!map, hasOM: !!om });
+
+    if (!om) {
+      // eslint-disable-next-line no-console
+      console.error('ObjectManager missing');
+      return;
+    }
+    if (loadingBlocks) return;
+
+    // eslint-disable-next-line no-console
+    console.log('blocks received', blocks.length);
 
     if (blocks.length === 0) {
       try {
@@ -208,41 +220,47 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
       return;
     }
 
-    const features = blocks.map((block, index) => ({
+    const features = blocks.map(block => ({
       type: 'Feature' as const,
-      id: block.id ?? index,
+      id: block.id,
       geometry: {
         type: 'Point' as const,
-        coordinates: [block.lng, block.lat],
+        coordinates: [Number(block.lng), Number(block.lat)] as [number, number],
       },
       properties: {
-        blockSlug: block.slug,
-        balloonContent: `<div><strong>${block.name}</strong><br/>от ${(block.price_from ?? 0).toLocaleString('ru-RU')} ₽<br/><a href="/complex/${block.slug}">Открыть ЖК</a></div>`,
-        hintContent: block.name,
-      },
-      options: {
-        preset: 'islands#blueCircleDotIcon',
+        balloonContent: `<div><strong>${block.name}</strong><br/>от ${block.price_from?.toLocaleString?.() ?? 0} ₽<br/><a href="/complex/${block.slug}">Открыть ЖК</a></div>`,
       },
     }));
 
-    const geoJson = { type: 'FeatureCollection' as const, features };
-
     // eslint-disable-next-line no-console
-    console.log('blocks', blocks.length, 'features', features.length);
+    console.log('features created', features.length);
+    if (features.length === 0) {
+      // eslint-disable-next-line no-console
+      console.error('FEATURES EMPTY');
+      return;
+    }
+
+    const geoJson = { type: 'FeatureCollection' as const, features };
+    // eslint-disable-next-line no-console
+    console.log('geojson', geoJson);
+    // eslint-disable-next-line no-console
+    console.log('adding features to map');
 
     try {
       if (typeof om.removeAll === 'function') om.removeAll();
     } catch { /* ignore */ }
     om.add(geoJson);
+    // eslint-disable-next-line no-console
+    console.log('markers added');
 
-    if (!initialBoundsFittedRef.current && mapInstanceRef.current) {
+    if (!initialBoundsFittedRef.current && map) {
       initialBoundsFittedRef.current = true;
       const bounds = om.getBounds();
       if (bounds) {
-        mapInstanceRef.current.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
+        map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
       }
     }
-  }, [blocks, loadingBlocks]);
+  }, [blocks, loadingBlocks, ymapsReady]);
 
   // ── 6. Center on slug when selected from search ─────────────────────────
   useEffect(() => {
