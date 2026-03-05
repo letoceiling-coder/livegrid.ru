@@ -16,12 +16,13 @@ interface Props {
   activeSlug?: string | null;
   onSelect?: (slug: string) => void;
   height?: string;
+  fitAllMarkers?: boolean;
 }
 
-const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh' }: Props) => {
+const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh', fitAllMarkers }: Props) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const objectManagerRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -41,23 +42,60 @@ const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh' }: Props) 
     });
   }, [ready]);
 
+  // ObjectManager — handle many markers (e.g. 490) without viewport filtering
   useEffect(() => {
-    if (!mapInstance.current) return;
+    if (!ready || !mapInstance.current) return;
     const map = mapInstance.current;
-    markersRef.current.forEach(m => map.geoObjects.remove(m));
-    markersRef.current = [];
 
-    complexes.forEach(c => {
-      const img = c.images[0] ?? '/placeholder.svg';
-      const pm = new window.ymaps.Placemark(c.coords, {
-        balloonContentHeader: `<strong>${c.name}</strong>`,
-        balloonContentBody: `<div style="max-width:240px"><img src="${img}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px" /><div style="font-weight:700;margin-bottom:4px">${formatPrice(c.priceFrom)}</div><div style="font-size:12px;color:#666">${c.district} · м.${c.subway}</div><a href="/complex/${c.slug}" style="color:hsl(206,89%,60%);font-size:13px;margin-top:8px;display:block;font-weight:500">Подробнее →</a></div>`,
-      }, { preset: 'islands#blueCircleDotIcon' });
-      pm.events.add('click', () => onSelect?.(c.slug));
-      map.geoObjects.add(pm);
-      markersRef.current.push(pm);
-    });
-  }, [complexes, ready]);
+    if (!objectManagerRef.current) {
+      const om = new window.ymaps.ObjectManager({
+        clusterize: true,
+        gridSize: 64,
+        clusterDisableClickZoom: false,
+        clusterBalloonContentLayout: 'cluster#balloonCarousel',
+      });
+      om.objects.events.add('click', (e: any) => {
+        const obj = om.objects.getById(e.get('objectId'));
+        if (obj?.properties?.blockSlug) onSelectRef.current?.(obj.properties.blockSlug);
+      });
+      map.geoObjects.add(om);
+      objectManagerRef.current = om;
+    }
+  }, [ready]);
+
+  useEffect(() => {
+    const map = mapInstance.current;
+    const om = objectManagerRef.current;
+    if (!om) return;
+
+    try {
+      if (typeof om.removeAll === 'function') om.removeAll();
+    } catch { /* ignore */ }
+
+    if (complexes.length === 0) return;
+
+    const features = complexes.map(c => ({
+      type: 'Feature' as const,
+      id: c.id,
+      geometry: {
+        type: 'Point' as const,
+        coordinates: c.coords as [number, number],
+      },
+      properties: {
+        blockSlug: c.slug,
+        balloonContent: `<div><strong>${c.name}</strong><br/>от ${c.priceFrom?.toLocaleString?.() ?? 0} ₽<br/><a href="/complex/${c.slug}">Открыть ЖК</a></div>`,
+      },
+    }));
+
+    om.add({ type: 'FeatureCollection' as const, features });
+
+    if (fitAllMarkers && map) {
+      try {
+        const bounds = om.getBounds();
+        if (bounds) map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
+      } catch { /* ignore */ }
+    }
+  }, [complexes, ready, fitAllMarkers]);
 
   const centerOn = useCallback((slug: string) => {
     const c = complexes.find(x => x.slug === slug);

@@ -32,7 +32,5 @@ export async function getMapObjects(params: MapBlocksParams = {}): Promise<MapBl
     params: params as Record<string, unknown>,
   });
   const blocks = (response?.data as { data?: MapBlockItem[] })?.data ?? [];
-  // eslint-disable-next-line no-console
-  console.log('blocks length', blocks.length);
   return Array.isArray(blocks) ? blocks : [];
 }

@@ -4,6 +4,7 @@
  */
 
 import type { BlockListItem } from '@/types/block';
+import type { MapBlockItem } from '@/api/blocksApi';
 
 export interface BlockForDisplay {
   id: string;
@@ -56,5 +57,25 @@ export function mapBlockToDisplay(block: BlockListItem): BlockForDisplay {
       priceFrom: g.price_from ?? null,
       areaFrom: g.area_from ?? null,
     })),
+  };
+}
+
+/** Map MapBlockItem (from /blocks/map) to BlockForDisplay for catalog map view */
+export function mapBlockItemToDisplay(b: MapBlockItem): BlockForDisplay {
+  return {
+    id: b.id,
+    slug: b.slug,
+    name: b.name,
+    images: b.image ? [b.image] : ['/placeholder.svg'],
+    priceFrom: b.price_from,
+    district: '',
+    builder: '',
+    address: '',
+    subway: '',
+    subwayDistance: '',
+    deadline: '',
+    coords: [b.lat, b.lng],
+    unitsCount: b.units_count,
+    roomGroups: [],
   };
 }

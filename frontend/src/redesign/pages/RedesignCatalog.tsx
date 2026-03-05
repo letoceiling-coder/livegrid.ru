@@ -8,10 +8,12 @@ import ComplexCard from '@/redesign/components/ComplexCard';
 import FilterSidebar from '@/redesign/components/FilterSidebar';
 import MapSearch from '@/redesign/components/MapSearch';
 import { useCatalogBlocks } from '@/hooks/useCatalogBlocks';
+import { useMapObjects } from '@/hooks/useMapObjects';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useSearch } from '@/hooks/useSearch';
-import { mapBlockToDisplay } from '@/lib/blockDisplay';
+import { mapBlockToDisplay, mapBlockItemToDisplay } from '@/lib/blockDisplay';
 import type { BlockListParams } from '@/api/blocksApi';
+import type { MapBlocksParams } from '@/api/mapApi';
 import type { CatalogBlockFilters } from '@/redesign/data/types';
 
 const defaultFilters: CatalogBlockFilters = {
@@ -130,6 +132,19 @@ const RedesignCatalog = () => {
   const { blocks, meta, loading, error } = useCatalogBlocks(apiParams, apiParams.page ?? 1, apiParams.per_page ?? 20);
 
   const displayedBlocks = useMemo(() => blocks.map(mapBlockToDisplay), [blocks]);
+
+  // Map view: fetch ALL blocks without viewport (no lat_min/lat_max/lng_min/lng_max)
+  const mapParams: MapBlocksParams = useMemo(() => {
+    const p: MapBlocksParams = {};
+    if (filters.search) p.search = filters.search;
+    if (filters.district.length) p.district = filters.district;
+    if (filters.builder.length) p.builder = filters.builder;
+    if (filters.deadline_from) p.deadline_from = filters.deadline_from;
+    if (filters.deadline_to) p.deadline_to = filters.deadline_to;
+    return p;
+  }, [filters.search, filters.district, filters.builder, filters.deadline_from, filters.deadline_to]);
+  const { objects: mapBlocks } = useMapObjects(mapParams);
+  const mapDisplayBlocks = useMemo(() => mapBlocks.map(mapBlockItemToDisplay), [mapBlocks]);
 
   const totalCount = meta?.total ?? 0;
 
@@ -305,7 +320,7 @@ const RedesignCatalog = () => {
               </div>
             )}
             {view === 'map' && (
-              <MapSearch complexes={displayedBlocks} activeSlug={mapActive} onSelect={setMapActive} />
+              <MapSearch complexes={mapDisplayBlocks} activeSlug={mapActive} onSelect={setMapActive} fitAllMarkers />
             )}
 
             {!loading && displayedBlocks.length === 0 && (
