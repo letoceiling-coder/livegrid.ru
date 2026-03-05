@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, MapPin } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RedesignHeader from '@/redesign/components/RedesignHeader';
@@ -7,16 +8,38 @@ import ComplexHero from '@/redesign/components/ComplexHero';
 import ApartmentTable from '@/redesign/components/ApartmentTable';
 import Chessboard from '@/redesign/components/Chessboard';
 import LayoutGrid from '@/redesign/components/LayoutGrid';
-import { getComplexBySlug, getLayoutGroups, formatPrice } from '@/redesign/data/mock-data';
+import { getComplex, getComplexApartments } from '@/api/blocksApi';
+import { mapBlockDetailToComplex } from '@/lib/complexPageAdapter';
+import { getLayoutGroups, formatPrice } from '@/redesign/data/mock-data';
 import type { SortField, SortDir } from '@/redesign/data/types';
 
 declare global {
   interface Window { ymaps: any; }
 }
 
+const APARTMENTS_PER_PAGE = 500;
+
 const RedesignComplex = () => {
   const { slug } = useParams<{ slug: string }>();
-  const complex = getComplexBySlug(slug || '');
+  const slugOrId = slug || '';
+
+  const { data: block, isLoading: blockLoading, error: blockError } = useQuery({
+    queryKey: ['block', slugOrId],
+    queryFn: () => getComplex(slugOrId),
+    enabled: !!slugOrId,
+  });
+
+  const { data: aptsResult } = useQuery({
+    queryKey: ['block-apartments', slugOrId],
+    queryFn: () => getComplexApartments(slugOrId, { per_page: APARTMENTS_PER_PAGE }),
+    enabled: !!block && !!slugOrId,
+  });
+
+  const complex = useMemo(() => {
+    if (!block) return null;
+    const apts = aptsResult?.data ?? [];
+    return mapBlockDetailToComplex(block, apts);
+  }, [block, aptsResult?.data]);
   const [sort, setSort] = useState<{ field: SortField; dir: SortDir }>({ field: 'price', dir: 'asc' });
   const [roomFilter, setRoomFilter] = useState<number | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -68,7 +91,18 @@ const RedesignComplex = () => {
     mapInstanceRef.current = map;
   };
 
-  if (!complex) {
+  if (blockLoading || (!block && !blockError)) {
+    return (
+      <div className="min-h-screen bg-background">
+        <RedesignHeader />
+        <div className="max-w-[1400px] mx-auto px-4 py-16 flex justify-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (blockError || !complex) {
     return (
       <div className="min-h-screen bg-background">
         <RedesignHeader />
