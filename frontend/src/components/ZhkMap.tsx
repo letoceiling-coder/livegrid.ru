@@ -16,8 +16,11 @@ interface MapBlock {
 
 interface ZhkMapProps {
   filters?: BlockFilters;
+  /** When provided, map fetches data; when omitted, pass blocks explicitly */
   blocks?: MapBlock[];
   onBlockClick?: (blockSlug: string) => void;
+  /** Center map on this block slug and zoom to 15 */
+  centerOnSlug?: string | null;
 }
 
 declare global {
@@ -173,6 +176,15 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
       map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
     }
   }, [ymapsReady, blocks, loadingBlocks, onBlockClick]);
+
+  // ── 5. Center on slug when selected from search ─────────────────────────
+  useEffect(() => {
+    if (!centerOnSlug || !mapInstanceRef.current || blocks.length === 0) return;
+    const block = blocks.find(b => b.slug === centerOnSlug);
+    if (block && mapInstanceRef.current.setCenter) {
+      mapInstanceRef.current.setCenter([block.lat, block.lng], 15, { duration: 400 });
+    }
+  }, [centerOnSlug, blocks]);
 
   const isLoading = !ymapsReady || loadingBlocks;
 
