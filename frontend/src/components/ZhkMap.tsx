@@ -225,7 +225,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
       id: block.id,
       geometry: {
         type: 'Point' as const,
-        coordinates: [Number(block.lng), Number(block.lat)] as [number, number],
+        coordinates: [Number(block.lat), Number(block.lng)] as [number, number],
       },
       properties: {
         balloonContent: `<div><strong>${block.name}</strong><br/>от ${block.price_from?.toLocaleString?.() ?? 0} ₽<br/><a href="/complex/${block.slug}">Открыть ЖК</a></div>`,
@@ -234,6 +234,8 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
 
     // eslint-disable-next-line no-console
     console.log('features created', features.length);
+    // eslint-disable-next-line no-console
+    if (features[0]) console.log('first marker', features[0].geometry.coordinates);
     if (features.length === 0) {
       // eslint-disable-next-line no-console
       console.error('FEATURES EMPTY');
