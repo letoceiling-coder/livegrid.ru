@@ -253,7 +253,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
     }));
 
     // eslint-disable-next-line no-console
-    console.log('blocks count', blocks.length, 'features count', features.length);
+    console.log('blocks loaded', blocks.length, 'features created', features.length);
 
     try {
       if (typeof om.removeAll === 'function') om.removeAll();

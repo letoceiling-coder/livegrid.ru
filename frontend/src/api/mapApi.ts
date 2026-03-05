@@ -26,12 +26,13 @@ export interface MapBlocksParams {
   deadline_to?: string;
 }
 
-/** GET /api/v1/blocks/map — blocks with lat/lng for map. API returns { data: [...] } */
+/** GET /api/v1/blocks/map — blocks with lat/lng for map. Axios response.data = { data: [...] } */
 export async function getMapObjects(params: MapBlocksParams = {}): Promise<MapBlockItem[]> {
   const response = await api.get<{ data: MapBlockItem[] }>('/blocks/map', {
     params: params as Record<string, unknown>,
   });
-  const body = response?.data as { data?: MapBlockItem[] } | undefined;
-  const blocks = body?.data;
+  const blocks = (response?.data as { data?: MapBlockItem[] })?.data ?? [];
+  // eslint-disable-next-line no-console
+  console.log('blocks length', blocks.length);
   return Array.isArray(blocks) ? blocks : [];
 }
