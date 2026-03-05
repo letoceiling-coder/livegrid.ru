@@ -26,10 +26,12 @@ export interface MapBlocksParams {
   deadline_to?: string;
 }
 
-/** GET /api/v1/blocks/map — blocks with lat/lng for map */
+/** GET /api/v1/blocks/map — blocks with lat/lng for map. API returns { data: [...] } */
 export async function getMapObjects(params: MapBlocksParams = {}): Promise<MapBlockItem[]> {
-  const { data } = await api.get<{ data: MapBlockItem[] }>('/blocks/map', { params: params as Record<string, unknown> });
-  const raw = data as { data?: MapBlockItem[] } | MapBlockItem[];
-  if (Array.isArray(raw)) return raw;
-  return raw?.data ?? [];
+  const response = await api.get<{ data: MapBlockItem[] }>('/blocks/map', {
+    params: params as Record<string, unknown>,
+  });
+  const body = response?.data as { data?: MapBlockItem[] } | undefined;
+  const blocks = body?.data;
+  return Array.isArray(blocks) ? blocks : [];
 }

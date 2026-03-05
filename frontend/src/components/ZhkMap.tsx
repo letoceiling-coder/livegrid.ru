@@ -212,14 +212,14 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
       id: String(block.id ?? index),
       geometry: {
         type: 'Point',
-        coordinates: [block.lat, block.lng],
+        coordinates: [block.lng, block.lat],
       },
       properties: {
         blockSlug: block.slug,
         balloonContent: `<div class="map-balloon" style="min-width:200px;padding:6px 0">
-          <strong style="font-size:14px">${block.name}</strong><br/>
-          от ${formatPrice(block.price_from)}<br/>
-          <a href="/complex/${block.slug}" style="color:#2563eb;font-size:13px;text-decoration:none;font-weight:500">Подробнее →</a>
+          <strong>${block.name}</strong><br/>
+          от ${(block.price_from ?? 0).toLocaleString('ru-RU')} ₽<br/>
+          <a href="/complex/${block.slug}">Открыть ЖК</a>
         </div>`,
         balloonContentHeader: `<strong style="font-size:14px">${block.name}</strong>`,
         balloonContentBody: `
@@ -252,10 +252,14 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
       },
     }));
 
+    // eslint-disable-next-line no-console
+    console.log('blocks count', blocks.length, 'features count', features.length);
+
     try {
       if (typeof om.removeAll === 'function') om.removeAll();
     } catch { /* ignore */ }
-    om.add({ type: 'FeatureCollection', features });
+    const geoJson = { type: 'FeatureCollection' as const, features };
+    om.add(geoJson);
 
     if (!initialBoundsFittedRef.current && mapInstanceRef.current) {
       initialBoundsFittedRef.current = true;
