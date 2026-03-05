@@ -1,0 +1,104 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:53+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/rooms.json",
+        "analysis_seconds": 0,
+        "max_depth_reached": 2,
+        "array_sample_size": 5
+    },
+    "stats": {
+        "total_fields": 3,
+        "total_entities": 1,
+        "max_depth": 2,
+        "id_fields_count": 2,
+        "nullable_fields": 0,
+        "enum_candidates": 3,
+        "type_distribution": {
+            "string": 2,
+            "int": 1
+        },
+        "root_is_list": true,
+        "root_keys": []
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "item_count": 28,
+            "id_field": null,
+            "parent": null,
+            "direct_fields": [],
+            "foreign_keys": []
+        }
+    },
+    "fields": {
+        "[]._id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "58c665588b6aa52311afa02c",
+            "enum_values": {
+                "58c665588b6aa52311afa02c": 1,
+                "58c665588b6aa52311afa02d": 1,
+                "58c665588b6aa52311afa02e": 1,
+                "58c665588b6aa52311afa02f": 1,
+                "58c665588b6aa52311afa030": 1
+            }
+        },
+        "[].name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Студии",
+            "enum_values": {
+                "Студии": 1,
+                "1-к.кв": 1,
+                "2-к.кв": 1,
+                "3-к.кв": 1,
+                "4-к.кв": 1
+            }
+        },
+        "[].crm_id": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "0",
+            "enum_values": [
+                1,
+                1,
+                1,
+                1,
+                1
+            ]
+        }
+    },
+    "id_fields": [
+        "[]._id",
+        "[].crm_id"
+    ],
+    "nullable_fields": [],
+    "always_present": [
+        "[]._id",
+        "[].name",
+        "[].crm_id"
+    ],
+    "enum_candidates": [
+        "[]._id",
+        "[].name",
+        "[].crm_id"
+    ]
+}

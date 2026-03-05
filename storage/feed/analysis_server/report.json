@@ -1,0 +1,2165 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:54+00:00",
+        "downloaded_at": "2026-02-26T14:33:09+00:00",
+        "total_size_mb": 153.71,
+        "total_endpoints": 10,
+        "total_files": 10,
+        "total_entities_detected": 4,
+        "total_fields_analyzed": 96,
+        "primary_url": "https://dataout.trendagent.ru/msk/about.json",
+        "region_filter": null,
+        "pagination_info": [],
+        "errors": [],
+        "endpoints_analyzed": [
+            "https://dataout.trendagent.ru/msk/about.json",
+            "https://dataout.trendagent.ru/msk/blocks.json",
+            "https://dataout.trendagent.ru/msk/builders.json",
+            "https://dataout.trendagent.ru/msk/regions.json",
+            "https://dataout.trendagent.ru/msk/subways.json",
+            "https://dataout.trendagent.ru/msk/rooms.json",
+            "https://dataout.trendagent.ru/msk/finishings.json",
+            "https://dataout.trendagent.ru/msk/buildingtypes.json",
+            "https://dataout.trendagent.ru/msk/buildings.json",
+            "https://dataout.trendagent.ru/msk/apartments.json"
+        ]
+    },
+    "entities": [
+        {
+            "name": "items",
+            "table_name": "items",
+            "path": "[]",
+            "source_url": "https://dataout.trendagent.ru/msk/about.json",
+            "count": 62214,
+            "id_field": null,
+            "parent": null,
+            "children": [
+                "[].subway[]",
+                "[].block_subway[]"
+            ],
+            "fields_count": 53,
+            "nullable_fields": [],
+            "required_fields": {
+                "0": "name",
+                "1": "description",
+                "2": "url",
+                "3": "scope",
+                "4": "exported_at",
+                "5": "renderer",
+                "6": "_id",
+                "8": "crm_id",
+                "9": "coordinates",
+                "10": "building_bank"
+            },
+            "enum_candidates": [
+                {
+                    "field": "name",
+                    "values": [
+                        "blocks",
+                        "builders",
+                        "regions",
+                        "subways",
+                        "rooms"
+                    ]
+                },
+                {
+                    "field": "description",
+                    "values": [
+                        "Жилые комплексы",
+                        "Застройщики",
+                        "Районы",
+                        "Метро",
+                        "Комнатность"
+                    ]
+                },
+                {
+                    "field": "url",
+                    "values": [
+                        "https://dataout.trendagent.ru/msk/blocks.json",
+                        "https://dataout.trendagent.ru/msk/builders.json",
+                        "https://dataout.trendagent.ru/msk/regions.json",
+                        "https://dataout.trendagent.ru/msk/subways.json",
+                        "https://dataout.trendagent.ru/msk/rooms.json"
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "640990ebe1a4c0617966c9b6",
+                        "6320921e8edd08689cbe1324",
+                        "641d89383faa97af8e48c594",
+                        "64bf93c3ec355ba948252ee4",
+                        "62b5550122aa13139640cf46"
+                    ]
+                },
+                {
+                    "field": "coordinates",
+                    "values": [
+                        "37.724991093254",
+                        "55.790977870147",
+                        "37.453815042328",
+                        "55.707027086773",
+                        "37.525047967265",
+                        "55.860667250603",
+                        "37.578669988097",
+                        "55.773205487424",
+                        "36.773966179932",
+                        "55.72571368969"
+                    ]
+                },
+                {
+                    "field": "district",
+                    "values": [
+                        "5a72cf824d6d151bfb2cd732",
+                        "5aba457e86717164a5261a7f",
+                        "5a705f9b4d6d151bfb2c93ff",
+                        "5a701d284d6d151bfb2c7ebe",
+                        "5a9524725c4252352408c6fd"
+                    ]
+                },
+                {
+                    "field": "description",
+                    "values": [
+                        "<p dir=\"ltr\">Проект &laquo; 2-я Пугачевская 14к4&raquo; &mdash; это 1 дом высотой в 12 этажей, постр",
+                        "<p>Проект &laquo;Аминьевское шоссе 17&raquo; &mdash; это 1 дом высотой в 16 этажей, построенный в 19",
+                        "<p dir=\"ltr\">Апарт-комплекс представляет собой кирпичный особняк высотой в 3 этажа, выполненный в не",
+                        "<p dir=\"ltr\">&laquo;Грузинский Вал 18/15&raquo; &mdash; это 8 этажный кирпичный жилой дом, построенн",
+                        "<p dir=\"ltr\">Парк-отель &laquo;Levitan Holiday Park&raquo; состоит из барнахаусов, построенных в еди"
+                    ]
+                },
+                {
+                    "field": "name",
+                    "values": [
+                        " 2-я Пугачевская 14к4",
+                        " Аминьевское шоссе 17",
+                        " Апарт-комплекс SUNCITY17",
+                        " Грузинский Вал 18/15",
+                        " Парк-отель Levitan Holiday Park"
+                    ]
+                },
+                {
+                    "field": "crm_id",
+                    "values": [
+                        5579095437724975,
+                        5570693437453836,
+                        5586062037525028,
+                        5577318637578642,
+                        557258303677275
+                    ]
+                },
+                {
+                    "field": "renderer",
+                    "values": [
+                        "https://cdn-dataout.trendagent.ru/images/8u/ph/993be63798835ce9b388188ef437993e.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/yz/e6/f4a158fd8ea1d5fc374da485e57fce16.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/6u/7u/22f407e6358d0acc4cac5807f57cfbb2.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/w3/6y/7a1aececf7a8214341cb5b2afc898b40.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/4m/eh/24054d5a8ec90a33e276560e231a990d.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/h8/ql/9c04f380a5ab0bca40c56f35214f34af.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/gw/ni/21562ac896560c66679868399bae5902.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/lv/i6/f1578663db98b5263abe80d2c9aca69c.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/q5/p3/3c1b4b2fc134d9cfd887bb154835e1d8.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/5d/6y/14a6217ce02bde12c627342f44548cb0.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/61/rt/286c67607f4a21faa100038dc06bb1de.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/3l/n8/5388055ab5ae97a46e7bd8b730ec3511.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/yg/lw/c0cec844d4d9ae5c30cb17e4738d329c.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/ti/ci/1c6cd8d7770139abcc084da255e47e8f.jpg"
+                    ]
+                },
+                {
+                    "field": "address",
+                    "values": [
+                        "ул 2-я Пугачевская",
+                        "Аминьевское шоссе",
+                        "Солнечногорский проезд",
+                        "ул Грузинский Вал",
+                        "д. Ягунино"
+                    ]
+                },
+                {
+                    "field": "distance_time",
+                    "values": [
+                        10,
+                        5,
+                        15,
+                        55
+                    ]
+                },
+                {
+                    "field": "distance_type",
+                    "values": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "field": "subway_id",
+                    "values": [
+                        "5a7183494d6d151bfb2cab07",
+                        "600559d48364eb00087a7eec",
+                        "61b1e957cc06623d28035ac7",
+                        "5b032eea891d561b779fc7fa",
+                        "64e72c076e8c1b932e6241f5",
+                        "5a731eff4d6d151bfb2cea04",
+                        "64e72c571b7db9984236050b",
+                        "5a7191f04d6d151bfb2cb049",
+                        "5a71cb784d6d151bfb2cc2ba",
+                        "5ecf8e0699e66f000806b97f"
+                    ]
+                },
+                {
+                    "field": "plan",
+                    "values": [
+                        "https://cdn-dataout.trendagent.ru/images/se/ph/8c5bcf30dfa3da761f27353cd66daabf.jpg",
+                        "https://cdn-dataout.trendagent.ru/images/dt/sg/d6f61150b13b96c994d4193e861ec1a0.jpg"
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "64c37b20ca5075f314e6dc50",
+                        "5dd3de7a0c16b567daff299c",
+                        "62ac5ef8a9c4d6c5b725ed98",
+                        "632c0edea82f5271822b54f7",
+                        "65eff600d4713644d1e617dd"
+                    ]
+                },
+                {
+                    "field": "name",
+                    "values": [
+                        " Электрозаводская, 14с1",
+                        "3-RED",
+                        "3SGroup",
+                        "494 Управление начальника работ",
+                        "5-й ДОНСКОЙ"
+                    ]
+                },
+                {
+                    "field": "crm_id",
+                    "values": [
+                        54548986,
+                        9542,
+                        68980,
+                        6728,
+                        6347621
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "5a717e114d6d151bfb2ca825",
+                        "5a6f33154d6d151bfb2c7852",
+                        "5a6f39714d6d151bfb2c79ca",
+                        "5a6f3c7d4d6d151bfb2c7a63",
+                        "5a6f3fee4d6d151bfb2c7adb"
+                    ]
+                },
+                {
+                    "field": "name",
+                    "values": [
+                        "Савелки",
+                        "Арбат",
+                        "Красносельский",
+                        "Басманный",
+                        "Замоскворечье"
+                    ]
+                },
+                {
+                    "field": "crm_id",
+                    "values": [
+                        126,
+                        147,
+                        148,
+                        149,
+                        150
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "5a7177ed4d6d151bfb2ca682",
+                        "5a717baf4d6d151bfb2ca7a8",
+                        "5a717c214d6d151bfb2ca7c0",
+                        "5a717c8c4d6d151bfb2ca7dc",
+                        "5a717cec4d6d151bfb2ca7ec"
+                    ]
+                },
+                {
+                    "field": "name",
+                    "values": [
+                        "Библиотека им. Ленина",
+                        "Смоленская (3л)",
+                        "Александровский сад",
+                        "Арбатская (4л)",
+                        "Смоленская (4л)"
+                    ]
+                },
+                {
+                    "field": "crm_id",
+                    "values": [
+                        100,
+                        102,
+                        104,
+                        105,
+                        106
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "58c665588b6aa52311afa02c",
+                        "58c665588b6aa52311afa02d",
+                        "58c665588b6aa52311afa02e",
+                        "58c665588b6aa52311afa02f",
+                        "58c665588b6aa52311afa030"
+                    ]
+                },
+                {
+                    "field": "name",
+                    "values": [
+                        "Студии",
+                        "1-к.кв",
+                        "2-к.кв",
+                        "3-к.кв",
+                        "4-к.кв"
+                    ]
+                },
+                {
+                    "field": "crm_id",
+                    "values": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "58c665588b6aa52311afa027",
+                        "58c665588b6aa52311afa028",
+                        "58c665588b6aa52311afa029",
+                        "58c665588b6aa52311afa02b",
+                        "59b11127c775b4065866dbba"
+                    ]
+                },
+                {
+                    "field": "name",
+                    "values": [
+                        "Без отделки",
+                        "Чистовая",
+                        "Подчистовая",
+                        "С мягкой мебелью",
+                        "С ремонтом"
+                    ]
+                },
+                {
+                    "field": "crm_id",
+                    "values": [
+                        0,
+                        1,
+                        2,
+                        4,
+                        10
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "58c665588b6aa52311afa017",
+                        "58c665588b6aa52311afa018",
+                        "58c665588b6aa52311afa019",
+                        "58c665588b6aa52311afa01a",
+                        "59a6b44ed1a1925f7cc990d1"
+                    ]
+                },
+                {
+                    "field": "name",
+                    "values": [
+                        "Монолитный",
+                        "Панельный",
+                        "Кирпичный",
+                        "Кирпично-монолитный",
+                        "Газобетон-монолит"
+                    ]
+                },
+                {
+                    "field": "crm_id",
+                    "values": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4
+                    ]
+                },
+                {
+                    "field": "housing",
+                    "values": [
+                        1,
+                        3,
+                        4,
+                        5,
+                        6
+                    ]
+                },
+                {
+                    "field": "housing_en",
+                    "values": [
+                        1,
+                        3,
+                        4,
+                        5,
+                        6
+                    ]
+                },
+                {
+                    "field": "name",
+                    "values": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "5a796f44afb5e40885f73273",
+                        "5a797834afb5e40885f734ce",
+                        "5a7979d8afb5e40885f73621",
+                        "5a79906eafb5e40885f73b9e",
+                        "5a7990efafb5e40885f73bcf"
+                    ]
+                },
+                {
+                    "field": "_id",
+                    "values": [
+                        "5ab0d45222c0f32f76dacbce",
+                        "5ab116c722c0f32f76dae2d6",
+                        "5ba8a51201e8ad788fc0e89a",
+                        "5ba8b0ce01e8ad788fc0ef86",
+                        "5ba8b0ce01e8ad788fc0ef8b"
+                    ]
+                },
+                {
+                    "field": "area_balconies_total",
+                    "values": [
+                        "5.8",
+                        "2.16",
+                        0,
+                        "3.2"
+                    ]
+                },
+                {
+                    "field": "area_given",
+                    "values": [
+                        "65.4",
+                        "78.4",
+                        "76.96",
+                        "81.2"
+                    ]
+                },
+                {
+                    "field": "area_kitchen",
+                    "values": [
+                        "21.9",
+                        "29.36",
+                        "25.48",
+                        "11.6"
+                    ]
+                },
+                {
+                    "field": "area_rooms",
+                    "values": [
+                        "17+12.6",
+                        "12.39+10.05+9.31",
+                        "10.84+12.87+11.25",
+                        "17.6+14.4+14.8"
+                    ]
+                },
+                {
+                    "field": "area_rooms_total",
+                    "values": [
+                        "29.6",
+                        "31.75",
+                        "34.96",
+                        "46.8"
+                    ]
+                },
+                {
+                    "field": "area_total",
+                    "values": [
+                        "62.5",
+                        "77.32",
+                        "76.96",
+                        "79.6"
+                    ]
+                },
+                {
+                    "field": "block_address",
+                    "values": [
+                        "ул. Красная Сосна",
+                        "деревня Раздоры, тер Мякининское шоссе, 1-й км"
+                    ]
+                },
+                {
+                    "field": "block_builder",
+                    "values": [
+                        "5aaa3fb6befcdf11383e0395",
+                        "5aab8b38befcdf11383e2a72"
+                    ]
+                },
+                {
+                    "field": "block_builder_name",
+                    "values": [
+                        "ГК ФСК. Москва",
+                        "ГК Самолет. Москва"
+                    ]
+                },
+                {
+                    "field": "block_crm_id",
+                    "values": [
+                        651584,
+                        5896
+                    ]
+                },
+                {
+                    "field": "block_district",
+                    "values": [
+                        "5a71ba534d6d151bfb2cbcdc",
+                        "5a9524725c4252352408c6fd"
+                    ]
+                },
+                {
+                    "field": "block_district_name",
+                    "values": [
+                        "Ярославский",
+                        "ГО Одинцовский, МО"
+                    ]
+                },
+                {
+                    "field": "coordinates",
+                    "values": [
+                        "37.683110833168",
+                        "55.850493285025",
+                        "37.376071215112",
+                        "55.799514052598"
+                    ]
+                },
+                {
+                    "field": "block_id",
+                    "values": [
+                        "5ba3bb6f01e8ad788fc08e17",
+                        "5aab910cbefcdf11383e2be9"
+                    ]
+                },
+                {
+                    "field": "block_iscity",
+                    "values": [
+                        "true",
+                        "false"
+                    ]
+                },
+                {
+                    "field": "block_name",
+                    "values": [
+                        "Настроение",
+                        "Sky Sputnik"
+                    ]
+                },
+                {
+                    "field": "block_renderer",
+                    "values": [
+                        "64b92d3dfb595c6c55068c4d",
+                        "68f76121299fbc2749333714"
+                    ]
+                },
+                {
+                    "field": "distance_time",
+                    "values": [
+                        10,
+                        15
+                    ]
+                },
+                {
+                    "field": "subway_id",
+                    "values": [
+                        "5a72c7664d6d151bfb2cd344",
+                        "5a73231f8db39c490c9c573d",
+                        "5a71bfed4d6d151bfb2cbf3e"
+                    ]
+                },
+                {
+                    "field": "block_subway_name",
+                    "values": [
+                        "ВДНХ",
+                        "Ростокино",
+                        "Строгино"
+                    ]
+                },
+                {
+                    "field": "building_bank",
+                    "values": [
+                        "58c665588b6aa52311afa03b",
+                        "58c665588b6aa52311afa03c",
+                        "58c665588b6aa52311afa040",
+                        "58c665588b6aa52311afa042",
+                        "58c665588b6aa52311afa044",
+                        "5da70ce423868403eff8debe"
+                    ]
+                },
+                {
+                    "field": "building_deadline",
+                    "values": [
+                        "2021-09-30T12:00:00.000Z",
+                        "2019-06-30T09:00:00.000Z",
+                        "2019-06-30T12:00:00.000Z"
+                    ]
+                },
+                {
+                    "field": "building_id",
+                    "values": [
+                        "5ba49f9801e8ad788fc09527",
+                        "5aabeb6abefcdf11383e52ff",
+                        "5aabdd6dbefcdf11383e4c41",
+                        "5ba49eee01e8ad788fc094e3"
+                    ]
+                },
+                {
+                    "field": "building_name",
+                    "values": [
+                        1,
+                        2,
+                        5
+                    ]
+                },
+                {
+                    "field": "building_type",
+                    "values": [
+                        "58c665588b6aa52311afa017",
+                        "58c665588b6aa52311afa01a"
+                    ]
+                },
+                {
+                    "field": "finishing",
+                    "values": [
+                        "58c665588b6aa52311afa028",
+                        "60643eaab7391d1e9e27aed6"
+                    ]
+                },
+                {
+                    "field": "floor",
+                    "values": [
+                        4,
+                        33,
+                        9,
+                        16,
+                        21
+                    ]
+                },
+                {
+                    "field": "floors",
+                    "values": [
+                        23,
+                        35,
+                        33,
+                        22
+                    ]
+                },
+                {
+                    "field": "number",
+                    "values": [
+                        24,
+                        468,
+                        169,
+                        668,
+                        688
+                    ]
+                },
+                {
+                    "field": "plan",
+                    "values": [
+                        "https://cdn-dataout.trendagent.ru/images/t/2/h2a1lla4no0b3l4i77lgqmde.png",
+                        "https://cdn-dataout.trendagent.ru/images/e/y/kntf5epqgqh90743s0tgzvh3.png",
+                        "https://cdn-dataout.trendagent.ru/images/6/s/spcpy9qecmscbtabrovvzdpq.png",
+                        "https://cdn-dataout.trendagent.ru/images/w/0/z2r1waau07obx455o84zlrry.png"
+                    ]
+                },
+                {
+                    "field": "price",
+                    "values": [
+                        19963949,
+                        29090085,
+                        29850265,
+                        23020800,
+                        23282400
+                    ]
+                },
+                {
+                    "field": "room",
+                    "values": [
+                        3,
+                        23
+                    ]
+                },
+                {
+                    "field": "wc_count",
+                    "values": [
+                        3,
+                        2
+                    ]
+                }
+            ],
+            "geo_fields": {
+                "0": "geometry",
+                "2": "coordinates",
+                "3": "block_geometry"
+            },
+            "text_fields": {
+                "0": "name",
+                "1": "description",
+                "2": "locations",
+                "5": "address",
+                "6": "block_address",
+                "7": "block_builder_name",
+                "8": "block_district_name",
+                "9": "block_name",
+                "10": "block_subway_name",
+                "11": "building_name"
+            },
+            "numeric_fields": {
+                "0": "coordinates",
+                "1": "crm_id",
+                "2": "distance_time",
+                "3": "distance_type",
+                "5": "queue",
+                "6": "area_given",
+                "7": "area_kitchen",
+                "8": "area_rooms_total",
+                "9": "area_total",
+                "10": "block_crm_id",
+                "14": "floor",
+                "15": "floors",
+                "16": "height",
+                "17": "price",
+                "18": "room",
+                "19": "wc_count"
+            },
+            "date_fields": [
+                "deadline_key",
+                "deadline",
+                "building_deadline"
+            ],
+            "foreign_keys": [],
+            "suggested_fk_columns": []
+        },
+        {
+            "name": "[]",
+            "table_name": "[]",
+            "path": "[]",
+            "source_url": "https://dataout.trendagent.ru/msk/about.json",
+            "count": 9,
+            "id_field": null,
+            "parent": null,
+            "children": [],
+            "fields_count": 16,
+            "nullable_fields": [],
+            "required_fields": [
+                "name",
+                "description",
+                "url",
+                "scope",
+                "exported_at"
+            ],
+            "enum_candidates": [
+                {
+                    "field": "name",
+                    "values": [
+                        "blocks",
+                        "builders",
+                        "regions",
+                        "subways",
+                        "rooms"
+                    ]
+                },
+                {
+                    "field": "description",
+                    "values": [
+                        "Жилые комплексы",
+                        "Застройщики",
+                        "Районы",
+                        "Метро",
+                        "Комнатность"
+                    ]
+                },
+                {
+                    "field": "url",
+                    "values": [
+                        "https://dataout.trendagent.ru/msk/blocks.json",
+                        "https://dataout.trendagent.ru/msk/builders.json",
+                        "https://dataout.trendagent.ru/msk/regions.json",
+                        "https://dataout.trendagent.ru/msk/subways.json",
+                        "https://dataout.trendagent.ru/msk/rooms.json"
+                    ]
+                }
+            ],
+            "geo_fields": [
+                "geometry"
+            ],
+            "text_fields": [
+                "name",
+                "description",
+                "locations"
+            ],
+            "numeric_fields": [],
+            "date_fields": [],
+            "foreign_keys": [],
+            "suggested_fk_columns": []
+        },
+        {
+            "name": "subway",
+            "table_name": "subway",
+            "path": "[].subway[]",
+            "source_url": "https://dataout.trendagent.ru/msk/blocks.json",
+            "count": 4,
+            "id_field": "[].subway[].subway_id",
+            "parent": "[]",
+            "children": [],
+            "fields_count": 3,
+            "nullable_fields": [],
+            "required_fields": [
+                "distance_time",
+                "distance_type",
+                "subway_id"
+            ],
+            "enum_candidates": [
+                {
+                    "field": "distance_time",
+                    "values": [
+                        10,
+                        5,
+                        15,
+                        55
+                    ]
+                },
+                {
+                    "field": "distance_type",
+                    "values": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "field": "subway_id",
+                    "values": [
+                        "5a7183494d6d151bfb2cab07",
+                        "600559d48364eb00087a7eec",
+                        "61b1e957cc06623d28035ac7",
+                        "5b032eea891d561b779fc7fa",
+                        "64e72c076e8c1b932e6241f5",
+                        "5a731eff4d6d151bfb2cea04",
+                        "64e72c571b7db9984236050b",
+                        "5a7191f04d6d151bfb2cb049",
+                        "5a71cb784d6d151bfb2cc2ba",
+                        "5ecf8e0699e66f000806b97f"
+                    ]
+                }
+            ],
+            "geo_fields": [],
+            "text_fields": [],
+            "numeric_fields": [
+                "distance_time",
+                "distance_type"
+            ],
+            "date_fields": [],
+            "foreign_keys": [
+                "[].subway[].subway_id"
+            ],
+            "suggested_fk_columns": []
+        },
+        {
+            "name": "block_subway",
+            "table_name": "block_subway",
+            "path": "[].block_subway[]",
+            "source_url": "https://dataout.trendagent.ru/msk/apartments.json",
+            "count": 2,
+            "id_field": "[].block_subway[].subway_id",
+            "parent": "[]",
+            "children": [],
+            "fields_count": 3,
+            "nullable_fields": [],
+            "required_fields": [
+                "distance_time",
+                "distance_type",
+                "subway_id"
+            ],
+            "enum_candidates": [
+                {
+                    "field": "distance_time",
+                    "values": [
+                        10,
+                        15
+                    ]
+                },
+                {
+                    "field": "subway_id",
+                    "values": [
+                        "5a72c7664d6d151bfb2cd344",
+                        "5a73231f8db39c490c9c573d",
+                        "5a71bfed4d6d151bfb2cbf3e"
+                    ]
+                }
+            ],
+            "geo_fields": [],
+            "text_fields": [],
+            "numeric_fields": [
+                "distance_time",
+                "distance_type"
+            ],
+            "date_fields": [],
+            "foreign_keys": [
+                "[].block_subway[].subway_id"
+            ],
+            "suggested_fk_columns": []
+        }
+    ],
+    "relationships": {
+        "hierarchy": [
+            {
+                "parent": "[]",
+                "child": "[].subway[]",
+                "cardinality": "one_to_many",
+                "source_url": "https://dataout.trendagent.ru/msk/blocks.json",
+                "note": "One items can contain many subway"
+            },
+            {
+                "parent": "[]",
+                "child": "[].block_subway[]",
+                "cardinality": "one_to_many",
+                "source_url": "https://dataout.trendagent.ru/msk/apartments.json",
+                "note": "One items can contain many block_subway"
+            }
+        ],
+        "foreign_keys": [
+            {
+                "from_entity": "[].subway[]",
+                "fk_field": "",
+                "to_entity": "",
+                "to_id_field": "id",
+                "confidence": 0.5,
+                "note": "Field 'subway_id' looks like a FK but target entity 'subway' not found in schema"
+            },
+            {
+                "from_entity": "[].block_subway[]",
+                "fk_field": "",
+                "to_entity": "",
+                "to_id_field": "id",
+                "confidence": 0.5,
+                "note": "Field 'subway_id' looks like a FK but target entity 'subway' not found in schema"
+            }
+        ],
+        "confidence_scores": [
+            {
+                "relation": "[].subway[].→",
+                "confidence": 0.5,
+                "reason": "Field 'subway_id' looks like a FK but target entity 'subway' not found in schema"
+            },
+            {
+                "relation": "[].block_subway[].→",
+                "confidence": 0.5,
+                "reason": "Field 'subway_id' looks like a FK but target entity 'subway' not found in schema"
+            }
+        ],
+        "suggested_table_order": [
+            "items",
+            "subway",
+            "block_subway"
+        ]
+    },
+    "filter_candidates": {
+        "price": true,
+        "area": true,
+        "rooms": true,
+        "region": true,
+        "metro": true,
+        "finishings": true,
+        "completion_date": true,
+        "price_fields": [
+            "[].price"
+        ],
+        "area_fields": [
+            "[].area_balconies_total",
+            "[].area_given",
+            "[].area_kitchen",
+            "[].area_rooms",
+            "[].area_rooms_total",
+            "[].area_total"
+        ],
+        "rooms_fields": [
+            "[].area_rooms",
+            "[].area_rooms_total"
+        ],
+        "region_fields": [
+            "[].props_description.district",
+            "[].district",
+            "[].block_city",
+            "[].block_district",
+            "[].block_district_name",
+            "[].block_iscity"
+        ],
+        "metro_fields": [
+            "[].props_description.subway",
+            "[].props_description.subway.subway_id",
+            "[].subway",
+            "[].subway[]",
+            "[].subway[].subway_id",
+            "[].block_subway",
+            "[].block_subway[]",
+            "[].block_subway[].subway_id",
+            "[].block_subway_name",
+            "[].block_subway_name[]"
+        ],
+        "finishing_fields": [
+            "[].finishing"
+        ],
+        "date_fields": [
+            "[].deadline_key",
+            "[].deadline",
+            "[].building_deadline"
+        ]
+    },
+    "search_candidates": {
+        "text_fields": [
+            {
+                "path": "[].name",
+                "field": "name",
+                "example_len": 6,
+                "occurrences": 45
+            },
+            {
+                "path": "[].renderer[]",
+                "field": "renderer",
+                "example_len": 83,
+                "occurrences": 14
+            },
+            {
+                "path": "[].description",
+                "field": "description",
+                "example_len": 29,
+                "occurrences": 10
+            },
+            {
+                "path": "[].block_subway_name[]",
+                "field": "block_subway_name",
+                "example_len": 16,
+                "occurrences": 8
+            },
+            {
+                "path": "[].plan[]",
+                "field": "plan",
+                "example_len": 83,
+                "occurrences": 7
+            },
+            {
+                "path": "[].url",
+                "field": "url",
+                "example_len": 45,
+                "occurrences": 5
+            },
+            {
+                "path": "[].address[]",
+                "field": "address",
+                "example_len": 32,
+                "occurrences": 5
+            },
+            {
+                "path": "[].block_address",
+                "field": "block_address",
+                "example_len": 82,
+                "occurrences": 5
+            },
+            {
+                "path": "[].block_builder_name",
+                "field": "block_builder_name",
+                "example_len": 33,
+                "occurrences": 5
+            },
+            {
+                "path": "[].block_district_name",
+                "field": "block_district_name",
+                "example_len": 33,
+                "occurrences": 5
+            },
+            {
+                "path": "[].block_name",
+                "field": "block_name",
+                "example_len": 11,
+                "occurrences": 5
+            },
+            {
+                "path": "[].building_name",
+                "field": "building_name",
+                "example_len": 1,
+                "occurrences": 5
+            },
+            {
+                "path": "[].props_description.locations",
+                "field": "locations",
+                "example_len": 17,
+                "occurrences": 1
+            },
+            {
+                "path": "[].props_description.subway.distance_time",
+                "field": "distance_time",
+                "example_len": 40,
+                "occurrences": 1
+            },
+            {
+                "path": "[].props_description.subway.distance_type",
+                "field": "distance_type",
+                "example_len": 74,
+                "occurrences": 1
+            },
+            {
+                "path": "[].props_description.progress",
+                "field": "progress",
+                "example_len": 33,
+                "occurrences": 1
+            }
+        ],
+        "geo_fields": [
+            {
+                "path": "[].geometry.coordinates[][][]",
+                "field": "coordinates",
+                "type": "float",
+                "example": "37.737486213371",
+                "occurrences": 50
+            },
+            {
+                "path": "[].geometry.coordinates[]",
+                "field": "coordinates",
+                "type": "float",
+                "example": "37.724991093254",
+                "occurrences": 15
+            },
+            {
+                "path": "[].block_geometry.coordinates[]",
+                "field": "coordinates",
+                "type": "float",
+                "example": "37.376071215112",
+                "occurrences": 10
+            },
+            {
+                "path": "[].props_description.geometry",
+                "field": "geometry",
+                "type": "string",
+                "example": "Геометка ЖК",
+                "occurrences": 1
+            }
+        ]
+    },
+    "index_recommendations": [
+        {
+            "table": "items",
+            "column": "id",
+            "type": "PRIMARY KEY",
+            "reason": "primary key of items"
+        },
+        {
+            "table": "[]",
+            "column": "id",
+            "type": "PRIMARY KEY",
+            "reason": "primary key of []"
+        },
+        {
+            "table": "subway",
+            "column": "subway_id",
+            "type": "PRIMARY KEY",
+            "reason": "primary key of subway"
+        },
+        {
+            "table": "block_subway",
+            "column": "subway_id",
+            "type": "PRIMARY KEY",
+            "reason": "primary key of block_subway"
+        },
+        {
+            "table": "subway",
+            "column": "[]_id",
+            "type": "INDEX (FK)",
+            "reason": "foreign key → [].id (nested hierarchy)"
+        },
+        {
+            "table": "block_subway",
+            "column": "[]_id",
+            "type": "INDEX (FK)",
+            "reason": "foreign key → [].id (nested hierarchy)"
+        },
+        {
+            "table": "subway",
+            "column": "subway_id",
+            "type": "INDEX (FK)",
+            "reason": "entity-level foreign key"
+        },
+        {
+            "table": "block_subway",
+            "column": "subway_id",
+            "type": "INDEX (FK)",
+            "reason": "entity-level foreign key"
+        },
+        {
+            "table": "price",
+            "column": "price",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "area_balconies_total",
+            "column": "area_balconies_total",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "area_given",
+            "column": "area_given",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "area_kitchen",
+            "column": "area_kitchen",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "area_rooms",
+            "column": "area_rooms",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "area_rooms_total",
+            "column": "area_rooms_total",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "area_total",
+            "column": "area_total",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "props_description",
+            "column": "district",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "district",
+            "column": "district",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "block_city",
+            "column": "block_city",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "block_district",
+            "column": "block_district",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "block_district_name",
+            "column": "block_district_name",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "block_iscity",
+            "column": "block_iscity",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "props_description",
+            "column": "subway",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "props_description",
+            "column": "subway_id",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "subway",
+            "column": "subway",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "subway",
+            "column": "subway_id",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "block_subway",
+            "column": "block_subway",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "block_subway",
+            "column": "subway_id",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "block_subway_name",
+            "column": "block_subway_name",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "finishing",
+            "column": "finishing",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "deadline_key",
+            "column": "deadline_key",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "deadline",
+            "column": "deadline",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "building_deadline",
+            "column": "building_deadline",
+            "type": "INDEX (filter)",
+            "reason": "WHERE / ORDER BY / range filter candidate"
+        },
+        {
+            "table": "name",
+            "column": "name",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "renderer",
+            "column": "renderer",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "description",
+            "column": "description",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "block_subway_name",
+            "column": "block_subway_name",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "plan",
+            "column": "plan",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "url",
+            "column": "url",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "address",
+            "column": "address",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "block_address",
+            "column": "block_address",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "block_builder_name",
+            "column": "block_builder_name",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "block_district_name",
+            "column": "block_district_name",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "block_name",
+            "column": "block_name",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "building_name",
+            "column": "building_name",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "props_description",
+            "column": "locations",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "props_description",
+            "column": "distance_time",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "props_description",
+            "column": "distance_type",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "props_description",
+            "column": "progress",
+            "type": "FULLTEXT",
+            "reason": "long text field — suitable for full-text search"
+        },
+        {
+            "table": "geometry",
+            "column": "coordinates",
+            "type": "INDEX (geo)",
+            "reason": "geo coordinate field"
+        },
+        {
+            "table": "block_geometry",
+            "column": "coordinates",
+            "type": "INDEX (geo)",
+            "reason": "geo coordinate field"
+        },
+        {
+            "table": "props_description",
+            "column": "geometry",
+            "type": "INDEX (geo)",
+            "reason": "geo coordinate field"
+        }
+    ],
+    "data_quality": {
+        "total_fields": 96,
+        "nullable_count": 0,
+        "nullable_ratio": 0,
+        "type_distribution": {
+            "string": 51,
+            "array": 12,
+            "int": 12,
+            "float": 8,
+            "object": 6,
+            "bool": 6,
+            "mixed": 1
+        },
+        "max_depth": 6,
+        "enum_candidates": [
+            {
+                "path": "[].name",
+                "unique_count": 45,
+                "values": [
+                    "blocks",
+                    "builders",
+                    "regions",
+                    "subways",
+                    "rooms",
+                    " 2-я Пугачевская 14к4",
+                    " Аминьевское шоссе 17",
+                    " Апарт-комплекс SUNCITY17",
+                    " Грузинский Вал 18/15",
+                    " Парк-отель Levitan Holiday Park",
+                    " Электрозаводская, 14с1",
+                    "3-RED",
+                    "3SGroup",
+                    "494 Управление начальника работ",
+                    "5-й ДОНСКОЙ",
+                    "Савелки",
+                    "Арбат",
+                    "Красносельский",
+                    "Басманный",
+                    "Замоскворечье",
+                    "Библиотека им. Ленина",
+                    "Смоленская (3л)",
+                    "Александровский сад",
+                    "Арбатская (4л)",
+                    "Смоленская (4л)",
+                    "Студии",
+                    "1-к.кв",
+                    "2-к.кв",
+                    "3-к.кв",
+                    "4-к.кв",
+                    "Без отделки",
+                    "Чистовая",
+                    "Подчистовая",
+                    "С мягкой мебелью",
+                    "С ремонтом",
+                    "Монолитный",
+                    "Панельный",
+                    "Кирпичный",
+                    "Кирпично-монолитный",
+                    "Газобетон-монолит",
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ]
+            },
+            {
+                "path": "[].description",
+                "unique_count": 10,
+                "values": [
+                    "Жилые комплексы",
+                    "Застройщики",
+                    "Районы",
+                    "Метро",
+                    "Комнатность",
+                    "<p dir=\"ltr\">Проект &laquo; 2-я Пугачевская 14к4&raquo; &mdash; это 1 дом высотой в 12 этажей, постр",
+                    "<p>Проект &laquo;Аминьевское шоссе 17&raquo; &mdash; это 1 дом высотой в 16 этажей, построенный в 19",
+                    "<p dir=\"ltr\">Апарт-комплекс представляет собой кирпичный особняк высотой в 3 этажа, выполненный в не",
+                    "<p dir=\"ltr\">&laquo;Грузинский Вал 18/15&raquo; &mdash; это 8 этажный кирпичный жилой дом, построенн",
+                    "<p dir=\"ltr\">Парк-отель &laquo;Levitan Holiday Park&raquo; состоит из барнахаусов, построенных в еди"
+                ]
+            },
+            {
+                "path": "[].url",
+                "unique_count": 5,
+                "values": [
+                    "https://dataout.trendagent.ru/msk/blocks.json",
+                    "https://dataout.trendagent.ru/msk/builders.json",
+                    "https://dataout.trendagent.ru/msk/regions.json",
+                    "https://dataout.trendagent.ru/msk/subways.json",
+                    "https://dataout.trendagent.ru/msk/rooms.json"
+                ]
+            },
+            {
+                "path": "[]._id",
+                "unique_count": 45,
+                "values": [
+                    "640990ebe1a4c0617966c9b6",
+                    "6320921e8edd08689cbe1324",
+                    "641d89383faa97af8e48c594",
+                    "64bf93c3ec355ba948252ee4",
+                    "62b5550122aa13139640cf46",
+                    "64c37b20ca5075f314e6dc50",
+                    "5dd3de7a0c16b567daff299c",
+                    "62ac5ef8a9c4d6c5b725ed98",
+                    "632c0edea82f5271822b54f7",
+                    "65eff600d4713644d1e617dd",
+                    "5a717e114d6d151bfb2ca825",
+                    "5a6f33154d6d151bfb2c7852",
+                    "5a6f39714d6d151bfb2c79ca",
+                    "5a6f3c7d4d6d151bfb2c7a63",
+                    "5a6f3fee4d6d151bfb2c7adb",
+                    "5a7177ed4d6d151bfb2ca682",
+                    "5a717baf4d6d151bfb2ca7a8",
+                    "5a717c214d6d151bfb2ca7c0",
+                    "5a717c8c4d6d151bfb2ca7dc",
+                    "5a717cec4d6d151bfb2ca7ec",
+                    "58c665588b6aa52311afa02c",
+                    "58c665588b6aa52311afa02d",
+                    "58c665588b6aa52311afa02e",
+                    "58c665588b6aa52311afa02f",
+                    "58c665588b6aa52311afa030",
+                    "58c665588b6aa52311afa027",
+                    "58c665588b6aa52311afa028",
+                    "58c665588b6aa52311afa029",
+                    "58c665588b6aa52311afa02b",
+                    "59b11127c775b4065866dbba",
+                    "58c665588b6aa52311afa017",
+                    "58c665588b6aa52311afa018",
+                    "58c665588b6aa52311afa019",
+                    "58c665588b6aa52311afa01a",
+                    "59a6b44ed1a1925f7cc990d1",
+                    "5a796f44afb5e40885f73273",
+                    "5a797834afb5e40885f734ce",
+                    "5a7979d8afb5e40885f73621",
+                    "5a79906eafb5e40885f73b9e",
+                    "5a7990efafb5e40885f73bcf",
+                    "5ab0d45222c0f32f76dacbce",
+                    "5ab116c722c0f32f76dae2d6",
+                    "5ba8a51201e8ad788fc0e89a",
+                    "5ba8b0ce01e8ad788fc0ef86",
+                    "5ba8b0ce01e8ad788fc0ef8b"
+                ]
+            },
+            {
+                "path": "[].geometry.coordinates[]",
+                "unique_count": 10,
+                "values": [
+                    "37.724991093254",
+                    "55.790977870147",
+                    "37.453815042328",
+                    "55.707027086773",
+                    "37.525047967265",
+                    "55.860667250603",
+                    "37.578669988097",
+                    "55.773205487424",
+                    "36.773966179932",
+                    "55.72571368969"
+                ]
+            },
+            {
+                "path": "[].district",
+                "unique_count": 5,
+                "values": [
+                    "5a72cf824d6d151bfb2cd732",
+                    "5aba457e86717164a5261a7f",
+                    "5a705f9b4d6d151bfb2c93ff",
+                    "5a701d284d6d151bfb2c7ebe",
+                    "5a9524725c4252352408c6fd"
+                ]
+            },
+            {
+                "path": "[].crm_id",
+                "unique_count": 35,
+                "values": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34
+                ]
+            },
+            {
+                "path": "[].renderer[]",
+                "unique_count": 14,
+                "values": [
+                    "https://cdn-dataout.trendagent.ru/images/8u/ph/993be63798835ce9b388188ef437993e.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/yz/e6/f4a158fd8ea1d5fc374da485e57fce16.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/6u/7u/22f407e6358d0acc4cac5807f57cfbb2.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/w3/6y/7a1aececf7a8214341cb5b2afc898b40.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/4m/eh/24054d5a8ec90a33e276560e231a990d.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/h8/ql/9c04f380a5ab0bca40c56f35214f34af.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/gw/ni/21562ac896560c66679868399bae5902.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/lv/i6/f1578663db98b5263abe80d2c9aca69c.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/q5/p3/3c1b4b2fc134d9cfd887bb154835e1d8.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/5d/6y/14a6217ce02bde12c627342f44548cb0.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/61/rt/286c67607f4a21faa100038dc06bb1de.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/3l/n8/5388055ab5ae97a46e7bd8b730ec3511.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/yg/lw/c0cec844d4d9ae5c30cb17e4738d329c.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/ti/ci/1c6cd8d7770139abcc084da255e47e8f.jpg"
+                ]
+            },
+            {
+                "path": "[].address[]",
+                "unique_count": 5,
+                "values": [
+                    "ул 2-я Пугачевская",
+                    "Аминьевское шоссе",
+                    "Солнечногорский проезд",
+                    "ул Грузинский Вал",
+                    "д. Ягунино"
+                ]
+            },
+            {
+                "path": "[].subway[].distance_time",
+                "unique_count": 4,
+                "values": [
+                    10,
+                    5,
+                    15,
+                    55
+                ]
+            },
+            {
+                "path": "[].subway[].distance_type",
+                "unique_count": 2,
+                "values": [
+                    1,
+                    2
+                ]
+            },
+            {
+                "path": "[].subway[].subway_id",
+                "unique_count": 10,
+                "values": [
+                    "5a7183494d6d151bfb2cab07",
+                    "600559d48364eb00087a7eec",
+                    "61b1e957cc06623d28035ac7",
+                    "5b032eea891d561b779fc7fa",
+                    "64e72c076e8c1b932e6241f5",
+                    "5a731eff4d6d151bfb2cea04",
+                    "64e72c571b7db9984236050b",
+                    "5a7191f04d6d151bfb2cb049",
+                    "5a71cb784d6d151bfb2cc2ba",
+                    "5ecf8e0699e66f000806b97f"
+                ]
+            },
+            {
+                "path": "[].plan[]",
+                "unique_count": 6,
+                "values": [
+                    "https://cdn-dataout.trendagent.ru/images/se/ph/8c5bcf30dfa3da761f27353cd66daabf.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/dt/sg/d6f61150b13b96c994d4193e861ec1a0.jpg",
+                    "https://cdn-dataout.trendagent.ru/images/t/2/h2a1lla4no0b3l4i77lgqmde.png",
+                    "https://cdn-dataout.trendagent.ru/images/e/y/kntf5epqgqh90743s0tgzvh3.png",
+                    "https://cdn-dataout.trendagent.ru/images/6/s/spcpy9qecmscbtabrovvzdpq.png",
+                    "https://cdn-dataout.trendagent.ru/images/w/0/z2r1waau07obx455o84zlrry.png"
+                ]
+            },
+            {
+                "path": "[].address.housing",
+                "unique_count": 5,
+                "values": [
+                    1,
+                    3,
+                    4,
+                    5,
+                    6
+                ]
+            },
+            {
+                "path": "[].address.housing_en",
+                "unique_count": 5,
+                "values": [
+                    1,
+                    3,
+                    4,
+                    5,
+                    6
+                ]
+            },
+            {
+                "path": "[].building_type",
+                "unique_count": 2,
+                "values": [
+                    "58c665588b6aa52311afa017",
+                    "58c665588b6aa52311afa01a"
+                ]
+            },
+            {
+                "path": "[].block_id",
+                "unique_count": 2,
+                "values": [
+                    "5ba3bb6f01e8ad788fc08e17",
+                    "5aab910cbefcdf11383e2be9"
+                ]
+            },
+            {
+                "path": "[].area_balconies_total",
+                "unique_count": 4,
+                "values": [
+                    "5.8",
+                    "2.16",
+                    0,
+                    "3.2"
+                ]
+            },
+            {
+                "path": "[].area_given",
+                "unique_count": 4,
+                "values": [
+                    "65.4",
+                    "78.4",
+                    "76.96",
+                    "81.2"
+                ]
+            },
+            {
+                "path": "[].area_kitchen",
+                "unique_count": 4,
+                "values": [
+                    "21.9",
+                    "29.36",
+                    "25.48",
+                    "11.6"
+                ]
+            },
+            {
+                "path": "[].area_rooms",
+                "unique_count": 4,
+                "values": [
+                    "17+12.6",
+                    "12.39+10.05+9.31",
+                    "10.84+12.87+11.25",
+                    "17.6+14.4+14.8"
+                ]
+            },
+            {
+                "path": "[].area_rooms_total",
+                "unique_count": 4,
+                "values": [
+                    "29.6",
+                    "31.75",
+                    "34.96",
+                    "46.8"
+                ]
+            },
+            {
+                "path": "[].area_total",
+                "unique_count": 4,
+                "values": [
+                    "62.5",
+                    "77.32",
+                    "76.96",
+                    "79.6"
+                ]
+            },
+            {
+                "path": "[].block_address",
+                "unique_count": 2,
+                "values": [
+                    "ул. Красная Сосна",
+                    "деревня Раздоры, тер Мякининское шоссе, 1-й км"
+                ]
+            },
+            {
+                "path": "[].block_builder",
+                "unique_count": 2,
+                "values": [
+                    "5aaa3fb6befcdf11383e0395",
+                    "5aab8b38befcdf11383e2a72"
+                ]
+            },
+            {
+                "path": "[].block_builder_name",
+                "unique_count": 2,
+                "values": [
+                    "ГК ФСК. Москва",
+                    "ГК Самолет. Москва"
+                ]
+            },
+            {
+                "path": "[].block_crm_id",
+                "unique_count": 2,
+                "values": [
+                    651584,
+                    5896
+                ]
+            },
+            {
+                "path": "[].block_district",
+                "unique_count": 2,
+                "values": [
+                    "5a71ba534d6d151bfb2cbcdc",
+                    "5a9524725c4252352408c6fd"
+                ]
+            },
+            {
+                "path": "[].block_district_name",
+                "unique_count": 2,
+                "values": [
+                    "Ярославский",
+                    "ГО Одинцовский, МО"
+                ]
+            },
+            {
+                "path": "[].block_geometry.coordinates[]",
+                "unique_count": 4,
+                "values": [
+                    "37.683110833168",
+                    "55.850493285025",
+                    "37.376071215112",
+                    "55.799514052598"
+                ]
+            },
+            {
+                "path": "[].block_iscity",
+                "unique_count": 2,
+                "values": [
+                    "true",
+                    "false"
+                ]
+            },
+            {
+                "path": "[].block_name",
+                "unique_count": 2,
+                "values": [
+                    "Настроение",
+                    "Sky Sputnik"
+                ]
+            },
+            {
+                "path": "[].block_renderer[]",
+                "unique_count": 2,
+                "values": [
+                    "64b92d3dfb595c6c55068c4d",
+                    "68f76121299fbc2749333714"
+                ]
+            },
+            {
+                "path": "[].block_subway[].distance_time",
+                "unique_count": 2,
+                "values": [
+                    10,
+                    15
+                ]
+            },
+            {
+                "path": "[].block_subway[].subway_id",
+                "unique_count": 3,
+                "values": [
+                    "5a72c7664d6d151bfb2cd344",
+                    "5a73231f8db39c490c9c573d",
+                    "5a71bfed4d6d151bfb2cbf3e"
+                ]
+            },
+            {
+                "path": "[].block_subway_name[]",
+                "unique_count": 3,
+                "values": [
+                    "ВДНХ",
+                    "Ростокино",
+                    "Строгино"
+                ]
+            },
+            {
+                "path": "[].building_bank[]",
+                "unique_count": 6,
+                "values": [
+                    "58c665588b6aa52311afa03b",
+                    "58c665588b6aa52311afa03c",
+                    "58c665588b6aa52311afa040",
+                    "58c665588b6aa52311afa042",
+                    "58c665588b6aa52311afa044",
+                    "5da70ce423868403eff8debe"
+                ]
+            },
+            {
+                "path": "[].building_deadline",
+                "unique_count": 3,
+                "values": [
+                    "2021-09-30T12:00:00.000Z",
+                    "2019-06-30T09:00:00.000Z",
+                    "2019-06-30T12:00:00.000Z"
+                ]
+            },
+            {
+                "path": "[].building_id",
+                "unique_count": 4,
+                "values": [
+                    "5ba49f9801e8ad788fc09527",
+                    "5aabeb6abefcdf11383e52ff",
+                    "5aabdd6dbefcdf11383e4c41",
+                    "5ba49eee01e8ad788fc094e3"
+                ]
+            },
+            {
+                "path": "[].building_name",
+                "unique_count": 3,
+                "values": [
+                    1,
+                    2,
+                    5
+                ]
+            },
+            {
+                "path": "[].finishing",
+                "unique_count": 2,
+                "values": [
+                    "58c665588b6aa52311afa028",
+                    "60643eaab7391d1e9e27aed6"
+                ]
+            },
+            {
+                "path": "[].floor",
+                "unique_count": 5,
+                "values": [
+                    4,
+                    33,
+                    9,
+                    16,
+                    21
+                ]
+            },
+            {
+                "path": "[].floors",
+                "unique_count": 4,
+                "values": [
+                    23,
+                    35,
+                    33,
+                    22
+                ]
+            },
+            {
+                "path": "[].number",
+                "unique_count": 5,
+                "values": [
+                    24,
+                    468,
+                    169,
+                    668,
+                    688
+                ]
+            },
+            {
+                "path": "[].price",
+                "unique_count": 5,
+                "values": [
+                    19963949,
+                    29090085,
+                    29850265,
+                    23020800,
+                    23282400
+                ]
+            },
+            {
+                "path": "[].room",
+                "unique_count": 2,
+                "values": [
+                    3,
+                    23
+                ]
+            },
+            {
+                "path": "[].wc_count",
+                "unique_count": 2,
+                "values": [
+                    3,
+                    2
+                ]
+            }
+        ],
+        "dynamic_key_paths": [],
+        "embedded_arrays": [
+            "[].geometry.coordinates",
+            "[].geometry.coordinates[][]",
+            "[].block_geometry.coordinates"
+        ],
+        "mixed_type_fields": [],
+        "per_endpoint_stats": [
+            {
+                "url": "https://dataout.trendagent.ru/msk/about.json",
+                "total_fields": 16,
+                "total_entities": 1,
+                "max_depth": 4,
+                "nullable_count": 0,
+                "enum_count": 3
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/blocks.json",
+                "total_fields": 20,
+                "total_entities": 2,
+                "max_depth": 4,
+                "nullable_count": 0,
+                "enum_count": 12
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/builders.json",
+                "total_fields": 3,
+                "total_entities": 1,
+                "max_depth": 2,
+                "nullable_count": 0,
+                "enum_count": 3
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/regions.json",
+                "total_fields": 3,
+                "total_entities": 1,
+                "max_depth": 2,
+                "nullable_count": 0,
+                "enum_count": 3
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/subways.json",
+                "total_fields": 3,
+                "total_entities": 1,
+                "max_depth": 2,
+                "nullable_count": 0,
+                "enum_count": 3
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/rooms.json",
+                "total_fields": 3,
+                "total_entities": 1,
+                "max_depth": 2,
+                "nullable_count": 0,
+                "enum_count": 3
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/finishings.json",
+                "total_fields": 3,
+                "total_entities": 1,
+                "max_depth": 2,
+                "nullable_count": 0,
+                "enum_count": 3
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/buildingtypes.json",
+                "total_fields": 3,
+                "total_entities": 1,
+                "max_depth": 2,
+                "nullable_count": 0,
+                "enum_count": 3
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/buildings.json",
+                "total_fields": 22,
+                "total_entities": 1,
+                "max_depth": 6,
+                "nullable_count": 0,
+                "enum_count": 4
+            },
+            {
+                "url": "https://dataout.trendagent.ru/msk/apartments.json",
+                "total_fields": 53,
+                "total_entities": 2,
+                "max_depth": 4,
+                "nullable_count": 0,
+                "enum_count": 34
+            }
+        ]
+    }
+}

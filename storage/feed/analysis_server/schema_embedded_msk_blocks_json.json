@@ -1,0 +1,474 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:53+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/blocks.json",
+        "analysis_seconds": 0.0001,
+        "max_depth_reached": 4,
+        "array_sample_size": 5
+    },
+    "stats": {
+        "total_fields": 20,
+        "total_entities": 2,
+        "max_depth": 4,
+        "id_fields_count": 3,
+        "nullable_fields": 0,
+        "enum_candidates": 12,
+        "type_distribution": {
+            "string": 9,
+            "array": 5,
+            "int": 3,
+            "object": 2,
+            "float": 1
+        },
+        "root_is_list": true,
+        "root_keys": []
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "item_count": 1284,
+            "id_field": null,
+            "parent": null,
+            "direct_fields": [],
+            "foreign_keys": []
+        },
+        "[].subway[]": {
+            "path": "[].subway[]",
+            "item_count": 4,
+            "id_field": "[].subway[].subway_id",
+            "parent": "[]",
+            "direct_fields": {
+                "[].subway[].distance_time": {
+                    "type": "int",
+                    "depth": 4,
+                    "occurrences": 10,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": false,
+                    "example": "10",
+                    "enum_values": {
+                        "10": 4,
+                        "5": 3,
+                        "15": 2,
+                        "55": 1
+                    }
+                },
+                "[].subway[].distance_type": {
+                    "type": "int",
+                    "depth": 4,
+                    "occurrences": 10,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": false,
+                    "example": "1",
+                    "enum_values": {
+                        "1": 6,
+                        "2": 4
+                    }
+                },
+                "[].subway[].subway_id": {
+                    "type": "string",
+                    "depth": 4,
+                    "occurrences": 10,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": true,
+                    "example": "5a7183494d6d151bfb2cab07",
+                    "enum_values": {
+                        "5a7183494d6d151bfb2cab07": 1,
+                        "600559d48364eb00087a7eec": 1,
+                        "61b1e957cc06623d28035ac7": 1,
+                        "5b032eea891d561b779fc7fa": 1,
+                        "64e72c076e8c1b932e6241f5": 1,
+                        "5a731eff4d6d151bfb2cea04": 1,
+                        "64e72c571b7db9984236050b": 1,
+                        "5a7191f04d6d151bfb2cb049": 1,
+                        "5a71cb784d6d151bfb2cc2ba": 1,
+                        "5ecf8e0699e66f000806b97f": 1
+                    }
+                }
+            },
+            "foreign_keys": [
+                {
+                    "field": "[].subway[].subway_id",
+                    "field_name": "subway_id",
+                    "target_hint": "subway"
+                }
+            ]
+        }
+    },
+    "fields": {
+        "[]._id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "640990ebe1a4c0617966c9b6",
+            "enum_values": {
+                "640990ebe1a4c0617966c9b6": 1,
+                "6320921e8edd08689cbe1324": 1,
+                "641d89383faa97af8e48c594": 1,
+                "64bf93c3ec355ba948252ee4": 1,
+                "62b5550122aa13139640cf46": 1
+            }
+        },
+        "[].geometry": {
+            "type": "object",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].geometry.coordinates": {
+            "type": "array",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].geometry.coordinates[]": {
+            "type": "float",
+            "depth": 4,
+            "occurrences": 10,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "37.724991093254",
+            "enum_values": {
+                "37.724991093254": 1,
+                "55.790977870147": 1,
+                "37.453815042328": 1,
+                "55.707027086773": 1,
+                "37.525047967265": 1,
+                "55.860667250603": 1,
+                "37.578669988097": 1,
+                "55.773205487424": 1,
+                "36.773966179932": 1,
+                "55.72571368969": 1
+            }
+        },
+        "[].geometry.type": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Point",
+            "enum_values": []
+        },
+        "[].district": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "5a72cf824d6d151bfb2cd732",
+            "enum_values": {
+                "5a72cf824d6d151bfb2cd732": 1,
+                "5aba457e86717164a5261a7f": 1,
+                "5a705f9b4d6d151bfb2c93ff": 1,
+                "5a701d284d6d151bfb2c7ebe": 1,
+                "5a9524725c4252352408c6fd": 1
+            }
+        },
+        "[].description": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "<p dir=\"ltr\">Проект &laquo; 2-я Пугачевская 14к4&raquo; &mdash; это 1 дом высотой в 12 этажей, построенный в 1967 году. В оформлении фасада дома используется штукатурка.&nbsp;</p>\n<p dir=\"ltr\">В проек",
+            "enum_values": {
+                "<p dir=\"ltr\">Проект &laquo; 2-я Пугачевская 14к4&raquo; &mdash; это 1 дом высотой в 12 этажей, постр": 1,
+                "<p>Проект &laquo;Аминьевское шоссе 17&raquo; &mdash; это 1 дом высотой в 16 этажей, построенный в 19": 1,
+                "<p dir=\"ltr\">Апарт-комплекс представляет собой кирпичный особняк высотой в 3 этажа, выполненный в не": 1,
+                "<p dir=\"ltr\">&laquo;Грузинский Вал 18/15&raquo; &mdash; это 8 этажный кирпичный жилой дом, построенн": 1,
+                "<p dir=\"ltr\">Парк-отель &laquo;Levitan Holiday Park&raquo; состоит из барнахаусов, построенных в еди": 1
+            }
+        },
+        "[].name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": " 2-я Пугачевская 14к4",
+            "enum_values": {
+                " 2-я Пугачевская 14к4": 1,
+                " Аминьевское шоссе 17": 1,
+                " Апарт-комплекс SUNCITY17": 1,
+                " Грузинский Вал 18/15": 1,
+                " Парк-отель Levitan Holiday Park": 1
+            }
+        },
+        "[].crm_id": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5579095437724975",
+            "enum_values": {
+                "5579095437724975": 1,
+                "5570693437453836": 1,
+                "5586062037525028": 1,
+                "5577318637578642": 1,
+                "557258303677275": 1
+            }
+        },
+        "[].plan": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].renderer": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].renderer[]": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 14,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "https://cdn-dataout.trendagent.ru/images/8u/ph/993be63798835ce9b388188ef437993e.jpg",
+            "enum_values": {
+                "https://cdn-dataout.trendagent.ru/images/8u/ph/993be63798835ce9b388188ef437993e.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/yz/e6/f4a158fd8ea1d5fc374da485e57fce16.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/6u/7u/22f407e6358d0acc4cac5807f57cfbb2.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/w3/6y/7a1aececf7a8214341cb5b2afc898b40.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/4m/eh/24054d5a8ec90a33e276560e231a990d.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/h8/ql/9c04f380a5ab0bca40c56f35214f34af.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/gw/ni/21562ac896560c66679868399bae5902.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/lv/i6/f1578663db98b5263abe80d2c9aca69c.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/q5/p3/3c1b4b2fc134d9cfd887bb154835e1d8.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/5d/6y/14a6217ce02bde12c627342f44548cb0.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/61/rt/286c67607f4a21faa100038dc06bb1de.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/3l/n8/5388055ab5ae97a46e7bd8b730ec3511.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/yg/lw/c0cec844d4d9ae5c30cb17e4738d329c.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/ti/ci/1c6cd8d7770139abcc084da255e47e8f.jpg": 1
+            }
+        },
+        "[].address": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].address[]": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "ул 2-я Пугачевская",
+            "enum_values": {
+                "ул 2-я Пугачевская": 1,
+                "Аминьевское шоссе": 1,
+                "Солнечногорский проезд": 1,
+                "ул Грузинский Вал": 1,
+                "д. Ягунино": 1
+            }
+        },
+        "[].subway": {
+            "type": "array",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].subway[]": {
+            "type": "object",
+            "depth": 3,
+            "occurrences": 10,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].subway[].distance_time": {
+            "type": "int",
+            "depth": 4,
+            "occurrences": 10,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "10",
+            "enum_values": {
+                "10": 4,
+                "5": 3,
+                "15": 2,
+                "55": 1
+            }
+        },
+        "[].subway[].distance_type": {
+            "type": "int",
+            "depth": 4,
+            "occurrences": 10,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "1",
+            "enum_values": {
+                "1": 6,
+                "2": 4
+            }
+        },
+        "[].subway[].subway_id": {
+            "type": "string",
+            "depth": 4,
+            "occurrences": 10,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5a7183494d6d151bfb2cab07",
+            "enum_values": {
+                "5a7183494d6d151bfb2cab07": 1,
+                "600559d48364eb00087a7eec": 1,
+                "61b1e957cc06623d28035ac7": 1,
+                "5b032eea891d561b779fc7fa": 1,
+                "64e72c076e8c1b932e6241f5": 1,
+                "5a731eff4d6d151bfb2cea04": 1,
+                "64e72c571b7db9984236050b": 1,
+                "5a7191f04d6d151bfb2cb049": 1,
+                "5a71cb784d6d151bfb2cc2ba": 1,
+                "5ecf8e0699e66f000806b97f": 1
+            }
+        },
+        "[].plan[]": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 2,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "https://cdn-dataout.trendagent.ru/images/se/ph/8c5bcf30dfa3da761f27353cd66daabf.jpg",
+            "enum_values": {
+                "https://cdn-dataout.trendagent.ru/images/se/ph/8c5bcf30dfa3da761f27353cd66daabf.jpg": 1,
+                "https://cdn-dataout.trendagent.ru/images/dt/sg/d6f61150b13b96c994d4193e861ec1a0.jpg": 1
+            }
+        }
+    },
+    "id_fields": [
+        "[]._id",
+        "[].crm_id",
+        "[].subway[].subway_id"
+    ],
+    "nullable_fields": [],
+    "always_present": [
+        "[]._id",
+        "[].geometry",
+        "[].geometry.coordinates",
+        "[].geometry.coordinates[]",
+        "[].geometry.type",
+        "[].district",
+        "[].description",
+        "[].name",
+        "[].crm_id",
+        "[].plan",
+        "[].renderer",
+        "[].renderer[]",
+        "[].address",
+        "[].address[]",
+        "[].subway",
+        "[].subway[]",
+        "[].subway[].distance_time",
+        "[].subway[].distance_type",
+        "[].subway[].subway_id",
+        "[].plan[]"
+    ],
+    "enum_candidates": [
+        "[]._id",
+        "[].geometry.coordinates[]",
+        "[].district",
+        "[].description",
+        "[].name",
+        "[].crm_id",
+        "[].renderer[]",
+        "[].address[]",
+        "[].subway[].distance_time",
+        "[].subway[].distance_type",
+        "[].subway[].subway_id",
+        "[].plan[]"
+    ]
+}

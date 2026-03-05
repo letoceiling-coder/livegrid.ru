@@ -1,0 +1,104 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:53+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/regions.json",
+        "analysis_seconds": 0,
+        "max_depth_reached": 2,
+        "array_sample_size": 5
+    },
+    "stats": {
+        "total_fields": 3,
+        "total_entities": 1,
+        "max_depth": 2,
+        "id_fields_count": 2,
+        "nullable_fields": 0,
+        "enum_candidates": 3,
+        "type_distribution": {
+            "string": 2,
+            "int": 1
+        },
+        "root_is_list": true,
+        "root_keys": []
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "item_count": 181,
+            "id_field": null,
+            "parent": null,
+            "direct_fields": [],
+            "foreign_keys": []
+        }
+    },
+    "fields": {
+        "[]._id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5a717e114d6d151bfb2ca825",
+            "enum_values": {
+                "5a717e114d6d151bfb2ca825": 1,
+                "5a6f33154d6d151bfb2c7852": 1,
+                "5a6f39714d6d151bfb2c79ca": 1,
+                "5a6f3c7d4d6d151bfb2c7a63": 1,
+                "5a6f3fee4d6d151bfb2c7adb": 1
+            }
+        },
+        "[].name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Савелки",
+            "enum_values": {
+                "Савелки": 1,
+                "Арбат": 1,
+                "Красносельский": 1,
+                "Басманный": 1,
+                "Замоскворечье": 1
+            }
+        },
+        "[].crm_id": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "126",
+            "enum_values": {
+                "126": 1,
+                "147": 1,
+                "148": 1,
+                "149": 1,
+                "150": 1
+            }
+        }
+    },
+    "id_fields": [
+        "[]._id",
+        "[].crm_id"
+    ],
+    "nullable_fields": [],
+    "always_present": [
+        "[]._id",
+        "[].name",
+        "[].crm_id"
+    ],
+    "enum_candidates": [
+        "[]._id",
+        "[].name",
+        "[].crm_id"
+    ]
+}

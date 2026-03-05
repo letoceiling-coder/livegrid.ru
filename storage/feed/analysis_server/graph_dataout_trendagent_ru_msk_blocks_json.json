@@ -1,0 +1,158 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:54+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/blocks.json"
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "name": "items",
+            "table_name": "items",
+            "id_field": null,
+            "parent": null,
+            "children": [
+                "[].subway[]"
+            ],
+            "item_count": 1284,
+            "direct_fields": [],
+            "foreign_keys": [],
+            "depth": 1
+        },
+        "[].subway[]": {
+            "path": "[].subway[]",
+            "name": "subway",
+            "table_name": "subway",
+            "id_field": "[].subway[].subway_id",
+            "parent": "[]",
+            "children": [],
+            "item_count": 4,
+            "direct_fields": {
+                "[].subway[].distance_time": {
+                    "type": "int",
+                    "depth": 4,
+                    "occurrences": 10,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": false,
+                    "example": "10",
+                    "enum_values": {
+                        "10": 4,
+                        "5": 3,
+                        "15": 2,
+                        "55": 1
+                    }
+                },
+                "[].subway[].distance_type": {
+                    "type": "int",
+                    "depth": 4,
+                    "occurrences": 10,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": false,
+                    "example": "1",
+                    "enum_values": {
+                        "1": 6,
+                        "2": 4
+                    }
+                },
+                "[].subway[].subway_id": {
+                    "type": "string",
+                    "depth": 4,
+                    "occurrences": 10,
+                    "null_count": 0,
+                    "null_ratio": 0,
+                    "is_nullable": false,
+                    "is_always_present": true,
+                    "is_id_field": true,
+                    "example": "5a7183494d6d151bfb2cab07",
+                    "enum_values": {
+                        "5a7183494d6d151bfb2cab07": 1,
+                        "600559d48364eb00087a7eec": 1,
+                        "61b1e957cc06623d28035ac7": 1,
+                        "5b032eea891d561b779fc7fa": 1,
+                        "64e72c076e8c1b932e6241f5": 1,
+                        "5a731eff4d6d151bfb2cea04": 1,
+                        "64e72c571b7db9984236050b": 1,
+                        "5a7191f04d6d151bfb2cb049": 1,
+                        "5a71cb784d6d151bfb2cc2ba": 1,
+                        "5ecf8e0699e66f000806b97f": 1
+                    }
+                }
+            },
+            "foreign_keys": [
+                {
+                    "field": "[].subway[].subway_id",
+                    "field_name": "subway_id",
+                    "target_hint": "subway"
+                }
+            ],
+            "depth": 2
+        }
+    },
+    "relationships": [
+        {
+            "from": "[].subway[]",
+            "to": "[]",
+            "type": "many_to_one",
+            "via": "nesting",
+            "confidence": 1,
+            "note": "subway is nested inside items — inferred one-to-many (one items has many subway)"
+        },
+        {
+            "from": "[]",
+            "to": "[].subway[]",
+            "type": "one_to_many",
+            "via": "nesting",
+            "confidence": 1,
+            "note": "One items can contain many subway"
+        },
+        {
+            "from": "[].subway[]",
+            "to": null,
+            "type": "unresolved_fk",
+            "via": "foreign_key",
+            "field": "[].subway[].subway_id",
+            "field_name": "subway_id",
+            "target_hint": "subway",
+            "confidence": 0.5,
+            "note": "Field 'subway_id' looks like a FK but target entity 'subway' not found in schema"
+        }
+    ],
+    "hierarchy": {
+        "path": "[]",
+        "name": "items",
+        "table_name": "items",
+        "item_count": 1284,
+        "children": [
+            {
+                "path": "[].subway[]",
+                "name": "subway",
+                "table_name": "subway",
+                "item_count": 4,
+                "children": []
+            }
+        ]
+    },
+    "suggested_tables": [
+        {
+            "table_name": "items",
+            "path": "[]",
+            "depth": 1,
+            "id_field": null,
+            "item_count": 1284,
+            "reason": "Root entity — create first"
+        },
+        {
+            "table_name": "subway",
+            "path": "[].subway[]",
+            "depth": 2,
+            "id_field": "[].subway[].subway_id",
+            "item_count": 4,
+            "reason": "Depends on parent entity: items"
+        }
+    ]
+}

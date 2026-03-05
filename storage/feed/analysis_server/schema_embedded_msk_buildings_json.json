@@ -1,0 +1,363 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:53+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/buildings.json",
+        "analysis_seconds": 0.0002,
+        "max_depth_reached": 6,
+        "array_sample_size": 5
+    },
+    "stats": {
+        "total_fields": 22,
+        "total_entities": 1,
+        "max_depth": 6,
+        "id_fields_count": 3,
+        "nullable_fields": 0,
+        "enum_candidates": 4,
+        "type_distribution": {
+            "string": 13,
+            "array": 3,
+            "object": 2,
+            "int": 2,
+            "bool": 1,
+            "float": 1
+        },
+        "root_is_list": true,
+        "root_keys": []
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "item_count": 9243,
+            "id_field": null,
+            "parent": null,
+            "direct_fields": [],
+            "foreign_keys": []
+        }
+    },
+    "fields": {
+        "[].subsidy": {
+            "type": "bool",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "false",
+            "enum_values": []
+        },
+        "[].address": {
+            "type": "object",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].address.street": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "пр-кт Будённого",
+            "enum_values": []
+        },
+        "[].address.house": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "51",
+            "enum_values": []
+        },
+        "[].address.housing": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "1",
+            "enum_values": {
+                "1": 1,
+                "3": 1,
+                "4": 1,
+                "5": 1,
+                "6": 1
+            }
+        },
+        "[].address.house_en": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "51",
+            "enum_values": []
+        },
+        "[].address.housing_en": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "1",
+            "enum_values": {
+                "1": 1,
+                "3": 1,
+                "4": 1,
+                "5": 1,
+                "6": 1
+            }
+        },
+        "[].address.street_en": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "pr-kt Budyonnogo",
+            "enum_values": []
+        },
+        "[].deadline_key": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "2018-06-30T09:00:00.000Z",
+            "enum_values": []
+        },
+        "[].geometry": {
+            "type": "object",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].geometry.type": {
+            "type": "string",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Polygon",
+            "enum_values": []
+        },
+        "[].geometry.coordinates": {
+            "type": "array",
+            "depth": 3,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].geometry.coordinates[]": {
+            "type": "array",
+            "depth": 4,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].geometry.coordinates[][]": {
+            "type": "array",
+            "depth": 5,
+            "occurrences": 25,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": null,
+            "enum_values": []
+        },
+        "[].geometry.coordinates[][][]": {
+            "type": "float",
+            "depth": 6,
+            "occurrences": 50,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "37.737486213371",
+            "enum_values": []
+        },
+        "[].building_type": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "58c665588b6aa52311afa01a",
+            "enum_values": []
+        },
+        "[].deadline": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "2017-12-31T09:00:00.000Z",
+            "enum_values": []
+        },
+        "[].queue": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "1",
+            "enum_values": []
+        },
+        "[].name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "1",
+            "enum_values": {
+                "1": 1,
+                "2": 1,
+                "3": 1,
+                "4": 1,
+                "5": 1
+            }
+        },
+        "[].crm_id": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "1245",
+            "enum_values": []
+        },
+        "[]._id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5a796f44afb5e40885f73273",
+            "enum_values": {
+                "5a796f44afb5e40885f73273": 1,
+                "5a797834afb5e40885f734ce": 1,
+                "5a7979d8afb5e40885f73621": 1,
+                "5a79906eafb5e40885f73b9e": 1,
+                "5a7990efafb5e40885f73bcf": 1
+            }
+        },
+        "[].block_id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5a796c9bafb5e40885f73138",
+            "enum_values": []
+        }
+    },
+    "id_fields": [
+        "[].crm_id",
+        "[]._id",
+        "[].block_id"
+    ],
+    "nullable_fields": [],
+    "always_present": [
+        "[].subsidy",
+        "[].address",
+        "[].address.street",
+        "[].address.house",
+        "[].address.housing",
+        "[].address.house_en",
+        "[].address.housing_en",
+        "[].address.street_en",
+        "[].deadline_key",
+        "[].geometry",
+        "[].geometry.type",
+        "[].geometry.coordinates",
+        "[].geometry.coordinates[]",
+        "[].geometry.coordinates[][]",
+        "[].geometry.coordinates[][][]",
+        "[].building_type",
+        "[].deadline",
+        "[].queue",
+        "[].name",
+        "[].crm_id",
+        "[]._id",
+        "[].block_id"
+    ],
+    "enum_candidates": [
+        "[].address.housing",
+        "[].address.housing_en",
+        "[].name",
+        "[]._id"
+    ]
+}

@@ -1,0 +1,104 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:53+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/subways.json",
+        "analysis_seconds": 0,
+        "max_depth_reached": 2,
+        "array_sample_size": 5
+    },
+    "stats": {
+        "total_fields": 3,
+        "total_entities": 1,
+        "max_depth": 2,
+        "id_fields_count": 2,
+        "nullable_fields": 0,
+        "enum_candidates": 3,
+        "type_distribution": {
+            "string": 2,
+            "int": 1
+        },
+        "root_is_list": true,
+        "root_keys": []
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "item_count": 447,
+            "id_field": null,
+            "parent": null,
+            "direct_fields": [],
+            "foreign_keys": []
+        }
+    },
+    "fields": {
+        "[]._id": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "5a7177ed4d6d151bfb2ca682",
+            "enum_values": {
+                "5a7177ed4d6d151bfb2ca682": 1,
+                "5a717baf4d6d151bfb2ca7a8": 1,
+                "5a717c214d6d151bfb2ca7c0": 1,
+                "5a717c8c4d6d151bfb2ca7dc": 1,
+                "5a717cec4d6d151bfb2ca7ec": 1
+            }
+        },
+        "[].name": {
+            "type": "string",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": false,
+            "example": "Библиотека им. Ленина",
+            "enum_values": {
+                "Библиотека им. Ленина": 1,
+                "Смоленская (3л)": 1,
+                "Александровский сад": 1,
+                "Арбатская (4л)": 1,
+                "Смоленская (4л)": 1
+            }
+        },
+        "[].crm_id": {
+            "type": "int",
+            "depth": 2,
+            "occurrences": 5,
+            "null_count": 0,
+            "null_ratio": 0,
+            "is_nullable": false,
+            "is_always_present": true,
+            "is_id_field": true,
+            "example": "100",
+            "enum_values": {
+                "100": 1,
+                "102": 1,
+                "104": 1,
+                "105": 1,
+                "106": 1
+            }
+        }
+    },
+    "id_fields": [
+        "[]._id",
+        "[].crm_id"
+    ],
+    "nullable_fields": [],
+    "always_present": [
+        "[]._id",
+        "[].name",
+        "[].crm_id"
+    ],
+    "enum_candidates": [
+        "[]._id",
+        "[].name",
+        "[].crm_id"
+    ]
+}

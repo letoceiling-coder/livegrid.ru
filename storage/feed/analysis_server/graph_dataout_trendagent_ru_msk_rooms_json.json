@@ -1,0 +1,38 @@
+{
+    "meta": {
+        "generated_at": "2026-02-26T14:35:54+00:00",
+        "source_url": "https://dataout.trendagent.ru/msk/rooms.json"
+    },
+    "entities": {
+        "[]": {
+            "path": "[]",
+            "name": "items",
+            "table_name": "items",
+            "id_field": null,
+            "parent": null,
+            "children": [],
+            "item_count": 28,
+            "direct_fields": [],
+            "foreign_keys": [],
+            "depth": 1
+        }
+    },
+    "relationships": [],
+    "hierarchy": {
+        "path": "[]",
+        "name": "items",
+        "table_name": "items",
+        "item_count": 28,
+        "children": []
+    },
+    "suggested_tables": [
+        {
+            "table_name": "items",
+            "path": "[]",
+            "depth": 1,
+            "id_field": null,
+            "item_count": 28,
+            "reason": "Root entity — create first"
+        }
+    ]
+}

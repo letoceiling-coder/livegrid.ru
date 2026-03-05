@@ -1,0 +1,270 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * Apartment (квартира) from apartments.json feed.
+ * Contains denormalized block/building fields for fast filter performance.
+ * Uses is_deleted + last_seen_at instead of Laravel SoftDeletes trait.
+ *
+ * @property string $id
+ * @property int|null $crm_id
+ * @property string $building_id
+ * @property string $block_id
+ * @property int|null $room
+ * @property int|null $rooms_crm_id
+ * @property int|null $floor
+ * @property int|null $floors_total
+ * @property string|null $number
+ * @property int|null $wc_count
+ * @property float|null $area_total
+ * @property float|null $area_living
+ * @property float|null $area_kitchen
+ * @property string|null $area_given
+ * @property string|null $area_balconies
+ * @property string|null $area_rooms
+ * @property float|null $area_rooms_total
+ * @property float|null $price
+ * @property float|null $price_per_meter
+ * @property string|null $finishing_id
+ * @property string|null $building_type_id
+ * @property string|null $plan_url
+ * @property string|null $block_name
+ * @property string|null $block_district_id
+ * @property string|null $block_district_name
+ * @property string|null $block_builder_id
+ * @property string|null $block_builder_name
+ * @property float|null $block_lat
+ * @property float|null $block_lng
+ * @property bool $block_is_city
+ * @property \Illuminate\Support\Carbon|null $building_deadline_at
+ * @property bool $is_deleted
+ * @property \Illuminate\Support\Carbon|null $last_seen_at
+ */
+class Apartment extends Model
+{
+    use HasFactory;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'id', 'crm_id', 'building_id', 'block_id',
+        'room', 'rooms_crm_id', 'floor', 'floors_total', 'number', 'wc_count',
+        'area_total', 'area_living', 'area_kitchen', 'area_given',
+        'area_balconies', 'area_rooms', 'area_rooms_total',
+        'price', 'price_per_meter',
+        'finishing_id', 'building_type_id', 'plan_url',
+        'block_name', 'block_district_id', 'block_district_name',
+        'block_builder_id', 'block_builder_name',
+        'block_lat', 'block_lng', 'block_is_city',
+        'building_deadline_at',
+        'is_deleted', 'is_hot', 'is_start_sales', 'last_seen_at',
+    ];
+
+    protected $casts = [
+        'block_is_city'        => 'boolean',
+        'is_deleted'           => 'boolean',
+        'is_hot'               => 'boolean',
+        'is_start_sales'       => 'boolean',
+        'last_seen_at'         => 'datetime',
+        'building_deadline_at' => 'date',
+        // float → JSON number (not string); precision is fine for display purposes.
+        // area_given / area_balconies / area_rooms are rarely shown — keep as-is.
+        'area_total'           => 'float',
+        'area_living'          => 'float',
+        'area_kitchen'         => 'float',
+        'area_given'           => 'decimal:2',
+        'area_balconies'       => 'decimal:2',
+        'area_rooms_total'     => 'float',
+        'price'                => 'float',
+        'price_per_meter'      => 'float',
+        'block_lat'            => 'float',
+        'block_lng'            => 'float',
+    ];
+
+    // ── Relations ────────────────────────────────────────────────────────────
+
+    public function building(): BelongsTo
+    {
+        return $this->belongsTo(Building::class, 'building_id');
+    }
+
+    public function block(): BelongsTo
+    {
+        return $this->belongsTo(Block::class, 'block_id');
+    }
+
+    public function finishing(): BelongsTo
+    {
+        return $this->belongsTo(Finishing::class, 'finishing_id');
+    }
+
+    /**
+     * Room type reference (studios, 1-room, etc).
+     * Named roomType to avoid conflict with the `room` integer column.
+     */
+    public function roomType(): BelongsTo
+    {
+        return $this->belongsTo(Room::class, 'rooms_crm_id', 'crm_id');
+    }
+
+    public function buildingType(): BelongsTo
+    {
+        return $this->belongsTo(BuildingType::class, 'building_type_id');
+    }
+
+    // ── Default scope: exclude deleted ───────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active', function (Builder $query) {
+            $query->where('is_deleted', false);
+        });
+    }
+
+    // ── Query Scopes ─────────────────────────────────────────────────────────
+
+    /**
+     * Filter by price range.
+     *
+     * @param Builder $query
+     * @param int|float $min
+     * @param int|float $max
+     */
+    public function scopePriceBetween(Builder $query, int|float $min, int|float $max): Builder
+    {
+        return $query->whereBetween('price', [$min, $max]);
+    }
+
+    /**
+     * Filter by total area range.
+     *
+     * @param Builder $query
+     * @param float $min
+     * @param float $max
+     */
+    public function scopeAreaBetween(Builder $query, float $min, float $max): Builder
+    {
+        return $query->whereBetween('area_total', [$min, $max]);
+    }
+
+    /**
+     * Filter by room counts.
+     *
+     * @param Builder $query
+     * @param array<int> $rooms   e.g. [0, 1, 2] for studio + 1-room + 2-room
+     */
+    public function scopeRooms(Builder $query, array $rooms): Builder
+    {
+        return $query->whereIn('room', $rooms);
+    }
+
+    /**
+     * Filter by district (region) IDs.
+     *
+     * @param Builder $query
+     * @param array<string> $districts
+     */
+    public function scopeDistrict(Builder $query, array $districts): Builder
+    {
+        return $query->whereIn('block_district_id', $districts);
+    }
+
+    /**
+     * Filter by builder IDs.
+     *
+     * @param Builder $query
+     * @param array<string> $builders
+     */
+    public function scopeBuilder(Builder $query, array $builders): Builder
+    {
+        return $query->whereIn('block_builder_id', $builders);
+    }
+
+    /**
+     * Filter by building deadline range.
+     *
+     * @param Builder $query
+     * @param string $from  Date string e.g. "2024-01-01"
+     * @param string $to    Date string e.g. "2026-12-31"
+     */
+    public function scopeDeadlineBetween(Builder $query, string $from, string $to): Builder
+    {
+        return $query->whereBetween('building_deadline_at', [$from, $to]);
+    }
+
+    /**
+     * Full-text search on denormalized block name/builder/district.
+     *
+     * Uses MATCH…AGAINST (BOOLEAN MODE) for production relevance ranking,
+     * with a LIKE fallback to ensure results are found when the fulltext
+     * index is not yet committed (e.g. inside a test transaction).
+     */
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        $escaped = addslashes($term);
+        return $query->where(function (Builder $q) use ($term, $escaped): void {
+            $q->whereRaw(
+                'MATCH(block_name, block_builder_name, block_district_name) AGAINST(? IN BOOLEAN MODE)',
+                [$term]
+            )->orWhere('block_name', 'LIKE', '%' . $escaped . '%')
+             ->orWhere('block_builder_name', 'LIKE', '%' . $escaped . '%')
+             ->orWhere('block_district_name', 'LIKE', '%' . $escaped . '%');
+        });
+    }
+
+    /**
+     * Geo filter: apartments whose block is within $radius meters of ($lat, $lng).
+     *
+     * Optimization: Uses bounding box filter first (uses idx_geo index),
+     * then applies precise ST_Distance_Sphere check.
+     *
+     * @param Builder $query
+     * @param float $lat
+     * @param float $lng
+     * @param int $radius  Meters
+     */
+    public function scopeGeoRadius(Builder $query, float $lat, float $lng, int $radius): Builder
+    {
+        // Calculate bounding box (approximate degrees per meter)
+        // Latitude: ~111,320 meters per degree (constant)
+        // Longitude: varies by latitude (111,320 * cos(latitude))
+        $latDelta = $radius / 111320.0;
+        $lngDelta = $radius / (111320.0 * cos(deg2rad($lat)));
+
+        $minLat = $lat - $latDelta;
+        $maxLat = $lat + $latDelta;
+        $minLng = $lng - $lngDelta;
+        $maxLng = $lng + $lngDelta;
+
+        // Use idx_geo_compound index for efficient bounding box filtering
+        // This index covers: (is_deleted, block_lat, block_lng)
+        $query->from(\Illuminate\Support\Facades\DB::raw('apartments USE INDEX (idx_geo_compound)'));
+
+        return $query->where('is_deleted', 0)
+            ->whereNotNull('block_lat')
+            ->whereNotNull('block_lng')
+            // Bounding box filter (uses idx_geo_compound index for range scan)
+            ->whereBetween('block_lat', [$minLat, $maxLat])
+            ->whereBetween('block_lng', [$minLng, $maxLng])
+            // Precise distance check (applied after bounding box reduces rows)
+            ->whereRaw(
+                'ST_Distance_Sphere(POINT(block_lng, block_lat), POINT(?, ?)) <= ?',
+                [$lng, $lat, $radius]
+            );
+    }
+
+    /**
+     * Scope: include deleted (bypass the global scope).
+     */
+    public function scopeWithDeleted(Builder $query): Builder
+    {
+        return $query->withoutGlobalScope('active');
+    }
+}
