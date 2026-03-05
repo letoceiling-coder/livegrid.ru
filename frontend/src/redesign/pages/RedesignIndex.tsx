@@ -40,7 +40,7 @@ const regions = [
 ];
 
 const CARD_COUNT = 8;
-const MAP_PER_PAGE = 200;
+const MAP_PER_PAGE = 100; // API max per_page
 
 const RedesignIndex = () => {
   const [q, setQ] = useState('');
