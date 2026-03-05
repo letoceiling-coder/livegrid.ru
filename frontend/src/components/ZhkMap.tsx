@@ -29,7 +29,10 @@ declare global {
   }
 }
 
-const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
+const BOUNDS_CHANGE_DEBOUNCE_MS = 400;
+const VIEWPORT_THRESHOLD = 0.02;
+
+const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSlug, onBoundsChange }: ZhkMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const objectManagerRef = useRef<any>(null);
@@ -90,14 +93,61 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
 
     mapInstanceRef.current = map;
 
+    let boundsCleanup: (() => void) | undefined;
+
+    if (onBoundsChange) {
+      let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+      let lastViewport: MapViewportBounds | null = null;
+
+      const emitBounds = () => {
+        if (!mapInstanceRef.current) return;
+        try {
+          const bounds = mapInstanceRef.current.getBounds();
+          if (!bounds) return;
+          const [[lngMin, latMin], [lngMax, latMax]] = bounds;
+          const viewport: MapViewportBounds = {
+            lat_min: latMin,
+            lat_max: latMax,
+            lng_min: lngMin,
+            lng_max: lngMax,
+          };
+          const changed = !lastViewport ||
+            Math.abs(viewport.lat_min - lastViewport.lat_min) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lat_max - lastViewport.lat_max) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lng_min - lastViewport.lng_min) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lng_max - lastViewport.lng_max) > VIEWPORT_THRESHOLD;
+          if (changed) {
+            lastViewport = viewport;
+            onBoundsChange(viewport);
+          }
+        } catch { /* ignore */ }
+      };
+
+      const handleBoundsChange = () => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(emitBounds, BOUNDS_CHANGE_DEBOUNCE_MS);
+      };
+
+      map.events.add('boundschange', handleBoundsChange);
+      emitBounds();
+
+      boundsCleanup = () => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        try {
+          map.events.remove('boundschange', handleBoundsChange);
+        } catch { /* ignore */ }
+      };
+    }
+
     return () => {
+      boundsCleanup?.();
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy();
         mapInstanceRef.current = null;
         objectManagerRef.current = null;
       }
     };
-  }, [ymapsReady]);
+  }, [ymapsReady, onBoundsChange]);
 
   // ── 4. Render markers ───────────────────────────────────────────────────
   useEffect(() => {

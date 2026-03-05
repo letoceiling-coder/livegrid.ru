@@ -6,7 +6,18 @@
 import api from '@/lib/api';
 import type { MapBlockItem } from '@/api/blocksApi';
 
+export interface MapViewport {
+  lat_min: number;
+  lat_max: number;
+  lng_min: number;
+  lng_max: number;
+}
+
 export interface MapBlocksParams {
+  lat_min?: number;
+  lat_max?: number;
+  lng_min?: number;
+  lng_max?: number;
   district?: string[];
   builder?: string[];
   is_city?: boolean;

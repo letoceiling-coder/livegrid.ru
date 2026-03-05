@@ -167,6 +167,10 @@ class BlockController extends Controller
     public function forMap(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
+            'lat_min'       => ['nullable', 'numeric', 'min:-90', 'max:90'],
+            'lat_max'       => ['nullable', 'numeric', 'min:-90', 'max:90'],
+            'lng_min'       => ['nullable', 'numeric', 'min:-180', 'max:180'],
+            'lng_max'       => ['nullable', 'numeric', 'min:-180', 'max:180'],
             'district'      => ['nullable', 'array'],
             'district.*'    => ['string', 'size:24'],
             'builder'       => ['nullable', 'array'],
@@ -185,6 +189,19 @@ class BlockController extends Controller
             ->where('units_count', '>', 0)
             ->whereNotNull('lat')
             ->whereNotNull('lng');
+
+        if ($request->filled('lat_min')) {
+            $query->where('lat', '>=', (float) $request->lat_min);
+        }
+        if ($request->filled('lat_max')) {
+            $query->where('lat', '<=', (float) $request->lat_max);
+        }
+        if ($request->filled('lng_min')) {
+            $query->where('lng', '>=', (float) $request->lng_min);
+        }
+        if ($request->filled('lng_max')) {
+            $query->where('lng', '<=', (float) $request->lng_max);
+        }
 
         if ($request->filled('district')) {
             $query->whereIn('district_id', (array) $request->district);

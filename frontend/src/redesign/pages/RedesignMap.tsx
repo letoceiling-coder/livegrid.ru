@@ -11,6 +11,13 @@ import { useSearch } from '@/hooks/useSearch';
 import type { MapBlocksParams } from '@/api/mapApi';
 import type { CatalogBlockFilters } from '@/redesign/data/types';
 
+const DEFAULT_VIEWPORT: MapViewportBounds = {
+  lat_min: 55.5,
+  lat_max: 56.0,
+  lng_min: 37.3,
+  lng_max: 37.9,
+};
+
 const defaultFilters: CatalogBlockFilters = {
   search: '',
   district: [],
@@ -57,10 +64,24 @@ const RedesignMap = () => {
   }, [searchParams]);
 
   const [filters, setFilters] = useState<CatalogBlockFilters>(initial);
+  const [viewport, setViewport] = useState<MapViewportBounds>(DEFAULT_VIEWPORT);
   const [showFilters, setShowFilters] = useState(false);
   const [centerOnSlug, setCenterOnSlug] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState(initial.search);
   const [searchFocused, setSearchFocused] = useState(false);
+
+  const handleBoundsChange = useCallback((v: MapViewportBounds) => {
+    setViewport(prev => {
+      const threshold = 0.02;
+      if (Math.abs(v.lat_min - prev.lat_min) < threshold &&
+          Math.abs(v.lat_max - prev.lat_max) < threshold &&
+          Math.abs(v.lng_min - prev.lng_min) < threshold &&
+          Math.abs(v.lng_max - prev.lng_max) < threshold) {
+        return prev;
+      }
+      return v;
+    });
+  }, []);
 
   useEffect(() => {
     const parsed = parseFromURL(searchParams);
@@ -267,6 +288,7 @@ const RedesignMap = () => {
                 blocks={blocks}
                 onBlockClick={slug => (window.location.href = `/complex/${slug}`)}
                 centerOnSlug={centerOnSlug}
+                onBoundsChange={handleBoundsChange}
               />
             )}
           </div>
