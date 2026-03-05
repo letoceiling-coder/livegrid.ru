@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getMapObjects } from '@/api/mapApi';
 import { getComplex } from '@/api/blocksApi';
-import { formatPrice } from '@/lib/format';
 import { type BlockFilters } from '@/hooks/useBlocks';
 
 interface MapBlock {
@@ -46,6 +45,10 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const objectManagerRef = useRef<any>(null);
+  const onBoundsChangeRef = useRef(onBoundsChange);
+  const onBlockClickRef = useRef(onBlockClick);
+  onBoundsChangeRef.current = onBoundsChange;
+  onBlockClickRef.current = onBlockClick;
   const [ymapsReady, setYmapsReady] = useState(false);
   const [blocks, setBlocks] = useState<MapBlock[]>(externalBlocks ?? []);
   const [loadingBlocks, setLoadingBlocks] = useState(externalBlocks == null);
@@ -105,7 +108,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
 
     let boundsCleanup: (() => void) | undefined;
 
-    if (onBoundsChange) {
+    if (onBoundsChangeRef.current) {
       let debounceTimer: ReturnType<typeof setTimeout> | null = null;
       let lastViewport: MapViewportBounds | null = null;
 
@@ -125,8 +128,6 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
             lng_min,
             lng_max,
           };
-          // eslint-disable-next-line no-console
-          console.log('viewport', { lat_min, lat_max, lng_min, lng_max });
           const changed = !lastViewport ||
             Math.abs(viewport.lat_min - lastViewport.lat_min) > VIEWPORT_THRESHOLD ||
             Math.abs(viewport.lat_max - lastViewport.lat_max) > VIEWPORT_THRESHOLD ||
@@ -166,7 +167,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
         objectManagerRef.current = null;
       }
     };
-  }, [ymapsReady, onBoundsChange]);
+  }, [ymapsReady]);
 
   const initialBoundsFittedRef = useRef(false);
 
@@ -179,7 +180,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
     if (!objectManagerRef.current) {
       const om = new window.ymaps.ObjectManager({
         clusterize: true,
-        gridSize: 60,
+        gridSize: 64,
         clusterDisableClickZoom: false,
         clusterBalloonContentLayout: 'cluster#balloonCarousel',
       });
@@ -192,7 +193,7 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
       map.geoObjects.add(om);
       objectManagerRef.current = om;
     }
-  }, [ymapsReady, onBlockClick]);
+  }, [ymapsReady]);
 
   // ── 5. Update ObjectManager objects in place (do not recreate) ──────────
   useEffect(() => {
@@ -208,43 +209,15 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
     }
 
     const features = blocks.map((block, index) => ({
-      type: 'Feature',
-      id: String(block.id ?? index),
+      type: 'Feature' as const,
+      id: block.id ?? index,
       geometry: {
-        type: 'Point',
+        type: 'Point' as const,
         coordinates: [block.lng, block.lat],
       },
       properties: {
         blockSlug: block.slug,
-        balloonContent: `<div class="map-balloon" style="min-width:200px;padding:6px 0">
-          <strong>${block.name}</strong><br/>
-          от ${(block.price_from ?? 0).toLocaleString('ru-RU')} ₽<br/>
-          <a href="/complex/${block.slug}">Открыть ЖК</a>
-        </div>`,
-        balloonContentHeader: `<strong style="font-size:14px">${block.name}</strong>`,
-        balloonContentBody: `
-          <div style="min-width:200px;padding:6px 0">
-            ${block.image
-              ? `<img src="${block.image}" alt="${block.name}" style="width:100%;height:130px;object-fit:cover;border-radius:8px;margin-bottom:8px" />`
-              : ''
-            }
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
-              <div>
-                <div style="font-size:11px;color:#888">от</div>
-                <div style="font-size:15px;font-weight:600">${formatPrice(block.price_from)}</div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-size:11px;color:#888">В продаже</div>
-                <div style="font-size:13px">${block.units_count.toLocaleString('ru-RU')} кв.</div>
-              </div>
-            </div>
-          </div>
-        `,
-        balloonContentFooter: `
-          <a href='/complex/${block.slug}'
-             style="display:block;margin-top:8px;color:#2563eb;font-size:13px;text-decoration:none;font-weight:500">
-            Подробнее →
-          </a>`,
+        balloonContent: `<div><strong>${block.name}</strong><br/>от ${(block.price_from ?? 0).toLocaleString('ru-RU')} ₽<br/><a href="/complex/${block.slug}">Открыть ЖК</a></div>`,
         hintContent: block.name,
       },
       options: {
@@ -252,13 +225,14 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
       },
     }));
 
+    const geoJson = { type: 'FeatureCollection' as const, features };
+
     // eslint-disable-next-line no-console
-    console.log('blocks loaded', blocks.length, 'features created', features.length);
+    console.log('blocks', blocks.length, 'features', features.length);
 
     try {
       if (typeof om.removeAll === 'function') om.removeAll();
     } catch { /* ignore */ }
-    const geoJson = { type: 'FeatureCollection' as const, features };
     om.add(geoJson);
 
     if (!initialBoundsFittedRef.current && mapInstanceRef.current) {

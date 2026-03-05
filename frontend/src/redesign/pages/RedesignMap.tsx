@@ -148,6 +148,10 @@ const RedesignMap = () => {
     setCenterOnSlug(slug);
   };
 
+  const handleBlockClick = useCallback((slug: string) => {
+    window.location.href = `/complex/${slug}`;
+  }, []);
+
   return (
     <div className="min-h-screen bg-background flex flex-col pb-16 lg:pb-0">
       <RedesignHeader />
