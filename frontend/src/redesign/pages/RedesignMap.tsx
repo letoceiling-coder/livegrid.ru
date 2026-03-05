@@ -64,7 +64,7 @@ const RedesignMap = () => {
   }, [searchParams]);
 
   const [filters, setFilters] = useState<CatalogBlockFilters>(initial);
-  const [viewport, setViewport] = useState<MapViewportBounds>(DEFAULT_VIEWPORT);
+  const [viewport, setViewport] = useState<MapViewportBounds | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [centerOnSlug, setCenterOnSlug] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState(initial.search);
@@ -72,6 +72,7 @@ const RedesignMap = () => {
 
   const handleBoundsChange = useCallback((v: MapViewportBounds) => {
     setViewport(prev => {
+      if (!prev) return v;
       const threshold = 0.02;
       if (Math.abs(v.lat_min - prev.lat_min) < threshold &&
           Math.abs(v.lat_max - prev.lat_max) < threshold &&
@@ -93,12 +94,14 @@ const RedesignMap = () => {
   const { filters: filterOptions, loading: filtersLoading } = useCatalogFilters();
 
   const mapParams: MapBlocksParams = useMemo(() => {
-    const p: MapBlocksParams = {
-      lat_min: viewport.lat_min,
-      lat_max: viewport.lat_max,
-      lng_min: viewport.lng_min,
-      lng_max: viewport.lng_max,
-    };
+    const p: MapBlocksParams = {};
+    // Apply viewport only after first actionend (map ready); initial load without viewport
+    if (viewport) {
+      p.lat_min = viewport.lat_min;
+      p.lat_max = viewport.lat_max;
+      p.lng_min = viewport.lng_min;
+      p.lng_max = viewport.lng_max;
+    }
     if (filters.search) p.search = filters.search;
     if (filters.district.length) p.district = filters.district;
     if (filters.builder.length) p.builder = filters.builder;

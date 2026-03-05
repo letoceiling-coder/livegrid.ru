@@ -114,13 +114,19 @@ const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSl
         try {
           const bounds = mapInstanceRef.current.getBounds();
           if (!bounds) return;
-          const [[lngMin, latMin], [lngMax, latMax]] = bounds;
+          // Yandex: [[southWestLat, southWestLng], [northEastLat, northEastLng]]
+          const lat_min = bounds[0][0];
+          const lat_max = bounds[1][0];
+          const lng_min = bounds[0][1];
+          const lng_max = bounds[1][1];
           const viewport: MapViewportBounds = {
-            lat_min: latMin,
-            lat_max: latMax,
-            lng_min: lngMin,
-            lng_max: lngMax,
+            lat_min,
+            lat_max,
+            lng_min,
+            lng_max,
           };
+          // eslint-disable-next-line no-console
+          console.log('viewport', { lat_min, lat_max, lng_min, lng_max });
           const changed = !lastViewport ||
             Math.abs(viewport.lat_min - lastViewport.lat_min) > VIEWPORT_THRESHOLD ||
             Math.abs(viewport.lat_max - lastViewport.lat_max) > VIEWPORT_THRESHOLD ||
