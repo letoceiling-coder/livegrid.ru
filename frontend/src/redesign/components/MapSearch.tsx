@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import type { ResidentialComplex } from '@/redesign/data/types';
-import { formatPrice } from '@/redesign/data/mock-data';
+import type { BlockForDisplay } from '@/lib/blockDisplay';
+import { formatPrice } from '@/lib/format';
 import { MapPin, Building2 } from 'lucide-react';
 
 declare global {
@@ -13,7 +12,7 @@ const DEFAULT_CENTER = [55.751244, 37.618423];
 const DEFAULT_ZOOM = 11;
 
 interface Props {
-  complexes: ResidentialComplex[];
+  complexes: BlockForDisplay[];
   activeSlug?: string | null;
   onSelect?: (slug: string) => void;
   height?: string;
@@ -49,9 +48,10 @@ const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh' }: Props) 
     markersRef.current = [];
 
     complexes.forEach(c => {
+      const img = c.images[0] ?? '/placeholder.svg';
       const pm = new window.ymaps.Placemark(c.coords, {
         balloonContentHeader: `<strong>${c.name}</strong>`,
-        balloonContentBody: `<div style="max-width:240px"><img src="${c.images[0]}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px" /><div style="font-weight:700;margin-bottom:4px">от ${formatPrice(c.priceFrom)}</div><div style="font-size:12px;color:#666">${c.district} · м.${c.subway}</div><a href="/complex/${c.slug}" style="color:hsl(206,89%,60%);font-size:13px;margin-top:8px;display:block;font-weight:500">Подробнее →</a></div>`,
+        balloonContentBody: `<div style="max-width:240px"><img src="${img}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px" /><div style="font-weight:700;margin-bottom:4px">${formatPrice(c.priceFrom)}</div><div style="font-size:12px;color:#666">${c.district} · м.${c.subway}</div><a href="/complex/${c.slug}" style="color:hsl(206,89%,60%);font-size:13px;margin-top:8px;display:block;font-weight:500">Подробнее →</a></div>`,
       }, { preset: 'islands#blueCircleDotIcon' });
       pm.events.add('click', () => onSelect?.(c.slug));
       map.geoObjects.add(pm);
@@ -79,7 +79,7 @@ const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh' }: Props) 
             )}
           >
             <div className="flex gap-3">
-              <img src={c.images[0]} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
+              <img src={c.images[0] ?? '/placeholder.svg'} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
               <div className="min-w-0">
                 <p className="font-semibold text-sm truncate">{c.name}</p>
                 <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
@@ -88,7 +88,7 @@ const MapSearch = ({ complexes, activeSlug, onSelect, height = '70vh' }: Props) 
                 <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                   <Building2 className="w-3 h-3" /> {c.builder}
                 </p>
-                <p className="text-sm font-bold mt-1">от {formatPrice(c.priceFrom)}</p>
+                <p className="text-sm font-bold mt-1">{formatPrice(c.priceFrom)}</p>
               </div>
             </div>
           </button>

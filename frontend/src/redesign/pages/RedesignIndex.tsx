@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Search, ArrowRight, MapPin, CalendarDays, Train, ChevronDown } from 'lucide-react';
+import { Search, ArrowRight, MapPin, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import RedesignHeader from '@/redesign/components/RedesignHeader';
@@ -13,9 +13,10 @@ import CategoryTiles from '@/components/CategoryTiles';
 import LatestNews from '@/components/LatestNews';
 import ContactsSection from '@/components/ContactsSection';
 import FooterSection from '@/components/FooterSection';
-import { complexes, formatPrice } from '@/redesign/data/mock-data';
+import { getBlocks } from '@/api/blocksApi';
+import { mapBlockToDisplay } from '@/lib/blockDisplay';
+import { useQuery } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
-import { cn } from '@/lib/utils';
 
 const quickFilters = [
   { label: 'Студии', search: '' },
@@ -38,6 +39,9 @@ const regions = [
   'Другой регион',
 ];
 
+const CARD_COUNT = 8;
+const MAP_PER_PAGE = 200;
+
 const RedesignIndex = () => {
   const [q, setQ] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('Москва и МО');
@@ -45,7 +49,14 @@ const RedesignIndex = () => {
   const [viewMode, setViewMode] = useState<'cards' | 'map'>('cards');
   const [activeComplex, setActiveComplex] = useState<string | null>(null);
   const regionRef = useRef<HTMLDivElement>(null);
-  const featured = complexes.slice(0, 6);
+
+  const { data: blocksData, isLoading: blocksLoading, error: blocksError } = useQuery({
+    queryKey: ['blocks', 'popular', MAP_PER_PAGE],
+    queryFn: () => getBlocks({ per_page: MAP_PER_PAGE }),
+  });
+
+  const allBlocks = (blocksData?.data ?? []).map(mapBlockToDisplay);
+  const featured = allBlocks.slice(0, CARD_COUNT);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -156,12 +167,26 @@ const RedesignIndex = () => {
             </button>
           </div>
         </div>
-        {viewMode === 'cards' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {featured.map(c => <ComplexCard key={c.id} complex={c} />)}
+        {blocksError ? (
+          <p className="text-destructive text-sm py-8">Не удалось загрузить популярные комплексы. Попробуйте позже.</p>
+        ) : viewMode === 'cards' ? (
+          blocksLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: CARD_COUNT }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border bg-muted/50 h-[280px] animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {featured.map(c => <ComplexCard key={c.id} complex={c} />)}
+            </div>
+          )
+        ) : blocksLoading ? (
+          <div className="h-[450px] rounded-2xl border border-border bg-muted/30 animate-pulse flex items-center justify-center">
+            <span className="text-muted-foreground text-sm">Загрузка карты...</span>
           </div>
         ) : (
-          <MapSearch complexes={featured} activeSlug={activeComplex} onSelect={setActiveComplex} height="450px" />
+          <MapSearch complexes={allBlocks} activeSlug={activeComplex} onSelect={setActiveComplex} height="450px" />
         )}
       </section>
 

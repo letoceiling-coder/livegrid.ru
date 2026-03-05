@@ -3,10 +3,17 @@ import { MapPin, Building2, CalendarDays, Heart, Train } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { ResidentialComplex } from '@/redesign/data/types';
-import { formatPrice } from '@/redesign/data/mock-data';
+import type { BlockForDisplay } from '@/lib/blockDisplay';
+import { formatPrice } from '@/lib/format';
+
+export type ComplexCardComplex = BlockForDisplay | ResidentialComplex;
+
+function isBlockForDisplay(c: ComplexCardComplex): c is BlockForDisplay {
+  return 'roomGroups' in c && 'coords' in c;
+}
 
 interface Props {
-  complex: ResidentialComplex;
+  complex: ComplexCardComplex;
   variant?: 'grid' | 'list';
 }
 
@@ -19,18 +26,24 @@ const statusLabels: Record<string, { label: string; className: string }> = {
 const ComplexCard = ({ complex, variant = 'grid' }: Props) => {
   const [liked, setLiked] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const totalApts = complex.buildings.reduce((s, b) => s + b.apartments.filter(a => a.status === 'available').length, 0);
-  const status = statusLabels[complex.status];
 
-  // Группировка квартир по типам
-  const availableApts = complex.buildings.flatMap(b => b.apartments.filter(a => a.status === 'available'));
-  const aptTypes = [0, 1, 2, 3].map(rooms => {
-    const apts = availableApts.filter(a => a.rooms === rooms);
-    if (apts.length === 0) return null;
-    const minArea = Math.min(...apts.map(a => a.area));
-    const minPrice = Math.min(...apts.map(a => a.price));
-    return { rooms, area: minArea, price: minPrice, count: apts.length };
-  }).filter(Boolean);
+  const fromApi = isBlockForDisplay(complex);
+  const totalApts = fromApi ? complex.unitsCount : complex.buildings.reduce((s, b) => s + b.apartments.filter(a => a.status === 'available').length, 0);
+  const status = statusLabels[!fromApi && 'status' in complex ? complex.status : 'building'];
+
+  // Группировка квартир по типам (roomGroups из API или из buildings)
+  const aptTypes = fromApi
+    ? complex.roomGroups.map((g) => ({ rooms: g.room, roomLabel: g.roomLabel, area: g.areaFrom ?? 0, price: g.priceFrom ?? 0 }))
+    : (() => {
+        const availableApts = complex.buildings.flatMap(b => b.apartments.filter(a => a.status === 'available'));
+        return [0, 1, 2, 3].map(rooms => {
+          const apts = availableApts.filter(a => a.rooms === rooms);
+          if (apts.length === 0) return null;
+          const minArea = Math.min(...apts.map(a => a.area));
+          const minPrice = Math.min(...apts.map(a => a.price));
+          return { rooms, area: minArea, price: minPrice, count: apts.length };
+        }).filter(Boolean) as Array<{ rooms: number; area: number; price: number }>;
+      })();
 
   const roomLabels: Record<number, string> = {
     0: 'Студии',
@@ -68,7 +81,7 @@ const ComplexCard = ({ complex, variant = 'grid' }: Props) => {
             <div className="space-y-1.5 mb-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-3.5 h-3.5 shrink-0" />
-                <span>{complex.district} · {complex.address}</span>
+                <span>{complex.district} · {fromApi ? complex.address : (complex as ResidentialComplex).address}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Train className="w-3.5 h-3.5 shrink-0" />
@@ -80,18 +93,18 @@ const ComplexCard = ({ complex, variant = 'grid' }: Props) => {
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <CalendarDays className="w-3.5 h-3.5 shrink-0" />
-                <span>Сдача: {complex.deadline}</span>
+                <span>Сдача: {fromApi ? complex.deadline : (complex as ResidentialComplex).deadline}</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {complex.advantages.slice(0, 3).map((a, i) => (
+              {(!fromApi ? (complex as ResidentialComplex).advantages : []).slice(0, 3).map((a, i) => (
                 <span key={i} className="px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-xs">{a}</span>
               ))}
             </div>
           </div>
           <div className="pt-3 mt-3 border-t border-border flex items-center justify-between">
             <div>
-              <p className="text-lg font-bold">от {formatPrice(complex.priceFrom)}</p>
+              <p className="text-lg font-bold">{formatPrice(complex.priceFrom ?? 0)}</p>
               <p className="text-xs text-muted-foreground">{totalApts} квартир</p>
             </div>
             <span className="text-primary font-medium text-sm">Подробнее →</span>
@@ -157,9 +170,9 @@ const ComplexCard = ({ complex, variant = 'grid' }: Props) => {
         )}>
           {aptTypes.map((apt, index) => (
             <div key={index} className="flex justify-between items-center py-1.5 border-b border-border last:border-0 gap-2 text-xs">
-              <span className="font-medium text-foreground shrink-0">{roomLabels[apt!.rooms]}</span>
+              <span className="font-medium text-foreground shrink-0">{(apt as { roomLabel?: string }).roomLabel ?? roomLabels[apt!.rooms]}</span>
               <span className="text-muted-foreground shrink-0">от {Math.round(apt!.area)} м²</span>
-              <span className="font-medium shrink-0">от {formatPrice(apt!.price)}</span>
+              <span className="font-medium shrink-0">{formatPrice(apt!.price)}</span>
             </div>
           ))}
         </div>
