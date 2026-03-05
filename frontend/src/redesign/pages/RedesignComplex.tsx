@@ -10,7 +10,8 @@ import Chessboard from '@/redesign/components/Chessboard';
 import LayoutGrid from '@/redesign/components/LayoutGrid';
 import { getComplex, getComplexApartments } from '@/api/blocksApi';
 import { mapBlockDetailToComplex } from '@/lib/complexPageAdapter';
-import { getLayoutGroups, formatPrice } from '@/redesign/data/mock-data';
+import { getLayoutGroups } from '@/redesign/data/mock-data';
+import { formatPrice } from '@/lib/format';
 import type { SortField, SortDir } from '@/redesign/data/types';
 
 declare global {
@@ -32,7 +33,7 @@ const RedesignComplex = () => {
   const { data: aptsResult } = useQuery({
     queryKey: ['block-apartments', slugOrId],
     queryFn: () => getComplexApartments(slugOrId, { per_page: APARTMENTS_PER_PAGE }),
-    enabled: !!block && !!slugOrId,
+    enabled: !!slugOrId,
   });
 
   const complex = useMemo(() => {
