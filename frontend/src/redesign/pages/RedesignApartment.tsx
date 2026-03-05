@@ -1,14 +1,36 @@
 import { useParams, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Phone, MessageCircle, Calculator, MapPin, Building2, CalendarDays, Ruler, ChefHat, Layers, Paintbrush, Train } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RedesignHeader from '@/redesign/components/RedesignHeader';
-import { getApartmentById, formatPrice } from '@/redesign/data/mock-data';
+import { getApartment } from '@/api/apartmentsApi';
+import { mapApartmentToPageDisplay } from '@/lib/apartmentPageAdapter';
+import { formatPrice } from '@/lib/format';
 
 const RedesignApartment = () => {
   const { id } = useParams<{ id: string }>();
-  const result = getApartmentById(id || '');
+  const aptId = id || '';
 
-  if (!result) {
+  const { data: raw, isLoading, error } = useQuery({
+    queryKey: ['apartment', aptId],
+    queryFn: () => getApartment(aptId),
+    enabled: !!aptId,
+  });
+
+  const result = raw ? mapApartmentToPageDisplay(raw) : null;
+
+  if (isLoading || (!raw && !error)) {
+    return (
+      <div className="min-h-screen bg-background">
+        <RedesignHeader />
+        <div className="max-w-[1400px] mx-auto px-4 py-16 flex justify-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !result) {
     return (
       <div className="min-h-screen bg-background">
         <RedesignHeader />
