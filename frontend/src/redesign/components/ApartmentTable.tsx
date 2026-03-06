@@ -4,7 +4,7 @@ import { ArrowUpDown, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import type { Apartment, SortField, SortDir } from '@/redesign/data/types';
-import { formatPrice } from '@/redesign/data/mock-data';
+import { formatPrice } from '@/lib/format';
 
 interface Props {
   apartments: Apartment[];
@@ -49,7 +49,7 @@ const ApartmentTable = ({ apartments, sort, onSort }: Props) => {
               <TableRow key={a.id} className="group hover:bg-accent/30">
                 <TableCell className="font-medium">{a.rooms === 0 ? 'Ст' : `${a.rooms}к`}</TableCell>
                 <TableCell className="font-medium">{a.area} м²</TableCell>
-                <TableCell className="text-muted-foreground">{a.kitchenArea} м²</TableCell>
+                <TableCell className="text-muted-foreground">{a.kitchenArea > 0 ? `${a.kitchenArea} м²` : '—'}</TableCell>
                 <TableCell>{a.floor}/{a.totalFloors}</TableCell>
                 <TableCell className="font-semibold">{formatPrice(a.price)}</TableCell>
                 <TableCell className="text-muted-foreground text-xs">{a.pricePerMeter.toLocaleString('ru-RU')} ₽</TableCell>

@@ -1,17 +1,29 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import catNovostroyki from '@/assets/cat-novostroyki.png';
-import catApartments from '@/assets/cat-apartments.png';
+import catSecondary from '@/assets/cat-secondary.png';
+import catRent from '@/assets/cat-rent.png';
+import catHouses from '@/assets/cat-houses.png';
+import catPlots from '@/assets/cat-plots.png';
 import catMortgage from '@/assets/cat-mortgage.png';
+import catApartments from '@/assets/cat-apartments.png';
+import catParking from '@/assets/cat-parking.png';
+import catCommercial from '@/assets/cat-commercial.png';
 import catSearch from '@/assets/cat-search.png';
 import PickObjectModal from './PickObjectModal';
 
+// Новый дизайн strict-template: 10 плиток
 const categories = [
-  { name: 'Новостройки', image: catNovostroyki, href: '/catalog-zhk' },
-  { name: 'Квартиры', image: catApartments, href: '/catalog?type=apartments' },
+  { name: 'Новостройки', image: catNovostroyki, href: '/catalog' },
+  { name: 'Вторичная\nнедвижимость', image: catSecondary, href: '/catalog-apartments' },
+  { name: 'Аренда', image: catRent, href: '/catalog' },
+  { name: 'Дома', image: catHouses, href: '/catalog' },
+  { name: 'Участки', image: catPlots, href: '/catalog' },
   { name: 'Ипотека', image: catMortgage, href: '/ipoteka' },
-  { name: 'Подобрать объект', image: catSearch, action: 'modal' as const },
-  { name: 'Все объекты', image: catNovostroyki, href: '/catalog' },
+  { name: 'Квартиры', image: catApartments, href: '/catalog-apartments' },
+  { name: 'Паркинги', image: catParking, href: '/catalog' },
+  { name: 'Коммерческая\nнедвижимость', image: catCommercial, href: '/catalog' },
+  { name: 'Подобрать\nобъект', image: catSearch, action: 'modal' as const },
 ];
 
 const CategoryTiles = () => {
@@ -39,7 +51,7 @@ const CategoryTiles = () => {
               <Link
                 key={i}
                 to={cat.href!}
-                className="bg-secondary rounded-2xl p-4 flex flex-col items-start hover:opacity-90 transition-opacity min-h-[130px] md:min-h-[150px] relative overflow-hidden group cursor-pointer"
+                className="bg-secondary rounded-2xl p-4 flex flex-col items-start hover:shadow-md transition-shadow min-h-[130px] md:min-h-[150px] relative overflow-hidden group cursor-pointer"
               >
                 <span className="font-semibold text-sm whitespace-pre-line relative z-10">{cat.name}</span>
                 <img

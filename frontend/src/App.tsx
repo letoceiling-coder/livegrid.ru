@@ -12,6 +12,7 @@ const RedesignComplex = lazy(() => import("./redesign/pages/RedesignComplex"));
 const RedesignApartment = lazy(() => import("./redesign/pages/RedesignApartment"));
 const RedesignMap = lazy(() => import("./redesign/pages/RedesignMap"));
 const RedesignLayouts = lazy(() => import("./redesign/pages/RedesignLayouts"));
+// Legacy pages (catalog apartments, news, auth, etc.)
 import Index from "./pages/Index";
 import Catalog from "./pages/Catalog";
 import CatalogZhk from "./pages/CatalogZhk";

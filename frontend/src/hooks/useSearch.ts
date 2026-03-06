@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { searchObjects } from '@/api/searchApi';
 
-const DEBOUNCE_MS = 400;
+const DEBOUNCE_MS = 300;
 
 export function useSearch(query: string) {
   const [debouncedQuery, setDebouncedQuery] = useState(query);

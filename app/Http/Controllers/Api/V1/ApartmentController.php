@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ApartmentListResource;
 use App\Http\Resources\ApartmentResource;
 use App\Models\Apartment;
+use App\Services\Search\SearchService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -169,17 +170,9 @@ class ApartmentController extends Controller
             $query->where('is_start_sales', true);
         }
 
-        // ── Fulltext search ───────────────────────────────────────────────────
+        // ── Unified search (SearchService: FULLTEXT + parsed filters) ─────────
         if ($request->filled('search')) {
-            $escaped = addslashes($request->search);
-            $query->where(function ($q) use ($request, $escaped) {
-                $q->whereRaw(
-                    'MATCH(block_name, block_builder_name, block_district_name) AGAINST(? IN BOOLEAN MODE)',
-                    [$request->search]
-                )->orWhere('block_name', 'LIKE', '%' . $escaped . '%')
-                 ->orWhere('block_builder_name', 'LIKE', '%' . $escaped . '%')
-                 ->orWhere('block_district_name', 'LIKE', '%' . $escaped . '%');
-            });
+            $this->searchService->applyApartmentSearch($query, $request->search);
         }
 
         // ── Geo filter ────────────────────────────────────────────────────────

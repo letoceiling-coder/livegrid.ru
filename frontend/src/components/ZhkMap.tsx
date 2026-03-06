@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getMapObjects } from '@/api/mapApi';
-import { formatPrice } from '@/lib/format';
+import { getComplex } from '@/api/blocksApi';
 import { type BlockFilters } from '@/hooks/useBlocks';
 
 interface MapBlock {
@@ -14,10 +14,22 @@ interface MapBlock {
   image: string | null;
 }
 
+export interface MapViewportBounds {
+  lat_min: number;
+  lat_max: number;
+  lng_min: number;
+  lng_max: number;
+}
+
 interface ZhkMapProps {
   filters?: BlockFilters;
+  /** When provided, map fetches data; when omitted, pass blocks explicitly */
   blocks?: MapBlock[];
   onBlockClick?: (blockSlug: string) => void;
+  /** Center map on this block slug and zoom to 15 */
+  centerOnSlug?: string | null;
+  /** Called when map bounds change (drag only, debounced) */
+  onBoundsChange?: (viewport: MapViewportBounds) => void;
 }
 
 declare global {
@@ -26,10 +38,17 @@ declare global {
   }
 }
 
-const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
+const BOUNDS_CHANGE_DEBOUNCE_MS = 400;
+const VIEWPORT_THRESHOLD = 0.02;
+
+const ZhkMap = ({ filters = {}, blocks: externalBlocks, onBlockClick, centerOnSlug, onBoundsChange }: ZhkMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const objectManagerRef = useRef<any>(null);
+  const onBoundsChangeRef = useRef(onBoundsChange);
+  const onBlockClickRef = useRef(onBlockClick);
+  onBoundsChangeRef.current = onBoundsChange;
+  onBlockClickRef.current = onBlockClick;
   const [ymapsReady, setYmapsReady] = useState(false);
   const [blocks, setBlocks] = useState<MapBlock[]>(externalBlocks ?? []);
   const [loadingBlocks, setLoadingBlocks] = useState(externalBlocks == null);
@@ -47,7 +66,7 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
     }
     const script = document.createElement('script');
     script.id = 'ymaps-script';
-    script.src = 'https://api-maps.yandex.ru/2.1/?lang=ru_RU';
+    script.src = 'https://api-maps.yandex.ru/2.1/?apikey=a79c56f4-efea-471e-bee5-fe9226cd53fd&lang=ru_RU';
     script.async = true;
     script.onload = () => window.ymaps.ready(() => setYmapsReady(true));
     document.body.appendChild(script);
@@ -87,7 +106,61 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
 
     mapInstanceRef.current = map;
 
+    let boundsCleanup: (() => void) | undefined;
+
+    if (onBoundsChangeRef.current) {
+      let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+      let lastViewport: MapViewportBounds | null = null;
+
+      const emitBounds = () => {
+        if (!mapInstanceRef.current) return;
+        try {
+          const bounds = mapInstanceRef.current.getBounds();
+          if (!bounds) return;
+          // Yandex: [[southWestLat, southWestLng], [northEastLat, northEastLng]]
+          const lat_min = bounds[0][0];
+          const lat_max = bounds[1][0];
+          const lng_min = bounds[0][1];
+          const lng_max = bounds[1][1];
+          const viewport: MapViewportBounds = {
+            lat_min,
+            lat_max,
+            lng_min,
+            lng_max,
+          };
+          const changed = !lastViewport ||
+            Math.abs(viewport.lat_min - lastViewport.lat_min) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lat_max - lastViewport.lat_max) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lng_min - lastViewport.lng_min) > VIEWPORT_THRESHOLD ||
+            Math.abs(viewport.lng_max - lastViewport.lng_max) > VIEWPORT_THRESHOLD;
+          if (changed) {
+            lastViewport = viewport;
+            onBoundsChangeRef.current?.(viewport);
+          }
+        } catch { /* ignore */ }
+      };
+
+      const handleActionEnd = (e: any) => {
+        const action = e && typeof e.get === 'function' ? e.get('action') : null;
+        if (action === 'drag' || action === 'pan') {
+          if (debounceTimer) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(emitBounds, BOUNDS_CHANGE_DEBOUNCE_MS);
+        }
+      };
+
+      map.events.add('actionend', handleActionEnd);
+      emitBounds();
+
+      boundsCleanup = () => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        try {
+          map.events.remove('actionend', handleActionEnd);
+        } catch { /* ignore */ }
+      };
+    }
+
     return () => {
+      boundsCleanup?.();
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy();
         mapInstanceRef.current = null;
@@ -96,83 +169,118 @@ const ZhkMap = ({ filters = {}, onBlockClick }: ZhkMapProps) => {
     };
   }, [ymapsReady]);
 
-  // ── 4. Render markers ───────────────────────────────────────────────────
+  const initialBoundsFittedRef = useRef(false);
+
+  // ── 4. Create ObjectManager once ────────────────────────────────────────
   useEffect(() => {
-    if (!ymapsReady || !mapInstanceRef.current || loadingBlocks) return;
+    if (!ymapsReady || !mapInstanceRef.current) return;
 
     const map = mapInstanceRef.current;
 
-    // Remove old object manager
-    if (objectManagerRef.current) {
-      map.geoObjects.remove(objectManagerRef.current);
-      objectManagerRef.current = null;
+    if (!objectManagerRef.current) {
+      const om = new window.ymaps.ObjectManager({
+        clusterize: true,
+        gridSize: 64,
+        clusterDisableClickZoom: false,
+        clusterBalloonContentLayout: 'cluster#balloonCarousel',
+      });
+
+      om.objects.events.add('click', (e: any) => {
+        const obj = om.objects.getById(e.get('objectId'));
+        if (obj?.properties?.blockSlug) onBlockClickRef.current?.(obj.properties.blockSlug);
+      });
+
+      map.geoObjects.add(om);
+      objectManagerRef.current = om;
+    }
+  }, [ymapsReady]);
+
+  // ── 5. Update ObjectManager objects in place (do not recreate) ──────────
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    const om = objectManagerRef.current;
+
+    // eslint-disable-next-line no-console
+    console.log('blocks effect', { blocksLen: blocks.length, loadingBlocks, hasMap: !!map, hasOM: !!om });
+
+    if (!om) {
+      // eslint-disable-next-line no-console
+      console.error('ObjectManager missing');
+      return;
+    }
+    if (loadingBlocks) return;
+
+    // eslint-disable-next-line no-console
+    console.log('blocks received', blocks.length);
+
+    if (blocks.length === 0) {
+      try {
+        if (typeof om.removeAll === 'function') om.removeAll();
+      } catch { /* ignore */ }
+      return;
     }
 
-    if (blocks.length === 0) return;
-
-    const om = new window.ymaps.ObjectManager({
-      clusterize: true,
-      gridSize: 60,
-      clusterDisableClickZoom: false,
-      clusterBalloonContentLayout: 'cluster#balloonCarousel',
-    });
-
-    const features = blocks.map((block, index) => ({
-      type: 'Feature',
-      id: index,
+    const features = blocks.map(block => ({
+      type: 'Feature' as const,
+      id: block.id,
       geometry: {
-        type: 'Point',
-        coordinates: [block.lat, block.lng],
+        type: 'Point' as const,
+        coordinates: [Number(block.lat), Number(block.lng)] as [number, number],
       },
       properties: {
-        blockSlug: block.slug,
-        balloonContentHeader: `<strong style="font-size:14px">${block.name}</strong>`,
-        balloonContentBody: `
-          <div style="min-width:200px;padding:6px 0">
-            ${block.image
-              ? `<img src="${block.image}" alt="${block.name}" style="width:100%;height:130px;object-fit:cover;border-radius:8px;margin-bottom:8px" />`
-              : ''
-            }
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
-              <div>
-                <div style="font-size:11px;color:#888">от</div>
-                <div style="font-size:15px;font-weight:600">${formatPrice(block.price_from)}</div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-size:11px;color:#888">В продаже</div>
-                <div style="font-size:13px">${block.units_count.toLocaleString('ru-RU')} кв.</div>
-              </div>
-            </div>
-          </div>
-        `,
-        balloonContentFooter: `
-          <a href='/complex/${block.slug}'
-             style="display:block;margin-top:8px;color:#2563eb;font-size:13px;text-decoration:none;font-weight:500">
-            Подробнее →
-          </a>`,
-        hintContent: block.name,
-      },
-      options: {
-        preset: 'islands#blueCircleDotIcon',
+        balloonContent: `<div><strong>${block.name}</strong><br/>от ${block.price_from?.toLocaleString?.() ?? 0} ₽<br/><a href="/complex/${block.slug}">Открыть ЖК</a></div>`,
       },
     }));
 
-    om.add({ type: 'FeatureCollection', features });
-
-    om.objects.events.add('click', (e: any) => {
-      const obj = om.objects.getById(e.get('objectId'));
-      if (obj && onBlockClick) onBlockClick(obj.properties.blockSlug);
-    });
-
-    map.geoObjects.add(om);
-    objectManagerRef.current = om;
-
-    // Fit bounds
-    const bounds = om.getBounds();
-    if (bounds) {
-      map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
+    // eslint-disable-next-line no-console
+    console.log('features created', features.length);
+    // eslint-disable-next-line no-console
+    if (features[0]) console.log('first marker', features[0].geometry.coordinates);
+    if (features.length === 0) {
+      // eslint-disable-next-line no-console
+      console.error('FEATURES EMPTY');
+      return;
     }
-  }, [ymapsReady, blocks, loadingBlocks, onBlockClick]);
+
+    const geoJson = { type: 'FeatureCollection' as const, features };
+    // eslint-disable-next-line no-console
+    console.log('geojson', geoJson);
+    // eslint-disable-next-line no-console
+    console.log('adding features to map');
+
+    try {
+      if (typeof om.removeAll === 'function') om.removeAll();
+    } catch { /* ignore */ }
+    om.add(geoJson);
+    // eslint-disable-next-line no-console
+    console.log('markers added');
+
+    if (!initialBoundsFittedRef.current && map) {
+      initialBoundsFittedRef.current = true;
+      const bounds = om.getBounds();
+      if (bounds) {
+        map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 40 });
+      }
+    }
+  }, [blocks, loadingBlocks, ymapsReady]);
+
+  // ── 6. Center on slug when selected from search ─────────────────────────
+  useEffect(() => {
+    if (!centerOnSlug || !mapInstanceRef.current) return;
+    const map = mapInstanceRef.current;
+    const block = blocks.find(b => b.slug === centerOnSlug);
+    if (block && map.setCenter) {
+      map.setCenter([block.lat, block.lng], 15, { duration: 300 });
+    } else if (centerOnSlug && map.setCenter) {
+      getComplex(centerOnSlug).then((complex) => {
+        const lat = complex.geo?.lat ?? 55.75;
+        const lng = complex.geo?.lng ?? 37.62;
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.setCenter([lat, lng], 15, { duration: 300 });
+        }
+      }).catch(() => { /* ignore */ });
+    }
+  }, [centerOnSlug, blocks]);
 
   const isLoading = !ymapsReady || loadingBlocks;
 

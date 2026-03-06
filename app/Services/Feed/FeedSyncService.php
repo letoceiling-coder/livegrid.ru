@@ -383,7 +383,7 @@ class FeedSyncService
             'area_rooms'           => isset($row['area_rooms']) ? (string) $row['area_rooms'] : null,
             'area_rooms_total'     => $this->parseDecimal($row['area_rooms_total'] ?? null),
             'price'                => isset($row['price']) ? (int) $row['price'] : null,
-            'price_per_meter'      => null, // calculated later if needed
+            'price_per_meter'      => $this->computePricePerMeter($row['price'] ?? null, $row['area_total'] ?? null),
             'finishing_id'         => isset($row['finishing']) ? (string) $row['finishing'] : null,
             'building_type_id'     => isset($row['building_type']) ? (string) $row['building_type'] : null,
             'plan_url'             => $this->extractPlanUrl($row['plan'] ?? null),
@@ -852,6 +852,19 @@ class FeedSyncService
         } catch (Throwable) {
             return null;
         }
+    }
+
+    /**
+     * Compute price_per_meter from price and area_total for consistency.
+     */
+    private function computePricePerMeter(mixed $price, mixed $areaTotal): ?string
+    {
+        $p = $price !== null && $price !== '' ? (float) $price : null;
+        $a = $areaTotal !== null && $areaTotal !== '' ? (float) $areaTotal : null;
+        if ($p === null || $a === null || $a <= 0) {
+            return null;
+        }
+        return number_format(round($p / $a, 2), 2, '.', '');
     }
 
     /**

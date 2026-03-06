@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import RedesignHeader from '@/redesign/components/RedesignHeader';
 import LayoutGrid from '@/redesign/components/LayoutGrid';
 import { getComplexBySlug, getLayoutGroups } from '@/redesign/data/mock-data';
+import FooterSection from '@/components/FooterSection';
 import { useMemo } from 'react';
 
 const RedesignLayouts = () => {
@@ -18,6 +19,7 @@ const RedesignLayouts = () => {
           <p className="text-muted-foreground">Комплекс не найден</p>
           <Link to="/catalog" className="text-primary text-sm mt-2 inline-block">← Каталог</Link>
         </div>
+        <FooterSection />
       </div>
     );
   }
@@ -36,6 +38,7 @@ const RedesignLayouts = () => {
         <h1 className="text-xl font-bold mb-6">Планировки — {complex.name}</h1>
         <LayoutGrid layouts={layouts} complexSlug={complex.slug} />
       </div>
+      <FooterSection />
     </div>
   );
 };

@@ -86,3 +86,18 @@ export const defaultFilters: CatalogFilters = {
   status: [],
   search: '',
 };
+
+/** Block catalog filters (API params for GET /blocks) */
+export interface CatalogBlockFilters {
+  search: string;
+  district: string[];
+  builder: string[];
+  subway: string[];
+  deadline_from: string;
+  deadline_to: string;
+  price_max: number | null;
+  sort: 'price_from' | 'deadline' | 'name';
+  order: 'asc' | 'desc';
+  page: number;
+  per_page: number;
+}

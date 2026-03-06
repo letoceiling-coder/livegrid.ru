@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { Search, ArrowRight, MapPin, CalendarDays, Train, ChevronDown } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, ArrowRight, MapPin, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import RedesignHeader from '@/redesign/components/RedesignHeader';
@@ -13,18 +13,21 @@ import CategoryTiles from '@/components/CategoryTiles';
 import LatestNews from '@/components/LatestNews';
 import ContactsSection from '@/components/ContactsSection';
 import FooterSection from '@/components/FooterSection';
-import { complexes, formatPrice } from '@/redesign/data/mock-data';
+import { getBlocks } from '@/api/blocksApi';
+import { mapBlockToDisplay } from '@/lib/blockDisplay';
+import { useSearch } from '@/hooks/useSearch';
+import { useQuery } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
-import { cn } from '@/lib/utils';
+import { createPortal } from 'react-dom';
 
-const quickFilters = [
-  { label: 'Студии', search: '' },
-  { label: '1-комнатные', search: '' },
-  { label: '2-комнатные', search: '' },
-  { label: 'До 6 млн ₽', search: '' },
-  { label: 'Сданные ЖК', search: '' },
-  { label: 'Бизнес-класс', search: '' },
-];
+const quickFiltersBase = [
+  { label: 'Студии', href: '/catalog?q=студии' },
+  { label: '1-комнатные', href: '/catalog?q=1-комнатные' },
+  { label: '2-комнатные', href: '/catalog?q=2-комнатные' },
+  { label: 'До 6 млн ₽', href: '/catalog?price_max=6000000' },
+  { label: 'Сданные ЖК', getHref: () => `/catalog?deadline_to=${new Date().toISOString().slice(0, 10)}` },
+  { label: 'Бизнес-класс', href: '/catalog?q=бизнес-класс' },
+] as const;
 
 const regions = [
   'Москва и МО',
@@ -38,31 +41,60 @@ const regions = [
   'Другой регион',
 ];
 
+const CARD_COUNT = 8;
+const MAP_PER_PAGE = 100; // API max per_page
+
 const RedesignIndex = () => {
+  const navigate = useNavigate();
   const [q, setQ] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState('Москва и МО');
   const [regionOpen, setRegionOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'map'>('cards');
   const [activeComplex, setActiveComplex] = useState<string | null>(null);
   const regionRef = useRef<HTMLDivElement>(null);
-  const featured = complexes.slice(0, 6);
+  const heroSearchRef = useRef<HTMLDivElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
+
+  const { results: searchResults, loading: searchLoading } = useSearch(q);
+  const suggestionComplexes = (searchResults?.residential_complexes ?? []).slice(0, 5);
+  const suggestionApartments = (searchResults?.apartments ?? []).slice(0, 5);
+  const hasSuggestions = suggestionComplexes.length > 0 || suggestionApartments.length > 0;
+  const showSuggestions = searchFocused && q.trim().length >= 2;
+
+  const { data: blocksData, isLoading: blocksLoading, error: blocksError } = useQuery({
+    queryKey: ['blocks', 'popular', MAP_PER_PAGE],
+    queryFn: () => getBlocks({ per_page: MAP_PER_PAGE }),
+  });
+
+  const allBlocks = (blocksData?.data ?? []).map(mapBlockToDisplay);
+  const featured = allBlocks.slice(0, CARD_COUNT);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (regionRef.current && !regionRef.current.contains(e.target as Node)) {
         setRegionOpen(false);
       }
+      const searchArea = heroSearchRef.current;
+      const dropdown = document.getElementById('hero-search-dropdown');
+      const insideSearch = searchArea?.contains(e.target as Node) || dropdown?.contains(e.target as Node);
+      if (!insideSearch) setSearchFocused(false);
     };
+    const onScroll = () => setSearchFocused(false);
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      window.removeEventListener('scroll', onScroll, true);
+    };
   }, []);
 
   return (
     <div className="min-h-screen bg-background pb-16 lg:pb-0">
       <RedesignHeader />
 
-      {/* Hero */}
-      <section className="relative bg-background overflow-hidden">
+      {/* Hero — z-10 чтобы dropdown поиска был поверх CategoryTiles; без overflow-hidden чтобы не обрезать dropdown */}
+      <section className="relative z-10 bg-background">
         <div className="max-w-[1400px] mx-auto px-4 py-8 sm:py-12 relative">
           <div className="mb-6">
             <div className="relative inline-block" ref={regionRef}>
@@ -104,24 +136,75 @@ const RedesignIndex = () => {
             <h1 className="text-2xl md:text-4xl font-bold mb-8 leading-tight">
               <span className="text-primary italic">Live Grid.</span> 62 000+ квартир в 1284+ комплексах по России
             </h1>
-            <div className="flex gap-2 max-w-xl mx-auto">
-              <div className="relative flex-1">
+            <div className="flex gap-2 max-w-xl mx-auto" ref={heroSearchRef}>
+              <div ref={inputContainerRef} className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground" />
                 <Input
                   placeholder="Район, метро, ЖК или застройщик..."
                   className="pl-10 h-12 text-sm bg-background shadow-sm"
                   value={q}
                   onChange={e => setQ(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') window.location.href = `/catalog${q ? `?search=${q}` : ''}`; }}
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+                  onKeyDown={e => { if (e.key === 'Enter' && q.trim()) navigate(`/catalog?q=${encodeURIComponent(q.trim())}`); }}
                 />
+                {showSuggestions && inputContainerRef.current && createPortal(
+                  <div
+                    id="hero-search-dropdown"
+                    className="fixed bg-card border border-border rounded-xl shadow-xl overflow-hidden"
+                    style={{
+                      zIndex: 99999,
+                      top: inputContainerRef.current.getBoundingClientRect().bottom + 4,
+                      left: inputContainerRef.current.getBoundingClientRect().left,
+                      width: inputContainerRef.current.getBoundingClientRect().width,
+                      maxHeight: 320,
+                    }}
+                  >
+                    {searchLoading ? (
+                      <div className="px-4 py-3 text-sm text-muted-foreground">Поиск...</div>
+                    ) : hasSuggestions ? (
+                      <div className="py-2 max-h-[280px] overflow-y-auto">
+                        {suggestionComplexes.length > 0 && (
+                          <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">Жилые комплексы</div>
+                        )}
+                        {suggestionComplexes.map(c => (
+                          <Link
+                            key={c.id}
+                            to={`/complex/${c.slug}`}
+                            className="block px-4 py-2.5 hover:bg-muted/50 text-sm"
+                          >
+                            <div className="font-medium">{c.name}</div>
+                            <div className="text-xs text-muted-foreground">{[c.district, c.metro].filter(Boolean).join(' · ') || '—'}</div>
+                          </Link>
+                        ))}
+                        {suggestionApartments.length > 0 && (
+                          <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground mt-2">Квартиры</div>
+                        )}
+                        {suggestionApartments.map(a => (
+                          <Link
+                            key={a.id}
+                            to={`/apartment/${a.id}`}
+                            className="block px-4 py-2.5 hover:bg-muted/50 text-sm"
+                          >
+                            <div className="font-medium">{a.title}</div>
+                            <div className="text-xs text-muted-foreground">{a.price != null ? `${(a.price / 1_000_000).toFixed(2)} млн ₽` : ''}</div>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-muted-foreground">Ничего не найдено</div>
+                    )}
+                  </div>,
+                  document.body
+                )}
               </div>
-              <Link to={`/catalog${q ? `?search=${q}` : ''}`}>
+              <Link to={q.trim() ? `/catalog?q=${encodeURIComponent(q.trim())}` : '/catalog'}>
                 <Button className="h-12 px-8 shadow-sm">Найти</Button>
               </Link>
             </div>
             <div className="flex flex-wrap gap-2 mt-5 justify-center">
-              {quickFilters.map(tag => (
-                <Link key={tag.label} to="/catalog" className="px-3.5 py-2 rounded-full bg-background border border-border text-xs font-medium hover:border-primary/50 hover:bg-accent transition-colors shadow-sm">
+              {quickFiltersBase.map(tag => (
+                <Link key={tag.label} to={'getHref' in tag ? tag.getHref() : tag.href} className="px-3.5 py-2 rounded-full bg-background border border-border text-xs font-medium hover:border-primary/50 hover:bg-accent transition-colors shadow-sm">
                   {tag.label}
                 </Link>
               ))}
@@ -156,12 +239,26 @@ const RedesignIndex = () => {
             </button>
           </div>
         </div>
-        {viewMode === 'cards' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {featured.map(c => <ComplexCard key={c.id} complex={c} />)}
+        {blocksError ? (
+          <p className="text-destructive text-sm py-8">Не удалось загрузить популярные комплексы. Попробуйте позже.</p>
+        ) : viewMode === 'cards' ? (
+          blocksLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: CARD_COUNT }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border bg-muted/50 h-[280px] animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {featured.map(c => <ComplexCard key={c.id} complex={c} />)}
+            </div>
+          )
+        ) : blocksLoading ? (
+          <div className="h-[450px] rounded-2xl border border-border bg-muted/30 animate-pulse flex items-center justify-center">
+            <span className="text-muted-foreground text-sm">Загрузка карты...</span>
           </div>
         ) : (
-          <MapSearch complexes={featured} activeSlug={activeComplex} onSelect={setActiveComplex} height="450px" />
+          <MapSearch complexes={allBlocks} activeSlug={activeComplex} onSelect={setActiveComplex} height="450px" />
         )}
       </section>
 

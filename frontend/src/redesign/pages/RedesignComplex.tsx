@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, MapPin } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,104 +8,40 @@ import ComplexHero from '@/redesign/components/ComplexHero';
 import ApartmentTable from '@/redesign/components/ApartmentTable';
 import Chessboard from '@/redesign/components/Chessboard';
 import LayoutGrid from '@/redesign/components/LayoutGrid';
-import { getComplexBySlug, getLayoutGroups, formatPrice } from '@/redesign/data/mock-data';
-import type { SortField, SortDir } from '@/redesign/data/types';
-import type { ResidentialComplex, Apartment } from '@/redesign/data/types';
 import { getComplex, getComplexApartments } from '@/api/blocksApi';
+import { mapBlockDetailToComplex } from '@/lib/complexPageAdapter';
+import { getLayoutGroups } from '@/redesign/data/mock-data';
+import { formatPrice } from '@/lib/format';
+import FooterSection from '@/components/FooterSection';
+import type { SortField, SortDir } from '@/redesign/data/types';
 
 declare global {
   interface Window { ymaps: any; }
 }
 
-/** Map API block + apartments to ResidentialComplex (uses normalized rooms) */
-function mapApiToResidentialComplex(
-  block: Awaited<ReturnType<typeof getComplex>>,
-  apartments: Awaited<ReturnType<typeof getComplexApartments>>['data']
-): ResidentialComplex {
-  const aptByBuilding = new Map<string, Apartment[]>();
-  const buildingMap = new Map<string, { name: string; floors: number; deadline: string }>();
-  for (const b of block.buildings || []) {
-    buildingMap.set(b.id, {
-      name: b.name || 'Корпус',
-      floors: b.floors_total ?? 1,
-      deadline: b.deadline_label || '',
-    });
-  }
-  let priceMin = block.price_from ?? 0;
-  let priceMax = block.price_from ?? 0;
-  for (const a of apartments) {
-    const bId = a.building?.id ?? 'default';
-    if (!buildingMap.has(bId)) buildingMap.set(bId, { name: 'Корпус', floors: a.building?.floors_total ?? 1, deadline: '' });
-    const rawRoom = a.room ?? 0;
-    const rooms = (a as { rooms?: number }).rooms ?? (rawRoom >= 20 && rawRoom <= 29 ? rawRoom % 10 : rawRoom);
-    const mapped: Apartment = {
-      id: a.id,
-      complexId: block.id,
-      buildingId: bId,
-      rooms,
-      area: a.area?.total ?? 0,
-      kitchenArea: a.area?.kitchen ?? 0,
-      floor: a.floor ?? 0,
-      totalFloors: a.building?.floors_total ?? a.floors_total ?? 1,
-      price: a.price ?? 0,
-      pricePerMeter: a.price_per_meter ?? 0,
-      finishing: (a.finishing?.name?.toLowerCase() || 'без отделки') as Apartment['finishing'],
-      status: 'available',
-      planImage: a.plan_url || '',
-      section: 1,
-    };
-    if (!aptByBuilding.has(bId)) aptByBuilding.set(bId, []);
-    aptByBuilding.get(bId)!.push(mapped);
-    const p = a.price ?? 0;
-    if (p > 0) { if (priceMin === 0 || p < priceMin) priceMin = p; if (p > priceMax) priceMax = p; }
-  }
-  const firstSubway = block.subways?.[0];
-  const buildings = Array.from(buildingMap.entries()).map(([bId, meta]) => ({
-    id: bId,
-    complexId: block.id,
-    name: meta.name,
-    floors: meta.floors,
-    sections: 1,
-    deadline: meta.deadline,
-    apartments: aptByBuilding.get(bId) ?? [],
-  }));
-  return {
-    id: block.id,
-    slug: block.slug,
-    name: block.name,
-    description: block.description || '',
-    builder: block.builder?.name || '',
-    district: block.district?.name || '',
-    subway: firstSubway?.name || '',
-    subwayDistance: firstSubway ? `${firstSubway.travel_time} мин` : '',
-    address: block.address || '',
-    deadline: block.deadline_label || '',
-    status: 'building',
-    priceFrom: priceMin || block.price_from ?? 0,
-    priceTo: priceMax || block.price_from ?? 0,
-    images: block.images || [],
-    coords: [block.geo?.lat ?? 55.75, block.geo?.lng ?? 37.62],
-    advantages: [],
-    infrastructure: [],
-    buildings,
-  };
-}
+const APARTMENTS_PER_PAGE = 500;
 
 const RedesignComplex = () => {
   const { slug } = useParams<{ slug: string }>();
-  const mockComplex = getComplexBySlug(slug || '');
-  const { data: apiComplex, isLoading, error } = useQuery({
-    queryKey: ['block', slug],
-    queryFn: async () => {
-      const [block, { data: apts }] = await Promise.all([
-        getComplex(slug!),
-        getComplexApartments(slug!, { per_page: 5000 }),
-      ]);
-      return mapApiToResidentialComplex(block, apts);
-    },
-    enabled: !!slug && !mockComplex,
+  const slugOrId = slug || '';
+
+  const { data: block, isLoading: blockLoading, error: blockError } = useQuery({
+    queryKey: ['block', slugOrId],
+    queryFn: () => getComplex(slugOrId),
+    enabled: !!slugOrId,
   });
-  const complex = mockComplex ?? apiComplex ?? null;
+
+  const { data: aptsResult } = useQuery({
+    queryKey: ['block-apartments', slugOrId],
+    queryFn: () => getComplexApartments(slugOrId, { per_page: APARTMENTS_PER_PAGE }),
+    enabled: !!slugOrId,
+  });
+
+  const complex = useMemo(() => {
+    if (!block) return null;
+    const apts = aptsResult?.data ?? [];
+    return mapBlockDetailToComplex(block, apts);
+  }, [block, aptsResult?.data]);
   const [sort, setSort] = useState<{ field: SortField; dir: SortDir }>({ field: 'price', dir: 'asc' });
   const [roomFilter, setRoomFilter] = useState<number | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -157,29 +93,19 @@ const RedesignComplex = () => {
     mapInstanceRef.current = map;
   };
 
-  if (isLoading && !mockComplex) {
+  if (blockLoading || (!block && !blockError)) {
     return (
       <div className="min-h-screen bg-background">
         <RedesignHeader />
-        <div className="max-w-[1400px] mx-auto px-4 py-16 text-center">
-          <div className="animate-pulse h-6 bg-muted rounded w-48 mx-auto mb-4" />
-          <p className="text-muted-foreground">Загрузка…</p>
+        <div className="max-w-[1400px] mx-auto px-4 py-16 flex justify-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
+        <FooterSection />
       </div>
     );
   }
-  if (error && !mockComplex) {
-    return (
-      <div className="min-h-screen bg-background">
-        <RedesignHeader />
-        <div className="max-w-[1400px] mx-auto px-4 py-16 text-center">
-          <p className="text-red-500">Не удалось загрузить комплекс</p>
-          <Link to="/catalog" className="text-primary text-sm mt-2 inline-block">← Вернуться в каталог</Link>
-        </div>
-      </div>
-    );
-  }
-  if (!complex) {
+
+  if (blockError || !complex) {
     return (
       <div className="min-h-screen bg-background">
         <RedesignHeader />
@@ -187,6 +113,7 @@ const RedesignComplex = () => {
           <p className="text-muted-foreground">Комплекс не найден</p>
           <Link to="/catalog" className="text-primary text-sm mt-2 inline-block">← Вернуться в каталог</Link>
         </div>
+        <FooterSection />
       </div>
     );
   }
@@ -322,6 +249,7 @@ const RedesignComplex = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <FooterSection />
     </div>
   );
 };

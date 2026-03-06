@@ -46,15 +46,15 @@ Route::prefix('v1')->group(function () {
     Route::get('/blocks/filters', [BlockController::class, 'filters']);
     Route::get('/blocks/map', [BlockController::class, 'forMap']);
     Route::get('/blocks/{id}', [BlockController::class, 'show'])
-        ->where('id', '[a-f0-9]{24}');
+        ->where('id', '(?:[a-z0-9-]+-[a-f0-9]{24}|[a-f0-9]{24})');
     Route::get('/blocks/{id}/apartments', [BlockController::class, 'apartments'])
-        ->where('id', '[a-f0-9]{24}');
+        ->where('id', '(?:[a-z0-9-]+-[a-f0-9]{24}|[a-f0-9]{24})');
 
     // Similar (related items)
     Route::get('/apartments/{id}/similar', [SimilarController::class, 'apartments'])
         ->where('id', '[a-f0-9]{24}');
     Route::get('/blocks/{id}/similar', [SimilarController::class, 'blocks'])
-        ->where('id', '[a-f0-9]{24}');
+        ->where('id', '(?:[a-z0-9-]+-[a-f0-9]{24}|[a-f0-9]{24})');
 
     // Filters (shared filter options for frontend)
     Route::get('/filters', [FilterController::class, 'index']);

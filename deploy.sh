@@ -11,12 +11,12 @@ git -C "$REPO" reset --hard origin/main
 echo "==> [deploy] Composer install (no dev)..."
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader -d "$REPO"
 
-echo "==> [deploy] Frontend dist (nginx serves from frontend/dist)..."
+echo "==> [deploy] Frontend build..."
 FE="$REPO/frontend"
 D="$FE/dist"
 mkdir -p "$D"
-cp -f "$FE/index.html" "$D/" 2>/dev/null || true
-[ -d "$FE/assets" ] && rm -rf "$D/assets" && cp -r "$FE/assets" "$D/"
+(cd "$FE" && npm ci --prefer-offline --no-audit && npm run build)
+echo "==> [deploy] Frontend dist: copy static files only (do not overwrite Vite build)..."
 for f in favicon.svg favicon.ico logo.svg placeholder.svg robots.txt contacts.png buildings-promo.png; do
   [ -f "$FE/$f" ] && cp -f "$FE/$f" "$D/"
 done

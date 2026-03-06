@@ -1,10 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Phone, Menu, X, Search, MapPin, Building2, Home, LayoutGrid, Map as MapIcon, Heart, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { searchComplexes } from '@/redesign/data/mock-data';
-import type { ResidentialComplex } from '@/redesign/data/types';
+import { useSearch } from '@/hooks/useSearch';
 
 const navItems = [
   { label: 'Каталог', href: '/catalog' },
@@ -16,26 +16,30 @@ const RedesignHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<ResidentialComplex[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const inputContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleSearch = useCallback((q: string) => {
-    setQuery(q);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setResults(searchComplexes(q)), 200);
-  }, []);
+  const { results: searchResults, loading: searchLoading } = useSearch(query);
+  const suggestionComplexes = (searchResults?.residential_complexes ?? []).slice(0, 5);
+  const suggestionApartments = (searchResults?.apartments ?? []).slice(0, 5);
+  const hasSuggestions = suggestionComplexes.length > 0 || suggestionApartments.length > 0;
+  const showSuggestions = searchOpen && query.trim().length >= 2;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false);
-      }
+      const dropdown = document.getElementById('header-search-dropdown');
+      const inside = searchRef.current?.contains(e.target as Node) || dropdown?.contains(e.target as Node);
+      if (!inside) setSearchOpen(false);
     };
+    const onScroll = () => setSearchOpen(false);
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      window.removeEventListener('scroll', onScroll, true);
+    };
   }, []);
 
   return (
@@ -68,34 +72,73 @@ const RedesignHeader = () => {
             ))}
           </nav>
 
-          {/* Desktop search */}
+          {/* Desktop search — dropdown via Portal (fixed) чтобы не скроллился со страницей */}
           <div ref={searchRef} className="hidden lg:block relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="ЖК, район, метро..."
-              className="pl-9 h-10 bg-muted/50 border-transparent focus:border-border focus:bg-background text-sm"
-              value={query}
-              onFocus={() => setSearchOpen(true)}
-              onChange={e => handleSearch(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && query) { navigate(`/catalog?search=${query}`); setSearchOpen(false); } }}
-            />
-            {searchOpen && results.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg overflow-hidden z-50">
-                {results.map(c => (
-                  <Link
-                    key={c.id}
-                    to={`/complex/${c.slug}`}
-                    onClick={() => { setSearchOpen(false); setQuery(''); }}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border last:border-0"
-                  >
-                    <img src={c.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{c.name}</p>
-                      <p className="text-xs text-muted-foreground">{c.district} · м. {c.subway}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+            <div ref={inputContainerRef} className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="ЖК, район, метро..."
+                className="pl-9 h-10 bg-muted/50 border-transparent focus:border-border focus:bg-background text-sm"
+                value={query}
+                onFocus={() => setSearchOpen(true)}
+                onChange={e => setQuery(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && query.trim()) { navigate(`/catalog?q=${encodeURIComponent(query.trim())}`); setSearchOpen(false); } }}
+              />
+            </div>
+            {showSuggestions && inputContainerRef.current && createPortal(
+              <div
+                id="header-search-dropdown"
+                className="fixed bg-card border border-border rounded-xl shadow-xl overflow-hidden"
+                style={{
+                  zIndex: 99999,
+                  top: inputContainerRef.current.getBoundingClientRect().bottom + 4,
+                  left: inputContainerRef.current.getBoundingClientRect().left,
+                  width: inputContainerRef.current.getBoundingClientRect().width,
+                  maxHeight: 320,
+                }}
+              >
+                {searchLoading ? (
+                  <div className="px-4 py-3 text-sm text-muted-foreground">Поиск...</div>
+                ) : hasSuggestions ? (
+                  <div className="py-2 max-h-[280px] overflow-y-auto">
+                    {suggestionComplexes.length > 0 && (
+                      <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">Жилые комплексы</div>
+                    )}
+                    {suggestionComplexes.map(c => (
+                      <Link
+                        key={c.id}
+                        to={`/complex/${c.slug}`}
+                        onClick={() => { setSearchOpen(false); setQuery(''); }}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{c.name}</p>
+                          <p className="text-xs text-muted-foreground">{[c.district, c.metro].filter(Boolean).join(' · ') || '—'}</p>
+                        </div>
+                      </Link>
+                    ))}
+                    {suggestionApartments.length > 0 && (
+                      <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground mt-1">Квартиры</div>
+                    )}
+                    {suggestionApartments.map(a => (
+                      <Link
+                        key={a.id}
+                        to={`/apartment/${a.id}`}
+                        onClick={() => { setSearchOpen(false); setQuery(''); }}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{a.title}</p>
+                          <p className="text-xs text-muted-foreground">{a.price != null ? `${(a.price / 1_000_000).toFixed(2)} млн ₽` : ''}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-4 py-3 text-sm text-muted-foreground">Ничего не найдено</div>
+                )}
+              </div>,
+              document.body
             )}
           </div>
 
@@ -145,26 +188,52 @@ const RedesignHeader = () => {
                 className="pl-9 h-10"
                 autoFocus
                 value={query}
-                onChange={e => handleSearch(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && query) { navigate(`/catalog?search=${query}`); setSearchOpen(false); } }}
+                onChange={e => setQuery(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && query.trim()) { navigate(`/catalog?q=${encodeURIComponent(query.trim())}`); setSearchOpen(false); } }}
               />
             </div>
-            {results.length > 0 && (
-              <div className="mt-2 bg-card border border-border rounded-xl overflow-hidden">
-                {results.map(c => (
-                  <Link
-                    key={c.id}
-                    to={`/complex/${c.slug}`}
-                    onClick={() => { setSearchOpen(false); setQuery(''); }}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border last:border-0"
-                  >
-                    <img src={c.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{c.name}</p>
-                      <p className="text-xs text-muted-foreground">{c.district} · м. {c.subway}</p>
-                    </div>
-                  </Link>
-                ))}
+            {showSuggestions && (
+              <div className="mt-2 bg-card border border-border rounded-xl overflow-hidden max-h-[280px] overflow-y-auto">
+                {searchLoading ? (
+                  <div className="px-4 py-3 text-sm text-muted-foreground">Поиск...</div>
+                ) : hasSuggestions ? (
+                  <div className="py-2">
+                    {suggestionComplexes.length > 0 && (
+                      <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground">Жилые комплексы</div>
+                    )}
+                    {suggestionComplexes.map(c => (
+                      <Link
+                        key={c.id}
+                        to={`/complex/${c.slug}`}
+                        onClick={() => { setSearchOpen(false); setQuery(''); }}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{c.name}</p>
+                          <p className="text-xs text-muted-foreground">{[c.district, c.metro].filter(Boolean).join(' · ') || '—'}</p>
+                        </div>
+                      </Link>
+                    ))}
+                    {suggestionApartments.length > 0 && (
+                      <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground mt-1">Квартиры</div>
+                    )}
+                    {suggestionApartments.map(a => (
+                      <Link
+                        key={a.id}
+                        to={`/apartment/${a.id}`}
+                        onClick={() => { setSearchOpen(false); setQuery(''); }}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{a.title}</p>
+                          <p className="text-xs text-muted-foreground">{a.price != null ? `${(a.price / 1_000_000).toFixed(2)} млн ₽` : ''}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-4 py-3 text-sm text-muted-foreground">Ничего не найдено</div>
+                )}
               </div>
             )}
           </div>

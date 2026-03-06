@@ -23,8 +23,9 @@ class ApartmentListResource extends JsonResource
         return [
             'id'           => $this->id,
 
-            // ── Room ─────────────────────────────────────────────────────────
+            // ── Room (rooms = normalized for display, e.g. 22→2) ─────────────
             'room'         => $this->room,
+            'rooms'        => $this->normalizeRoomForDisplay((int) (is_object($this->resource) ? $this->resource->room : $this->room)),
             'room_label'   => $this->resolveRoomLabel(),
 
             // ── Physical ─────────────────────────────────────────────────────
@@ -65,19 +66,34 @@ class ApartmentListResource extends JsonResource
 
     /**
      * Compute a human-readable room label from the integer room column.
-     * Avoids the roomType eager load for list views.
+     * Normalizes feed errors: 22→2, 23→3, 24→4, 25→5 (floor+room concatenation).
      */
     private function resolveRoomLabel(): string
     {
         $room = is_object($this->resource) ? $this->resource->room : $this->room;
-        return match ((int) $room) {
+        $room = (int) $room;
+        $room = $this->normalizeRoomForDisplay($room);
+
+        return match ($room) {
             0       => 'Студия',
             1       => '1-к. кв.',
             2       => '2-к. кв.',
             3       => '3-к. кв.',
             4       => '4-к. кв.',
+            5       => '5-к. кв.',
             default => $room . '-к. кв.',
         };
+    }
+
+    /**
+     * Normalize feed errors: 22, 23, 24, 25 → 2, 3, 4, 5 (floor+room concat).
+     */
+    private function normalizeRoomForDisplay(int $room): int
+    {
+        if ($room >= 20 && $room <= 29) {
+            return $room % 10;
+        }
+        return $room;
     }
 
     /**
