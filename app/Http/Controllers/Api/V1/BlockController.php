@@ -8,6 +8,7 @@ use App\Http\Resources\BlockDetailResource;
 use App\Http\Resources\BlockListResource;
 use App\Models\Apartment;
 use App\Models\Block;
+use App\Services\Search\SearchService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
