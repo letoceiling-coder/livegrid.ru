@@ -47,8 +47,8 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
     <div className={cn('space-y-1', className)}>
       {hasFilters && (
         <div className="flex flex-wrap gap-1.5 pb-3 border-b border-border">
-          {filters.room.map(r => (
-            <button key={r} onClick={() => onChange({ room: filters.room.filter(x => x !== r) })} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20">
+          {(filters.room ?? []).map(r => (
+            <button key={r} onClick={() => onChange({ room: (filters.room ?? []).filter(x => x !== r) })} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20">
               {roomLabels[r] ?? `${r}к`} <X className="w-3 h-3" />
             </button>
           ))}
@@ -60,10 +60,10 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
               </button>
             );
           })}
-          {filters.builder.map(id => {
+          {(filters.builder ?? []).map(id => {
             const b = builders.find(x => x.id === id);
             return (
-              <button key={id} onClick={() => onChange({ builder: filters.builder.filter(x => x !== id) })} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20">
+              <button key={id} onClick={() => onChange({ builder: (filters.builder ?? []).filter(x => x !== id) })} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20">
                 {b?.name ?? id} <X className="w-3 h-3" />
               </button>
             );
@@ -138,7 +138,7 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
             <div className="space-y-2 max-h-44 overflow-y-auto">
               {districts.map(d => (
                 <label key={d.id} className="flex items-center gap-2.5 cursor-pointer text-sm hover:text-foreground">
-                  <Checkbox checked={filters.district.includes(d.id)} onCheckedChange={checked => onChange({ district: checked ? [...filters.district, d.id] : filters.district.filter(x => x !== d.id) })} />
+                  <Checkbox checked={(filters.district ?? []).includes(d.id)} onCheckedChange={checked => onChange({ district: checked ? [...(filters.district ?? []), d.id] : (filters.district ?? []).filter(x => x !== d.id) })} />
                   {d.name}
                 </label>
               ))}
@@ -181,7 +181,7 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
             <div className="space-y-2 max-h-44 overflow-y-auto">
               {finishings.map(f => (
                 <label key={f.id} className="flex items-center gap-2.5 cursor-pointer text-sm hover:text-foreground">
-                  <Checkbox checked={filters.finishing.includes(f.id)} onCheckedChange={checked => onChange({ finishing: checked ? [...filters.finishing, f.id] : filters.finishing.filter(x => x !== f.id) })} />
+                  <Checkbox checked={(filters.finishing ?? []).includes(f.id)} onCheckedChange={checked => onChange({ finishing: checked ? [...(filters.finishing ?? []), f.id] : (filters.finishing ?? []).filter(x => x !== f.id) })} />
                   {f.name}
                 </label>
               ))}

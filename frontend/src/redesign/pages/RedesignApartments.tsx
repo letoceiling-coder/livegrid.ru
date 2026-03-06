@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { LayoutGrid, List, SlidersHorizontal, X, Search } from 'lucide-react';
+import { LayoutGrid, List, Map, SlidersHorizontal, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import RedesignHeader from '@/redesign/components/RedesignHeader';
@@ -13,11 +13,19 @@ import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useSearch } from '@/hooks/useSearch';
 import type { ApartmentCatalogFilters } from '@/redesign/data/types';
 import type { ApartmentFilters } from '@/hooks/useApartments';
+import type { BlockListParams } from '@/api/blocksApi';
+import type { MapBlocksParams } from '@/api/mapApi';
+import type { MapViewportBounds } from '@/components/ZhkMap';
+
+const DEFAULT_VIEWPORT: MapViewportBounds = {
+  lat_min: 55.5, lat_max: 56.0, lng_min: 37.3, lng_max: 37.9,
+};
 
 const defaultFilters: ApartmentCatalogFilters = {
   search: '',
   district: [],
   builder: [],
+  subway: [],
   finishing: [],
   room: [],
   deadline_from: '',
@@ -85,7 +93,7 @@ function buildURL(f: ApartmentCatalogFilters): URLSearchParams {
   return p;
 }
 
-type ViewMode = 'grid' | 'list';
+type ViewMode = 'grid' | 'list' | 'map';
 
 const SkeletonCard = () => (
   <div className="rounded-2xl overflow-hidden bg-card border border-border animate-pulse h-[280px]">
@@ -117,6 +125,8 @@ const RedesignApartments = () => {
 
   const [filters, setFilters] = useState<ApartmentCatalogFilters>(initial);
   const [view, setView] = useState<ViewMode>('grid');
+  const [viewport, setViewport] = useState<MapViewportBounds | null>(null);
+  const [mapActive, setMapActive] = useState<string | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [searchInput, setSearchInput] = useState(initial.search);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -168,6 +178,58 @@ const RedesignApartments = () => {
   const { items, meta, loading, error } = useApartments(apiFilters, filters.page, filters.per_page);
   const totalCount = meta?.total ?? 0;
 
+  const blockApiParams: BlockListParams = useMemo(() => {
+    const p: BlockListParams = {
+      page: view === 'map' ? 1 : filters.page,
+      per_page: view === 'map' ? 500 : filters.per_page,
+      sort: 'price_from',
+      order: 'asc',
+    };
+    if (filters.search) p.search = filters.search;
+    if ((filters.district ?? []).length) p.district = filters.district ?? [];
+    if ((filters.builder ?? []).length) p.builder = filters.builder ?? [];
+    if ((filters.subway ?? []).length) p.subway = filters.subway ?? [];
+    if ((filters.room ?? []).length) p.room = filters.room ?? [];
+    if (filters.deadline_from) p.deadline_from = filters.deadline_from;
+    if (filters.deadline_to) p.deadline_to = filters.deadline_to;
+    if (filters.price_max != null && filters.price_max > 0) p.price_max = filters.price_max;
+    return p;
+  }, [filters, view]);
+
+  const { blocks } = useCatalogBlocks(blockApiParams, blockApiParams.page ?? 1, blockApiParams.per_page ?? 20);
+  const displayedBlocks = useMemo(() => (blocks ?? []).map(mapBlockToDisplay), [blocks]);
+
+  const handleBoundsChange = useCallback((v: MapViewportBounds) => {
+    setViewport(prev => {
+      if (!prev) return v;
+      const t = 0.02;
+      if (Math.abs(v.lat_min - prev.lat_min) < t && Math.abs(v.lat_max - prev.lat_max) < t &&
+          Math.abs(v.lng_min - prev.lng_min) < t && Math.abs(v.lng_max - prev.lng_max) < t) return prev;
+      return v;
+    });
+  }, []);
+
+  const mapParams: MapBlocksParams = useMemo(() => {
+    const p: MapBlocksParams = {};
+    const v = viewport ?? DEFAULT_VIEWPORT;
+    p.lat_min = v.lat_min;
+    p.lat_max = v.lat_max;
+    p.lng_min = v.lng_min;
+    p.lng_max = v.lng_max;
+    if (filters.search) p.search = filters.search;
+    if ((filters.district ?? []).length) p.district = filters.district ?? [];
+    if ((filters.builder ?? []).length) p.builder = filters.builder ?? [];
+    if ((filters.subway ?? []).length) p.subway = filters.subway ?? [];
+    if ((filters.room ?? []).length) p.room = filters.room ?? [];
+    if (filters.deadline_from) p.deadline_from = filters.deadline_from;
+    if (filters.deadline_to) p.deadline_to = filters.deadline_to;
+    if (filters.price_max != null && filters.price_max > 0) p.price_max = filters.price_max;
+    return p;
+  }, [viewport, filters.search, filters.district, filters.builder, filters.subway, filters.room, filters.deadline_from, filters.deadline_to, filters.price_max]);
+
+  const { objects: mapBlocks } = useMapObjects(mapParams);
+  const mapDisplayBlocks = useMemo(() => (mapBlocks ?? []).map(mapBlockItemToDisplay), [mapBlocks]);
+
   const updateURL = useCallback((f: ApartmentCatalogFilters) => {
     setSearchParams(buildURL(f), { replace: true });
   }, [setSearchParams]);
@@ -212,13 +274,31 @@ const RedesignApartments = () => {
             <h1 className="text-xl font-bold">Квартиры</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Найдено {loading ? '...' : totalCount.toLocaleString('ru-RU')} квартир</p>
           </div>
-          <Button variant="outline" size="sm" className="lg:hidden h-9" onClick={() => setShowMobileFilters(true)}>
-            <SlidersHorizontal className="w-4 h-4 mr-1.5" /> Фильтры
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="lg:hidden h-9" onClick={() => setShowMobileFilters(true)}>
+              <SlidersHorizontal className="w-4 h-4 mr-1.5" /> Фильтры
+            </Button>
+            <div className="hidden sm:flex items-center gap-0.5 border border-border rounded-xl p-1 bg-muted/50">
+              {([['grid', LayoutGrid, 'Плитка'], ['list', List, 'Список'], ['map', Map, 'Карта']] as const).map(([mode, Icon, title]) => (
+                <button
+                  key={mode}
+                  title={title}
+                  onClick={() => setView(mode)}
+                  className={cn(
+                    'p-2 rounded-lg transition-all duration-200',
+                    view === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="flex gap-6">
-          <aside className="hidden lg:block w-[280px] shrink-0">
+          {view !== 'map' && (
+            <aside className="hidden lg:block w-[280px] shrink-0">
             <div className="sticky top-20">
               <ApartmentFilterSidebar
                 filterOptions={filterOptions}
@@ -303,7 +383,7 @@ const RedesignApartments = () => {
               </div>
             )}
 
-            {view !== 'map' && !loading && items.length > 0 && (meta?.last_page ?? 1) > 1 && (
+            {view !== 'map' && !loading && (items ?? []).length > 0 && (meta?.last_page ?? 1) > 1 && (
               <div className="flex flex-wrap items-center justify-between gap-4 mt-8">
                 <div className="flex items-center gap-2">
                   {Array.from({ length: Math.min(5, meta!.last_page) }, (_, i) => {
