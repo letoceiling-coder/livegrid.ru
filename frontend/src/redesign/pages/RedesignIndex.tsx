@@ -18,6 +18,7 @@ import { mapBlockToDisplay } from '@/lib/blockDisplay';
 import { useSearch } from '@/hooks/useSearch';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 const quickFilters = [
   { label: 'Студии', search: '' },
@@ -53,6 +54,7 @@ const RedesignIndex = () => {
   const [activeComplex, setActiveComplex] = useState<string | null>(null);
   const regionRef = useRef<HTMLDivElement>(null);
   const heroSearchRef = useRef<HTMLDivElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
 
   const { results: searchResults, loading: searchLoading } = useSearch(q);
   const suggestionComplexes = (searchResults?.residential_complexes ?? []).slice(0, 5);
@@ -73,9 +75,10 @@ const RedesignIndex = () => {
       if (regionRef.current && !regionRef.current.contains(e.target as Node)) {
         setRegionOpen(false);
       }
-      if (heroSearchRef.current && !heroSearchRef.current.contains(e.target as Node)) {
-        setSearchFocused(false);
-      }
+      const searchArea = heroSearchRef.current;
+      const dropdown = document.getElementById('hero-search-dropdown');
+      const insideSearch = searchArea?.contains(e.target as Node) || dropdown?.contains(e.target as Node);
+      if (!insideSearch) setSearchFocused(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -129,7 +132,7 @@ const RedesignIndex = () => {
               <span className="text-primary italic">Live Grid.</span> 62 000+ квартир в 1284+ комплексах по России
             </h1>
             <div className="flex gap-2 max-w-xl mx-auto" ref={heroSearchRef}>
-              <div className="relative flex-1">
+              <div ref={inputContainerRef} className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground" />
                 <Input
                   placeholder="Район, метро, ЖК или застройщик..."
@@ -140,8 +143,18 @@ const RedesignIndex = () => {
                   onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
                   onKeyDown={e => { if (e.key === 'Enter' && q.trim()) navigate(`/catalog?q=${encodeURIComponent(q.trim())}`); }}
                 />
-                {showSuggestions && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-[100] overflow-hidden">
+                {showSuggestions && inputContainerRef.current && createPortal(
+                  <div
+                    id="hero-search-dropdown"
+                    className="fixed bg-card border border-border rounded-xl shadow-xl overflow-hidden"
+                    style={{
+                      zIndex: 99999,
+                      top: inputContainerRef.current.getBoundingClientRect().bottom + 4,
+                      left: inputContainerRef.current.getBoundingClientRect().left,
+                      width: inputContainerRef.current.getBoundingClientRect().width,
+                      maxHeight: 320,
+                    }}
+                  >
                     {searchLoading ? (
                       <div className="px-4 py-3 text-sm text-muted-foreground">Поиск...</div>
                     ) : hasSuggestions ? (
@@ -176,7 +189,8 @@ const RedesignIndex = () => {
                     ) : (
                       <div className="px-4 py-3 text-sm text-muted-foreground">Ничего не найдено</div>
                     )}
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
               <Link to={q.trim() ? `/catalog?q=${encodeURIComponent(q.trim())}` : '/catalog'}>
