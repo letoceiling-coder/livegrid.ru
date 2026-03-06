@@ -18,16 +18,50 @@ export interface PropertyData {
   promoStrip?: string | null;
 }
 
-const PropertyCard = ({ data, variant }: { data: PropertyData; variant?: 'hotDeals' }) => {
+const PropertyCard = ({ data, variant }: { data: PropertyData; variant?: 'hotDeals' | 'list' }) => {
   const [liked, setLiked] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const slug = data.slug || data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-zа-яё0-9-]/gi, '');
 
   const isHotDeals = variant === 'hotDeals';
+  const isList = variant === 'list';
 
   const priceDisplay = isHotDeals && data.priceRaw != null && data.priceRaw > 0
     ? `от ${data.priceRaw.toLocaleString('ru-RU')} ₽`
     : data.price;
+
+  if (isList) {
+    return (
+      <div className="rounded-2xl overflow-hidden bg-card border border-border transition-[transform,box-shadow] duration-200 hover:shadow-md flex gap-3 p-3 h-[140px]">
+        <Link to={`/apartment/${slug}`} className="flex flex-1 min-w-0 gap-3">
+          <div className="relative w-[140px] h-full shrink-0 rounded-lg overflow-hidden bg-muted/60">
+            <img src={data.image} alt={data.title} className="w-full h-full object-contain" />
+          </div>
+          <div className="flex-1 min-w-0 py-1 flex flex-col justify-between">
+            <div>
+              <h3 className="font-semibold text-sm leading-snug line-clamp-2">{data.title}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{data.address}</p>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex gap-3 text-xs text-muted-foreground">
+                {data.area && <span>{data.area}</span>}
+                {data.rooms && <span>{data.rooms}</span>}
+              </div>
+              <span className="text-sm font-bold whitespace-nowrap">{data.price}</span>
+            </div>
+          </div>
+        </Link>
+        <button
+          type="button"
+          className="shrink-0 self-start p-2 rounded-full hover:bg-muted"
+          onClick={(e) => { e.preventDefault(); setLiked(!liked); }}
+          aria-label={liked ? 'Убрать из избранного' : 'Добавить в избранное'}
+        >
+          <Heart className={cn('w-5 h-5', liked ? 'fill-destructive text-destructive' : 'text-muted-foreground')} />
+        </button>
+      </div>
+    );
+  }
 
   if (isHotDeals) {
     return (

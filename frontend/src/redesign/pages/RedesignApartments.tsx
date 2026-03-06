@@ -9,6 +9,7 @@ import FooterSection from '@/components/FooterSection';
 import PropertyCard from '@/components/PropertyCard';
 import { useApartments } from '@/hooks/useApartments';
 import { useFilters } from '@/hooks/useFilters';
+import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useSearch } from '@/hooks/useSearch';
 import type { ApartmentCatalogFilters } from '@/redesign/data/types';
 import type { ApartmentFilters } from '@/hooks/useApartments';
@@ -37,6 +38,8 @@ function parseFromURL(params: URLSearchParams): Partial<ApartmentCatalogFilters>
   if (district) f.district = district.split(',').filter(Boolean);
   const builder = params.get('builder');
   if (builder) f.builder = builder.split(',').filter(Boolean);
+  const subway = params.get('subway');
+  if (subway) f.subway = subway.split(',').filter(Boolean);
   const finishing = params.get('finishing');
   if (finishing) f.finishing = finishing.split(',').filter(Boolean);
   const priceMin = params.get('price_min');
@@ -94,6 +97,17 @@ const SkeletonCard = () => (
   </div>
 );
 
+const SkeletonCardList = () => (
+  <div className="rounded-2xl overflow-hidden bg-card border border-border h-[140px] animate-pulse flex gap-3 p-3">
+    <div className="w-[140px] h-full bg-muted rounded-lg shrink-0" />
+    <div className="flex-1 space-y-2 py-1">
+      <div className="h-4 bg-muted rounded w-1/2" />
+      <div className="h-3 bg-muted rounded w-3/4" />
+      <div className="h-3 bg-muted rounded w-1/3" />
+    </div>
+  </div>
+);
+
 const RedesignApartments = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initial = useMemo(() => {
@@ -114,13 +128,31 @@ const RedesignApartments = () => {
     setSearchInput(next.search);
   }, [searchParams]);
 
-  const { filters: filterOptions, loading: filtersLoading } = useFilters();
+  const { filters: catalogFilterOptions, loading: catalogFiltersLoading } = useCatalogFilters();
+  const { filters: apartmentFilterOptions, loading: apartmentFiltersLoading } = useFilters();
+
+  const filterOptions = useMemo(() => {
+    if (!catalogFilterOptions && !apartmentFilterOptions) return null;
+    return {
+      districts: catalogFilterOptions?.districts ?? apartmentFilterOptions?.districts ?? [],
+      builders: catalogFilterOptions?.builders ?? apartmentFilterOptions?.builders ?? [],
+      subways: catalogFilterOptions?.subways ?? [],
+      finishings: apartmentFilterOptions?.finishings ?? [],
+      price: apartmentFilterOptions?.price ?? { min: 0, max: 0 },
+      area: apartmentFilterOptions?.area ?? { min: 0, max: 0 },
+      rooms: apartmentFilterOptions?.rooms ?? [],
+      floor: apartmentFilterOptions?.floor ?? { min: 0, max: 0 },
+      deadline: apartmentFilterOptions?.deadline ?? { min: null, max: null },
+    };
+  }, [catalogFilterOptions, apartmentFilterOptions]);
+  const filtersLoading = catalogFiltersLoading || apartmentFiltersLoading;
 
   const apiFilters: ApartmentFilters = useMemo(() => ({
     search: filters.search || undefined,
     room: filters.room.length ? filters.room : undefined,
     district: filters.district.length ? filters.district : undefined,
     builder: filters.builder.length ? filters.builder : undefined,
+    subway: filters.subway.length ? filters.subway : undefined,
     finishing: filters.finishing.length ? filters.finishing : undefined,
     price_min: filters.price_min,
     price_max: filters.price_max,
@@ -142,7 +174,7 @@ const RedesignApartments = () => {
   const updateFilters = useCallback((upd: Partial<ApartmentCatalogFilters>) => {
     setFilters(prev => {
       const next = { ...prev, ...upd };
-      if (upd.search !== undefined || upd.room !== undefined || upd.district !== undefined || upd.builder !== undefined || upd.finishing !== undefined || upd.price_min !== undefined || upd.price_max !== undefined || upd.area_min !== undefined || upd.area_max !== undefined || upd.deadline_from !== undefined || upd.deadline_to !== undefined || upd.sort !== undefined || upd.order !== undefined) {
+      if (upd.search !== undefined || upd.room !== undefined || upd.district !== undefined || upd.builder !== undefined || upd.subway !== undefined || upd.finishing !== undefined || upd.price_min !== undefined || upd.price_max !== undefined || upd.area_min !== undefined || upd.area_max !== undefined || upd.deadline_from !== undefined || upd.deadline_to !== undefined || upd.sort !== undefined || upd.order !== undefined) {
         next.page = 1;
       }
       updateURL(next);
@@ -156,7 +188,7 @@ const RedesignApartments = () => {
     updateURL(defaultFilters);
   }, [updateURL]);
 
-  const hasFilters = filters.search || filters.room.length > 0 || filters.district.length > 0 || filters.builder.length > 0 || filters.finishing.length > 0 || filters.price_min != null || filters.price_max != null || filters.area_min != null || filters.area_max != null || filters.deadline_from || filters.deadline_to;
+  const hasFilters = filters.search || filters.room.length > 0 || filters.district.length > 0 || filters.builder.length > 0 || filters.subway.length > 0 || filters.finishing.length > 0 || filters.price_min != null || filters.price_max != null || filters.area_min != null || filters.area_max != null || filters.deadline_from || filters.deadline_to;
 
   const { results: searchResults, loading: searchLoading } = useSearch(searchInput);
   const showSuggestions = searchFocused && searchInput.trim().length >= 2;
@@ -244,14 +276,6 @@ const RedesignApartments = () => {
               )}
             </div>
 
-            <div className="hidden sm:flex items-center gap-0.5 border border-border rounded-xl p-1 bg-muted/50 mb-4">
-              {([['grid', LayoutGrid], ['list', List]] as const).map(([mode, Icon]) => (
-                <button key={mode} onClick={() => setView(mode)} className={cn('p-2 rounded-lg transition-all', view === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-                  <Icon className="w-4 h-4" />
-                </button>
-              ))}
-            </div>
-
             {error && (
               <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive mb-4">{error}</div>
             )}
@@ -262,8 +286,8 @@ const RedesignApartments = () => {
               </div>
             )}
             {view === 'list' && (
-              <div className="grid grid-cols-1 gap-4">
-                {loading ? Array.from({ length: Math.min(5, filters.per_page) }, (_, i) => <SkeletonCard key={i} />) : items.map(item => <PropertyCard key={item.slug ?? item.title} data={item} />)}
+              <div className="space-y-4">
+                {loading ? Array.from({ length: Math.min(5, filters.per_page) }, (_, i) => <SkeletonCardList key={i} />) : items.map(item => <PropertyCard key={item.slug ?? item.title} data={item} variant="list" />)}
               </div>
             )}
 
@@ -278,7 +302,7 @@ const RedesignApartments = () => {
               </div>
             )}
 
-            {!loading && items.length > 0 && (meta?.last_page ?? 1) > 1 && (
+            {view !== 'map' && !loading && items.length > 0 && (meta?.last_page ?? 1) > 1 && (
               <div className="flex flex-wrap items-center justify-between gap-4 mt-8">
                 <div className="flex items-center gap-2">
                   {Array.from({ length: Math.min(5, meta!.last_page) }, (_, i) => {

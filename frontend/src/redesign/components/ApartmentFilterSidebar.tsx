@@ -7,8 +7,10 @@ import { cn } from '@/lib/utils';
 import type { FiltersData } from '@/hooks/useFilters';
 import type { ApartmentCatalogFilters } from '@/redesign/data/types';
 
+export type ApartmentFilterOptions = FiltersData & { subways?: Array<{ id: string; name: string }> };
+
 interface Props {
-  filterOptions: FiltersData | null;
+  filterOptions: ApartmentFilterOptions | null;
   filtersLoading: boolean;
   filters: ApartmentCatalogFilters;
   onChange: (upd: Partial<ApartmentCatalogFilters>) => void;
@@ -34,6 +36,7 @@ const FilterSection = ({ title, children, defaultOpen = true }: { title: string;
 const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChange, onClear, totalCount, hasFilters, className }: Props) => {
   const districts = filterOptions?.districts ?? [];
   const builders = filterOptions?.builders ?? [];
+  const subways = filterOptions?.subways ?? [];
   const finishings = filterOptions?.finishings ?? [];
   const priceRange = filterOptions?.price ?? { min: 0, max: 0 };
   const areaRange = filterOptions?.area ?? { min: 0, max: 0 };
@@ -65,6 +68,14 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
               </button>
             );
           })}
+          {filters.subway.map(id => {
+            const s = subways.find(x => x.id === id);
+            return (
+              <button key={id} onClick={() => onChange({ subway: filters.subway.filter(x => x !== id) })} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20">
+                м. {s?.name ?? id} <X className="w-3 h-3" />
+              </button>
+            );
+          })}
           {filters.finishing.map(id => {
             const f = finishings.find(x => x.id === id);
             return (
@@ -73,6 +84,11 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
               </button>
             );
           })}
+          {(filters.deadline_from || filters.deadline_to) && (
+            <button onClick={() => onChange({ deadline_from: '', deadline_to: '' })} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20">
+              Срок сдачи <X className="w-3 h-3" />
+            </button>
+          )}
           {(filters.price_min != null || filters.price_max != null) && (
             <button onClick={() => onChange({ price_min: undefined, price_max: undefined })} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20">
               Цена <X className="w-3 h-3" />
@@ -130,6 +146,18 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
             </div>
           </FilterSection>
 
+          <FilterSection title="Метро" defaultOpen={false}>
+            <div className="space-y-2 max-h-44 overflow-y-auto">
+              {subways.map(s => (
+                <label key={s.id} className="flex items-center gap-2.5 cursor-pointer text-sm hover:text-foreground">
+                  <Checkbox checked={filters.subway.includes(s.id)} onCheckedChange={checked => onChange({ subway: checked ? [...filters.subway, s.id] : filters.subway.filter(x => x !== s.id) })} />
+                  {s.name}
+                </label>
+              ))}
+              {subways.length === 0 && <p className="text-xs text-muted-foreground">Нет данных</p>}
+            </div>
+          </FilterSection>
+
           <FilterSection title="Застройщик" defaultOpen={false}>
             <div className="space-y-2 max-h-44 overflow-y-auto">
               {builders.map(b => (
@@ -139,6 +167,13 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
                 </label>
               ))}
               {builders.length === 0 && <p className="text-xs text-muted-foreground">Нет данных</p>}
+            </div>
+          </FilterSection>
+
+          <FilterSection title="Срок сдачи" defaultOpen={false}>
+            <div className="flex gap-2">
+              <Input type="date" placeholder="От" className="h-9 text-sm" value={filters.deadline_from} onChange={e => onChange({ deadline_from: e.target.value })} />
+              <Input type="date" placeholder="До" className="h-9 text-sm" value={filters.deadline_to} onChange={e => onChange({ deadline_to: e.target.value })} />
             </div>
           </FilterSection>
 

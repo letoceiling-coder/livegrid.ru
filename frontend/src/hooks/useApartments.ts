@@ -21,6 +21,7 @@ export interface ApartmentFilters {
   floor_max?: number;
   district?: string[];
   builder?: string[];
+  subway?: string[];
   finishing?: string[];
   deadline_from?: string;
   deadline_to?: string;

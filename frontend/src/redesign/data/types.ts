@@ -92,6 +92,7 @@ export interface ApartmentCatalogFilters {
   search: string;
   district: string[];
   builder: string[];
+  subway: string[];
   finishing: string[];
   room: number[];
   price_min?: number;
