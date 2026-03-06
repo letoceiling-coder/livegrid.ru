@@ -54,6 +54,7 @@ class BlockController extends Controller
             'search'        => ['nullable', 'string', 'max:200'],
             'deadline_from' => ['nullable', 'date_format:Y-m-d'],
             'deadline_to'   => ['nullable', 'date_format:Y-m-d'],
+            'price_max'     => ['nullable', 'numeric', 'min:0'],
             'sort'          => ['nullable', 'string', 'in:price_from,deadline,name'],
             'order'         => ['nullable', 'string', 'in:asc,desc'],
             'per_page'      => ['nullable', 'integer', 'min:1', 'max:500'],
@@ -103,6 +104,11 @@ class BlockController extends Controller
                       ->orWhere('nearest_deadline_at', '<=', $to);
                 });
             }
+        }
+
+        if ($request->filled('price_max') && (float) $request->price_max > 0) {
+            $query->whereNotNull('price_from')
+                  ->where('price_from', '<=', (float) $request->price_max);
         }
 
         // ── Sorting ───────────────────────────────────────────────────────────
@@ -179,6 +185,7 @@ class BlockController extends Controller
             'search'        => ['nullable', 'string', 'max:200'],
             'deadline_from' => ['nullable', 'date_format:Y-m-d'],
             'deadline_to'   => ['nullable', 'date_format:Y-m-d'],
+            'price_max'     => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $query = Block::query()
@@ -234,6 +241,11 @@ class BlockController extends Controller
                       ->orWhere('nearest_deadline_at', '<=', $to);
                 });
             }
+        }
+
+        if ($request->filled('price_max') && (float) $request->price_max > 0) {
+            $query->whereNotNull('price_from')
+                  ->where('price_from', '<=', (float) $request->price_max);
         }
 
         $blocks = $query->orderBy('name')->get()->map(fn ($b) => [

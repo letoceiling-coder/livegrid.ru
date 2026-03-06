@@ -9,6 +9,7 @@ import { useMapObjects } from '@/hooks/useMapObjects';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useSearch } from '@/hooks/useSearch';
 import type { MapBlocksParams } from '@/api/mapApi';
+import FooterSection from '@/components/FooterSection';
 import type { CatalogBlockFilters } from '@/redesign/data/types';
 
 const DEFAULT_VIEWPORT: MapViewportBounds = {
@@ -340,6 +341,7 @@ const RedesignMap = () => {
           </div>
         </div>
       )}
+      <FooterSection />
     </div>
   );
 };

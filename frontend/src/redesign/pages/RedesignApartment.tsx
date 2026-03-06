@@ -6,6 +6,7 @@ import RedesignHeader from '@/redesign/components/RedesignHeader';
 import { getApartment } from '@/api/apartmentsApi';
 import { mapApartmentToPageDisplay } from '@/lib/apartmentPageAdapter';
 import { formatPrice } from '@/lib/format';
+import FooterSection from '@/components/FooterSection';
 
 const RedesignApartment = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +27,7 @@ const RedesignApartment = () => {
         <div className="max-w-[1400px] mx-auto px-4 py-16 flex justify-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
+        <FooterSection />
       </div>
     );
   }
@@ -38,6 +40,7 @@ const RedesignApartment = () => {
           <p className="text-muted-foreground">Квартира не найдена</p>
           <Link to="/catalog" className="text-primary text-sm mt-2 inline-block">← Каталог</Link>
         </div>
+        <FooterSection />
       </div>
     );
   }
@@ -141,6 +144,7 @@ const RedesignApartment = () => {
           </div>
         </div>
       </div>
+      <FooterSection />
     </div>
   );
 };

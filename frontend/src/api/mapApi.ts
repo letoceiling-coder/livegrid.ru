@@ -24,6 +24,7 @@ export interface MapBlocksParams {
   search?: string;
   deadline_from?: string;
   deadline_to?: string;
+  price_max?: number;
 }
 
 /** GET /api/v1/blocks/map — blocks with lat/lng for map. Axios response.data = { data: [...] } */

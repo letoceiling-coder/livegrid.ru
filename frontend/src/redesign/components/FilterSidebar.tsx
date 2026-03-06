@@ -71,6 +71,11 @@ const FilterSidebar = ({ filterOptions, filtersLoading, filters, onChange, onCle
               Срок сдачи <X className="w-3 h-3" />
             </button>
           )}
+          {filters.price_max != null && filters.price_max > 0 && (
+            <button onClick={() => onChange({ price_max: null })} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20">
+              До {(filters.price_max / 1_000_000).toFixed(0)} млн <X className="w-3 h-3" />
+            </button>
+          )}
         </div>
       )}
 

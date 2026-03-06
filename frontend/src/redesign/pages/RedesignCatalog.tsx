@@ -7,6 +7,7 @@ import RedesignHeader from '@/redesign/components/RedesignHeader';
 import ComplexCard from '@/redesign/components/ComplexCard';
 import FilterSidebar from '@/redesign/components/FilterSidebar';
 import MapSearch from '@/redesign/components/MapSearch';
+import FooterSection from '@/components/FooterSection';
 import type { MapViewportBounds } from '@/components/ZhkMap';
 import { useCatalogBlocks } from '@/hooks/useCatalogBlocks';
 import { useMapObjects } from '@/hooks/useMapObjects';
@@ -23,6 +24,7 @@ const defaultFilters: CatalogBlockFilters = {
   builder: [],
   deadline_from: '',
   deadline_to: '',
+  price_max: null,
   sort: 'price_from',
   order: 'asc',
   page: 1,
@@ -41,6 +43,11 @@ function parseFromURL(params: URLSearchParams): Partial<CatalogBlockFilters> {
   if (from) f.deadline_from = from;
   const to = params.get('deadline_to');
   if (to) f.deadline_to = to;
+  const priceMax = params.get('price_max');
+  if (priceMax) {
+    const n = Number(priceMax);
+    if (!isNaN(n) && n > 0) f.price_max = n;
+  }
   const sort = params.get('sort') as CatalogBlockFilters['sort'] | null;
   if (sort && ['price_from', 'deadline', 'name'].includes(sort)) f.sort = sort;
   const order = params.get('order') as 'asc' | 'desc' | null;
@@ -59,6 +66,7 @@ function buildURL(f: CatalogBlockFilters): URLSearchParams {
   if (f.builder.length) p.set('builder', f.builder.join(','));
   if (f.deadline_from) p.set('deadline_from', f.deadline_from);
   if (f.deadline_to) p.set('deadline_to', f.deadline_to);
+  if (f.price_max != null && f.price_max > 0) p.set('price_max', String(f.price_max));
   if (f.sort !== 'price_from') p.set('sort', f.sort);
   if (f.order !== 'asc') p.set('order', f.order);
   if (f.page > 1) p.set('page', String(f.page));
@@ -132,6 +140,7 @@ const RedesignCatalog = () => {
     if (filters.builder.length) p.builder = filters.builder;
     if (filters.deadline_from) p.deadline_from = filters.deadline_from;
     if (filters.deadline_to) p.deadline_to = filters.deadline_to;
+    if (filters.price_max != null && filters.price_max > 0) p.price_max = filters.price_max;
     return p;
   }, [filters, view]);
 
@@ -161,8 +170,9 @@ const RedesignCatalog = () => {
     if (filters.builder.length) p.builder = filters.builder;
     if (filters.deadline_from) p.deadline_from = filters.deadline_from;
     if (filters.deadline_to) p.deadline_to = filters.deadline_to;
+    if (filters.price_max != null && filters.price_max > 0) p.price_max = filters.price_max;
     return p;
-  }, [viewport, filters.search, filters.district, filters.builder, filters.deadline_from, filters.deadline_to]);
+  }, [viewport, filters.search, filters.district, filters.builder, filters.deadline_from, filters.deadline_to, filters.price_max]);
 
   const { objects: mapBlocks } = useMapObjects(mapParams);
   const mapDisplayBlocks = useMemo(() => mapBlocks.map(mapBlockItemToDisplay), [mapBlocks]);
@@ -184,7 +194,7 @@ const RedesignCatalog = () => {
   const updateFilters = useCallback((upd: Partial<CatalogBlockFilters>) => {
     setFilters(prev => {
       const next = { ...prev, ...upd };
-      if (upd.district !== undefined || upd.builder !== undefined || upd.deadline_from !== undefined || upd.deadline_to !== undefined || upd.search !== undefined || upd.sort !== undefined || upd.order !== undefined) {
+      if (upd.district !== undefined || upd.builder !== undefined || upd.deadline_from !== undefined || upd.deadline_to !== undefined || upd.price_max !== undefined || upd.search !== undefined || upd.sort !== undefined || upd.order !== undefined) {
         next.page = 1;
       }
       updateURL(next);
@@ -198,7 +208,7 @@ const RedesignCatalog = () => {
     updateURL(defaultFilters);
   }, [updateURL]);
 
-  const hasFilters = filters.search || filters.district.length > 0 || filters.builder.length > 0 || filters.deadline_from || filters.deadline_to;
+  const hasFilters = filters.search || filters.district.length > 0 || filters.builder.length > 0 || filters.deadline_from || filters.deadline_to || (filters.price_max != null && filters.price_max > 0);
 
   // Live search for suggestions
   const { results: searchResults, loading: searchLoading } = useSearch(searchInput);
@@ -436,6 +446,7 @@ const RedesignCatalog = () => {
           </div>
         </div>
       )}
+      <FooterSection />
     </div>
   );
 };

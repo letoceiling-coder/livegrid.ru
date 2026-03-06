@@ -20,6 +20,7 @@ export interface BlockListParams {
   search?: string;
   deadline_from?: string;
   deadline_to?: string;
+  price_max?: number;
   sort?: 'price_from' | 'deadline' | 'name';
   order?: 'asc' | 'desc';
   page?: number;
@@ -59,7 +60,7 @@ export async function getBlocks(
   params: BlockListParams = {},
   signal?: AbortSignal
 ): Promise<{ data: BlockListItem[]; meta: PaginationMeta }> {
-  const { page = 1, per_page = 20, district, builder, is_city, search, deadline_from, deadline_to } = params;
+  const { page = 1, per_page = 20, district, builder, is_city, search, deadline_from, deadline_to, price_max } = params;
   const requestParams: Record<string, unknown> = {
     page,
     per_page: per_page ?? 20,
@@ -70,6 +71,7 @@ export async function getBlocks(
   if (search) requestParams.search = search;
   if (deadline_from) requestParams.deadline_from = deadline_from;
   if (deadline_to) requestParams.deadline_to = deadline_to;
+  if (price_max != null && price_max > 0) requestParams.price_max = price_max;
 
   const { data } = await api.get<PaginatedBlocks>('/blocks', {
     params: requestParams,

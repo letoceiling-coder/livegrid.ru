@@ -20,14 +20,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-const quickFilters = [
-  { label: 'Студии', search: '' },
-  { label: '1-комнатные', search: '' },
-  { label: '2-комнатные', search: '' },
-  { label: 'До 6 млн ₽', search: '' },
-  { label: 'Сданные ЖК', search: '' },
-  { label: 'Бизнес-класс', search: '' },
-];
+const quickFiltersBase = [
+  { label: 'Студии', href: '/catalog?q=студии' },
+  { label: '1-комнатные', href: '/catalog?q=1-комнатные' },
+  { label: '2-комнатные', href: '/catalog?q=2-комнатные' },
+  { label: 'До 6 млн ₽', href: '/catalog?price_max=6000000' },
+  { label: 'Сданные ЖК', getHref: () => `/catalog?deadline_to=${new Date().toISOString().slice(0, 10)}` },
+  { label: 'Бизнес-класс', href: '/catalog?q=бизнес-класс' },
+] as const;
 
 const regions = [
   'Москва и МО',
@@ -203,8 +203,8 @@ const RedesignIndex = () => {
               </Link>
             </div>
             <div className="flex flex-wrap gap-2 mt-5 justify-center">
-              {quickFilters.map(tag => (
-                <Link key={tag.label} to="/catalog" className="px-3.5 py-2 rounded-full bg-background border border-border text-xs font-medium hover:border-primary/50 hover:bg-accent transition-colors shadow-sm">
+              {quickFiltersBase.map(tag => (
+                <Link key={tag.label} to={'getHref' in tag ? tag.getHref() : tag.href} className="px-3.5 py-2 rounded-full bg-background border border-border text-xs font-medium hover:border-primary/50 hover:bg-accent transition-colors shadow-sm">
                   {tag.label}
                 </Link>
               ))}

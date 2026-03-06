@@ -94,6 +94,7 @@ export interface CatalogBlockFilters {
   builder: string[];
   deadline_from: string;
   deadline_to: string;
+  price_max: number | null;
   sort: 'price_from' | 'deadline' | 'name';
   order: 'asc' | 'desc';
   page: number;

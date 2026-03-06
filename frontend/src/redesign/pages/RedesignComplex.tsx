@@ -12,6 +12,7 @@ import { getComplex, getComplexApartments } from '@/api/blocksApi';
 import { mapBlockDetailToComplex } from '@/lib/complexPageAdapter';
 import { getLayoutGroups } from '@/redesign/data/mock-data';
 import { formatPrice } from '@/lib/format';
+import FooterSection from '@/components/FooterSection';
 import type { SortField, SortDir } from '@/redesign/data/types';
 
 declare global {
@@ -99,6 +100,7 @@ const RedesignComplex = () => {
         <div className="max-w-[1400px] mx-auto px-4 py-16 flex justify-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
+        <FooterSection />
       </div>
     );
   }
@@ -111,6 +113,7 @@ const RedesignComplex = () => {
           <p className="text-muted-foreground">Комплекс не найден</p>
           <Link to="/catalog" className="text-primary text-sm mt-2 inline-block">← Вернуться в каталог</Link>
         </div>
+        <FooterSection />
       </div>
     );
   }
@@ -246,6 +249,7 @@ const RedesignComplex = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <FooterSection />
     </div>
   );
 };
