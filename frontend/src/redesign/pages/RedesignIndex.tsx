@@ -85,8 +85,8 @@ const RedesignIndex = () => {
     <div className="min-h-screen bg-background pb-16 lg:pb-0">
       <RedesignHeader />
 
-      {/* Hero */}
-      <section className="relative bg-background overflow-hidden">
+      {/* Hero — z-10 чтобы dropdown поиска был поверх CategoryTiles; без overflow-hidden чтобы не обрезать dropdown */}
+      <section className="relative z-10 bg-background">
         <div className="max-w-[1400px] mx-auto px-4 py-8 sm:py-12 relative">
           <div className="mb-6">
             <div className="relative inline-block" ref={regionRef}>
