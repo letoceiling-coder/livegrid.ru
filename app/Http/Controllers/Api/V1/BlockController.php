@@ -39,6 +39,11 @@ class BlockController extends Controller
 {
     private const SORTABLE = ['price_from', 'deadline', 'name'];
 
+    public function __construct(
+        private SearchService $searchService
+    ) {
+    }
+
     // Apartment sort columns reused in apartments() method
     private const APT_SORTABLE = ['price', 'area_total', 'building_deadline_at', 'floor'];
 
@@ -63,59 +68,59 @@ class BlockController extends Controller
             'per_page'      => ['nullable', 'integer', 'min:1', 'max:500'],
         ]);
 
-        // ── Base query ────────────────────────────────────────────────────────
-        // Aggregates (price_from, units_count, min_area, nearest_deadline_at)
-        // are now materialized columns — refreshed by FeedSyncService after every
-        // sync. No subqueries here: plain WHERE + ORDER BY on indexed columns.
-        $query = Block::query()
-            ->select('blocks.*')
-            ->where('units_count', '>', 0); // Exclude blocks with no active apartments
+        // ── Filters (for SearchService or manual application) ──────────────────
+        $filters = array_filter([
+            'district'      => $request->filled('district') ? (array) $request->district : null,
+            'builder'       => $request->filled('builder') ? (array) $request->builder : null,
+            'is_city'       => $request->has('is_city') ? filter_var($request->is_city, FILTER_VALIDATE_BOOLEAN) : null,
+            'deadline_from' => $request->filled('deadline_from') ? $request->deadline_from : null,
+            'deadline_to'   => $request->filled('deadline_to') ? $request->deadline_to : null,
+            'price_max'     => $request->filled('price_max') && (float) $request->price_max > 0
+                ? (float) $request->price_max
+                : null,
+            'subway'        => $request->filled('subway') ? (array) $request->subway : null,
+        ], fn ($v) => $v !== null && $v !== []);
 
-        // ── Filters ───────────────────────────────────────────────────────────
-
-        if ($request->filled('district')) {
-            $query->whereIn('district_id', (array) $request->district);
-        }
-
-        if ($request->filled('builder')) {
-            $query->whereIn('builder_id', (array) $request->builder);
-        }
-
-        if ($request->has('is_city')) {
-            $query->where('is_city', filter_var($request->is_city, FILTER_VALIDATE_BOOLEAN));
-        }
-
+        // ── Base query (unified search via SearchService when search param present) ─
         if ($request->filled('search')) {
-            // Reuse the Block model scope (FULLTEXT on name + description)
-            $query->search($request->search);
-        }
+            $query = $this->searchService->searchBlocksQuery($request->search, $filters);
+        } else {
+            $query = Block::query()
+                ->select('blocks.*')
+                ->where('units_count', '>', 0);
 
-        if ($request->filled('deadline_from') || $request->filled('deadline_to')) {
-            $from = $request->deadline_from;
-            $to   = $request->deadline_to;
-
-            // Filter via the materialized nearest_deadline_at column
-            if ($from) {
-                $query->where(function ($q) use ($from) {
-                    $q->whereNull('nearest_deadline_at')
-                      ->orWhere('nearest_deadline_at', '>=', $from);
-                });
+            if (! empty($filters['district'])) {
+                $query->whereIn('district_id', $filters['district']);
             }
-            if ($to) {
-                $query->where(function ($q) use ($to) {
-                    $q->whereNull('nearest_deadline_at')
-                      ->orWhere('nearest_deadline_at', '<=', $to);
-                });
+            if (! empty($filters['builder'])) {
+                $query->whereIn('builder_id', $filters['builder']);
             }
-        }
-
-        if ($request->filled('price_max') && (float) $request->price_max > 0) {
-            $query->whereNotNull('price_from')
-                  ->where('price_from', '<=', (float) $request->price_max);
-        }
-
-        if ($request->filled('subway')) {
-            $query->whereHas('subways', fn ($q) => $q->whereIn('subways.id', (array) $request->subway));
+            if (isset($filters['is_city'])) {
+                $query->where('is_city', $filters['is_city']);
+            }
+            if (! empty($filters['deadline_from']) || ! empty($filters['deadline_to'])) {
+                $from = $filters['deadline_from'] ?? null;
+                $to   = $filters['deadline_to'] ?? null;
+                if ($from) {
+                    $query->where(function ($q) use ($from) {
+                        $q->whereNull('nearest_deadline_at')
+                          ->orWhere('nearest_deadline_at', '>=', $from);
+                    });
+                }
+                if ($to) {
+                    $query->where(function ($q) use ($to) {
+                        $q->whereNull('nearest_deadline_at')
+                          ->orWhere('nearest_deadline_at', '<=', $to);
+                    });
+                }
+            }
+            if (isset($filters['price_max']) && $filters['price_max'] > 0) {
+                $query->whereNotNull('price_from')
+                      ->where('price_from', '<=', $filters['price_max']);
+            }
+            if (! empty($filters['subway'])) {
+                $query->whereHas('subways', fn ($q) => $q->whereIn('subways.id', $filters['subway']));
+            }
         }
 
         // ── Sorting ───────────────────────────────────────────────────────────
@@ -197,11 +202,49 @@ class BlockController extends Controller
             'subway.*'      => ['string', 'size:24'],
         ]);
 
-        $query = Block::query()
-            ->select([
-                'id', 'name', 'lat', 'lng',
-                'price_from', 'units_count', 'images',
-            ])
+        $filters = array_filter([
+            'district'      => $request->filled('district') ? (array) $request->district : null,
+            'builder'       => $request->filled('builder') ? (array) $request->builder : null,
+            'is_city'       => $request->has('is_city') ? filter_var($request->is_city, FILTER_VALIDATE_BOOLEAN) : null,
+            'deadline_from' => $request->filled('deadline_from') ? $request->deadline_from : null,
+            'deadline_to'   => $request->filled('deadline_to') ? $request->deadline_to : null,
+            'price_max'     => $request->filled('price_max') && (float) $request->price_max > 0
+                ? (float) $request->price_max
+                : null,
+            'subway'        => $request->filled('subway') ? (array) $request->subway : null,
+        ], fn ($v) => $v !== null && $v !== []);
+
+        if ($request->filled('search')) {
+            $query = $this->searchService->searchBlocksQuery($request->search, $filters);
+        } else {
+            $query = Block::query()
+                ->select('blocks.*')
+                ->where('units_count', '>', 0);
+
+            foreach ($filters as $key => $value) {
+                match ($key) {
+                    'district'      => $query->whereIn('district_id', $value),
+                    'builder'       => $query->whereIn('builder_id', $value),
+                    'is_city'       => $query->where('is_city', $value),
+                    'deadline_from' => $query->where(function ($q) use ($value) {
+                        $q->whereNull('nearest_deadline_at')
+                          ->orWhere('nearest_deadline_at', '>=', $value);
+                    }),
+                    'deadline_to'   => $query->where(function ($q) use ($value) {
+                        $q->whereNull('nearest_deadline_at')
+                          ->orWhere('nearest_deadline_at', '<=', $value);
+                    }),
+                    'price_max'     => $query->whereNotNull('price_from')->where('price_from', '<=', $value),
+                    'subway'        => $query->whereHas('subways', fn ($q) => $q->whereIn('subways.id', $value)),
+                    default         => null,
+                };
+            }
+        }
+
+        $query->select([
+            'id', 'name', 'lat', 'lng',
+            'price_from', 'units_count', 'images',
+        ])
             ->where('units_count', '>', 0)
             ->whereNotNull('lat')
             ->whereNotNull('lng');
@@ -217,48 +260,6 @@ class BlockController extends Controller
         }
         if ($request->filled('lng_max')) {
             $query->where('lng', '<=', (float) $request->lng_max);
-        }
-
-        if ($request->filled('district')) {
-            $query->whereIn('district_id', (array) $request->district);
-        }
-
-        if ($request->filled('builder')) {
-            $query->whereIn('builder_id', (array) $request->builder);
-        }
-
-        if ($request->has('is_city')) {
-            $query->where('is_city', filter_var($request->is_city, FILTER_VALIDATE_BOOLEAN));
-        }
-
-        if ($request->filled('search')) {
-            $query->search($request->search);
-        }
-
-        if ($request->filled('deadline_from') || $request->filled('deadline_to')) {
-            $from = $request->deadline_from;
-            $to   = $request->deadline_to;
-            if ($from) {
-                $query->where(function ($q) use ($from) {
-                    $q->whereNull('nearest_deadline_at')
-                      ->orWhere('nearest_deadline_at', '>=', $from);
-                });
-            }
-            if ($to) {
-                $query->where(function ($q) use ($to) {
-                    $q->whereNull('nearest_deadline_at')
-                      ->orWhere('nearest_deadline_at', '<=', $to);
-                });
-            }
-        }
-
-        if ($request->filled('price_max') && (float) $request->price_max > 0) {
-            $query->whereNotNull('price_from')
-                  ->where('price_from', '<=', (float) $request->price_max);
-        }
-
-        if ($request->filled('subway')) {
-            $query->whereHas('subways', fn ($q) => $q->whereIn('subways.id', (array) $request->subway));
         }
 
         $blocks = $query->orderBy('name')->get()->map(fn ($b) => [
