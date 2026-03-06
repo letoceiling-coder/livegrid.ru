@@ -23,8 +23,10 @@ const defaultFilters: CatalogBlockFilters = {
   search: '',
   district: [],
   builder: [],
+  subway: [],
   deadline_from: '',
   deadline_to: '',
+  price_max: null,
   sort: 'price_from',
   order: 'asc',
   page: 1,
@@ -39,10 +41,17 @@ function parseFromURL(params: URLSearchParams): Partial<CatalogBlockFilters> {
   if (district) f.district = district.split(',').filter(Boolean);
   const builder = params.get('builder');
   if (builder) f.builder = builder.split(',').filter(Boolean);
+  const subway = params.get('subway');
+  if (subway) f.subway = subway.split(',').filter(Boolean);
   const from = params.get('deadline_from');
   if (from) f.deadline_from = from;
   const to = params.get('deadline_to');
   if (to) f.deadline_to = to;
+  const priceMax = params.get('price_max');
+  if (priceMax) {
+    const n = Number(priceMax);
+    if (!isNaN(n) && n > 0) f.price_max = n;
+  }
   return f;
 }
 
@@ -51,8 +60,10 @@ function buildURL(f: CatalogBlockFilters): URLSearchParams {
   if (f.search) p.set('q', f.search);
   if (f.district.length) p.set('district', f.district.join(','));
   if (f.builder.length) p.set('builder', f.builder.join(','));
+  if (f.subway.length) p.set('subway', f.subway.join(','));
   if (f.deadline_from) p.set('deadline_from', f.deadline_from);
   if (f.deadline_to) p.set('deadline_to', f.deadline_to);
+  if (f.price_max != null && f.price_max > 0) p.set('price_max', String(f.price_max));
   return p;
 }
 
@@ -131,7 +142,7 @@ const RedesignMap = () => {
     updateURL(defaultFilters);
   }, [updateURL]);
 
-  const hasFilters = Boolean(filters.search || filters.district.length || filters.builder.length || filters.deadline_from || filters.deadline_to);
+  const hasFilters = Boolean(filters.search || filters.district.length || filters.builder.length || filters.subway.length || filters.deadline_from || filters.deadline_to || (filters.price_max != null && filters.price_max > 0));
 
   const { results: searchResults, loading: searchLoading } = useSearch(searchInput);
   const showSuggestions = searchFocused && searchInput.trim().length >= 2;

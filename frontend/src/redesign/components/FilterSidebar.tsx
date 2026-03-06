@@ -34,6 +34,7 @@ const FilterSection = ({ title, children, defaultOpen = true }: { title: string;
 const FilterSidebar = ({ filterOptions, filtersLoading, filters, onChange, onClear, totalCount, hasFilters, className }: Props) => {
   const districts = filterOptions?.districts ?? [];
   const builders = filterOptions?.builders ?? [];
+  const subways = filterOptions?.subways ?? [];
   const priceRange = filterOptions?.price ?? { min: 0, max: 0 };
   const deadlineRange = filterOptions?.deadline ?? { min: null, max: null };
 
@@ -63,6 +64,18 @@ const FilterSidebar = ({ filterOptions, filtersLoading, filters, onChange, onCle
                 className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20"
               >
                 {b?.name ?? id} <X className="w-3 h-3" />
+              </button>
+            );
+          })}
+          {filters.subway.map(id => {
+            const s = subways.find(x => x.id === id);
+            return (
+              <button
+                key={id}
+                onClick={() => onChange({ subway: filters.subway.filter(x => x !== id) })}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20"
+              >
+                м. {s?.name ?? id} <X className="w-3 h-3" />
               </button>
             );
           })}
@@ -104,6 +117,26 @@ const FilterSidebar = ({ filterOptions, filtersLoading, filters, onChange, onCle
                 </label>
               ))}
               {districts.length === 0 && <p className="text-xs text-muted-foreground">Нет данных</p>}
+            </div>
+          </FilterSection>
+
+          {/* Metro */}
+          <FilterSection title="Метро" defaultOpen={false}>
+            <div className="space-y-2 max-h-44 overflow-y-auto">
+              {subways.map(s => (
+                <label key={s.id} className="flex items-center gap-2.5 cursor-pointer text-sm hover:text-foreground">
+                  <Checkbox
+                    checked={filters.subway.includes(s.id)}
+                    onCheckedChange={checked =>
+                      onChange({
+                        subway: checked ? [...filters.subway, s.id] : filters.subway.filter(x => x !== s.id),
+                      })
+                    }
+                  />
+                  {s.name}
+                </label>
+              ))}
+              {subways.length === 0 && <p className="text-xs text-muted-foreground">Нет данных</p>}
             </div>
           </FilterSection>
 

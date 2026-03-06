@@ -20,6 +20,7 @@ export interface MapBlocksParams {
   lng_max?: number;
   district?: string[];
   builder?: string[];
+  subway?: string[];
   is_city?: boolean;
   search?: string;
   deadline_from?: string;

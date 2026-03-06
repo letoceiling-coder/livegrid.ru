@@ -92,6 +92,7 @@ export interface CatalogBlockFilters {
   search: string;
   district: string[];
   builder: string[];
+  subway: string[];
   deadline_from: string;
   deadline_to: string;
   price_max: number | null;

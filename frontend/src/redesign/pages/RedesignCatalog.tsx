@@ -22,6 +22,7 @@ const defaultFilters: CatalogBlockFilters = {
   search: '',
   district: [],
   builder: [],
+  subway: [],
   deadline_from: '',
   deadline_to: '',
   price_max: null,
@@ -39,6 +40,8 @@ function parseFromURL(params: URLSearchParams): Partial<CatalogBlockFilters> {
   if (district) f.district = district.split(',').filter(Boolean);
   const builder = params.get('builder');
   if (builder) f.builder = builder.split(',').filter(Boolean);
+  const subway = params.get('subway');
+  if (subway) f.subway = subway.split(',').filter(Boolean);
   const from = params.get('deadline_from');
   if (from) f.deadline_from = from;
   const to = params.get('deadline_to');
@@ -64,6 +67,7 @@ function buildURL(f: CatalogBlockFilters): URLSearchParams {
   if (f.search) p.set('q', f.search);
   if (f.district.length) p.set('district', f.district.join(','));
   if (f.builder.length) p.set('builder', f.builder.join(','));
+  if (f.subway.length) p.set('subway', f.subway.join(','));
   if (f.deadline_from) p.set('deadline_from', f.deadline_from);
   if (f.deadline_to) p.set('deadline_to', f.deadline_to);
   if (f.price_max != null && f.price_max > 0) p.set('price_max', String(f.price_max));
@@ -138,6 +142,7 @@ const RedesignCatalog = () => {
     if (filters.search) p.search = filters.search;
     if (filters.district.length) p.district = filters.district;
     if (filters.builder.length) p.builder = filters.builder;
+    if (filters.subway.length) p.subway = filters.subway;
     if (filters.deadline_from) p.deadline_from = filters.deadline_from;
     if (filters.deadline_to) p.deadline_to = filters.deadline_to;
     if (filters.price_max != null && filters.price_max > 0) p.price_max = filters.price_max;
@@ -168,11 +173,12 @@ const RedesignCatalog = () => {
     if (filters.search) p.search = filters.search;
     if (filters.district.length) p.district = filters.district;
     if (filters.builder.length) p.builder = filters.builder;
+    if (filters.subway.length) p.subway = filters.subway;
     if (filters.deadline_from) p.deadline_from = filters.deadline_from;
     if (filters.deadline_to) p.deadline_to = filters.deadline_to;
     if (filters.price_max != null && filters.price_max > 0) p.price_max = filters.price_max;
     return p;
-  }, [viewport, filters.search, filters.district, filters.builder, filters.deadline_from, filters.deadline_to, filters.price_max]);
+  }, [viewport, filters.search, filters.district, filters.builder, filters.subway, filters.deadline_from, filters.deadline_to, filters.price_max]);
 
   const { objects: mapBlocks } = useMapObjects(mapParams);
   const mapDisplayBlocks = useMemo(() => mapBlocks.map(mapBlockItemToDisplay), [mapBlocks]);
@@ -194,7 +200,7 @@ const RedesignCatalog = () => {
   const updateFilters = useCallback((upd: Partial<CatalogBlockFilters>) => {
     setFilters(prev => {
       const next = { ...prev, ...upd };
-      if (upd.district !== undefined || upd.builder !== undefined || upd.deadline_from !== undefined || upd.deadline_to !== undefined || upd.price_max !== undefined || upd.search !== undefined || upd.sort !== undefined || upd.order !== undefined) {
+      if (upd.district !== undefined || upd.builder !== undefined || upd.subway !== undefined || upd.deadline_from !== undefined || upd.deadline_to !== undefined || upd.price_max !== undefined || upd.search !== undefined || upd.sort !== undefined || upd.order !== undefined) {
         next.page = 1;
       }
       updateURL(next);
@@ -208,7 +214,7 @@ const RedesignCatalog = () => {
     updateURL(defaultFilters);
   }, [updateURL]);
 
-  const hasFilters = filters.search || filters.district.length > 0 || filters.builder.length > 0 || filters.deadline_from || filters.deadline_to || (filters.price_max != null && filters.price_max > 0);
+  const hasFilters = filters.search || filters.district.length > 0 || filters.builder.length > 0 || filters.subway.length > 0 || filters.deadline_from || filters.deadline_to || (filters.price_max != null && filters.price_max > 0);
 
   // Live search for suggestions
   const { results: searchResults, loading: searchLoading } = useSearch(searchInput);

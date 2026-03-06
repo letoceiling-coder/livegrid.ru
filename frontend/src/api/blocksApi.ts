@@ -9,6 +9,7 @@ import type { ApartmentListItem, PaginatedApartments } from '@/types/apartment';
 export interface BlockFiltersData {
   districts: Array<{ id: string; name: string }>;
   builders: Array<{ id: string; name: string }>;
+  subways: Array<{ id: string; name: string }>;
   price: { min: number; max: number };
   deadline: { min: string | null; max: string | null };
 }
@@ -16,6 +17,7 @@ export interface BlockFiltersData {
 export interface BlockListParams {
   district?: string[];
   builder?: string[];
+  subway?: string[];
   is_city?: boolean;
   search?: string;
   deadline_from?: string;
@@ -60,13 +62,14 @@ export async function getBlocks(
   params: BlockListParams = {},
   signal?: AbortSignal
 ): Promise<{ data: BlockListItem[]; meta: PaginationMeta }> {
-  const { page = 1, per_page = 20, district, builder, is_city, search, deadline_from, deadline_to, price_max } = params;
+  const { page = 1, per_page = 20, district, builder, subway, is_city, search, deadline_from, deadline_to, price_max } = params;
   const requestParams: Record<string, unknown> = {
     page,
     per_page: per_page ?? 20,
   };
   if (district?.length) requestParams.district = district;
   if (builder?.length) requestParams.builder = builder;
+  if (subway?.length) requestParams.subway = subway;
   if (is_city !== undefined) requestParams.is_city = is_city;
   if (search) requestParams.search = search;
   if (deadline_from) requestParams.deadline_from = deadline_from;

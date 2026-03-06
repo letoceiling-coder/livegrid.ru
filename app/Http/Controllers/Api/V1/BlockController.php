@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
  *    search            string         Fulltext on block name + description
  *    deadline_from     Y-m-d          Blocks with ≥1 building due after date
  *    deadline_to       Y-m-d          Blocks with ≥1 building due before date
+ *    subway[]          char(24)[]     Filter by subway (block has that station)
  *
  *  INDEX sort (sort=<value>&order=asc|desc):
  *    price_from        Sort by min apartment price  (NULLs last)
@@ -55,6 +56,8 @@ class BlockController extends Controller
             'deadline_from' => ['nullable', 'date_format:Y-m-d'],
             'deadline_to'   => ['nullable', 'date_format:Y-m-d'],
             'price_max'     => ['nullable', 'numeric', 'min:0'],
+            'subway'        => ['nullable', 'array'],
+            'subway.*'      => ['string', 'size:24'],
             'sort'          => ['nullable', 'string', 'in:price_from,deadline,name'],
             'order'         => ['nullable', 'string', 'in:asc,desc'],
             'per_page'      => ['nullable', 'integer', 'min:1', 'max:500'],
@@ -109,6 +112,10 @@ class BlockController extends Controller
         if ($request->filled('price_max') && (float) $request->price_max > 0) {
             $query->whereNotNull('price_from')
                   ->where('price_from', '<=', (float) $request->price_max);
+        }
+
+        if ($request->filled('subway')) {
+            $query->whereHas('subways', fn ($q) => $q->whereIn('subways.id', (array) $request->subway));
         }
 
         // ── Sorting ───────────────────────────────────────────────────────────
@@ -186,6 +193,8 @@ class BlockController extends Controller
             'deadline_from' => ['nullable', 'date_format:Y-m-d'],
             'deadline_to'   => ['nullable', 'date_format:Y-m-d'],
             'price_max'     => ['nullable', 'numeric', 'min:0'],
+            'subway'        => ['nullable', 'array'],
+            'subway.*'      => ['string', 'size:24'],
         ]);
 
         $query = Block::query()
@@ -246,6 +255,10 @@ class BlockController extends Controller
         if ($request->filled('price_max') && (float) $request->price_max > 0) {
             $query->whereNotNull('price_from')
                   ->where('price_from', '<=', (float) $request->price_max);
+        }
+
+        if ($request->filled('subway')) {
+            $query->whereHas('subways', fn ($q) => $q->whereIn('subways.id', (array) $request->subway));
         }
 
         $blocks = $query->orderBy('name')->get()->map(fn ($b) => [
@@ -351,6 +364,7 @@ class BlockController extends Controller
         $data = [
             'districts'  => $this->getDistrictsForBlocks(),
             'builders'   => $this->getBuildersForBlocks(),
+            'subways'    => $this->getSubwaysForBlocks(),
             'price'      => $this->getPriceRangeForBlocks(),
             'deadline'   => $this->getDeadlineRangeForBlocks(),
         ];
@@ -381,6 +395,20 @@ class BlockController extends Controller
             ->orderBy('builders.name')
             ->get()
             ->map(fn ($b) => ['id' => $b->id, 'name' => $b->name])
+            ->toArray();
+    }
+
+    private function getSubwaysForBlocks(): array
+    {
+        return DB::table('subways')
+            ->join('block_subway', 'subways.id', '=', 'block_subway.subway_id')
+            ->join('blocks', 'block_subway.block_id', '=', 'blocks.id')
+            ->where('blocks.units_count', '>', 0)
+            ->select('subways.id', 'subways.name')
+            ->groupBy('subways.id', 'subways.name')
+            ->orderBy('subways.name')
+            ->get()
+            ->map(fn ($s) => ['id' => $s->id, 'name' => $s->name])
             ->toArray();
     }
 
