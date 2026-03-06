@@ -68,6 +68,9 @@ class SearchQueryParser
         $areaMin = $this->extractAreaMin($query, $text);
         $areaMax = $this->extractAreaMax($query, $text);
 
+        // Remove generic/stop words
+        $text = preg_replace('/\b(квартира|квартиры|квартиру|жк|дом|новостройка)\b/ui', ' ', $text);
+
         // Clean text: remove matched patterns, collapse spaces
         $text = preg_replace('/\s+/u', ' ', trim($text));
         $text = $text !== '' ? $text : $query; // If we stripped everything, use original

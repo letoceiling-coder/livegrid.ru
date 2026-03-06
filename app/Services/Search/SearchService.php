@@ -72,29 +72,16 @@ class SearchService
     /**
      * Apply search condition to apartments query builder.
      *
+     * Filters (rooms, price, area) are applied STRICTLY first.
+     * Text search (FULLTEXT + LIKE) is secondary and only when text is present.
+     *
      * @param QueryBuilder $query  DB::table('apartments') builder
      */
     public function applyApartmentSearch(QueryBuilder $query, string $searchTerm): void
     {
         $parsed = $this->parser->parse($searchTerm);
-        $text = $parsed['text'];
 
-        if ($text === '') {
-            return;
-        }
-
-        $escaped = addslashes($text);
-        $query->where(function ($q) use ($text, $escaped) {
-            $q->whereRaw(
-                'MATCH(block_name, block_builder_name, block_district_name) AGAINST(? IN BOOLEAN MODE)',
-                [$text]
-            )->orWhere('block_name', 'LIKE', '%' . $escaped . '%')
-             ->orWhere('block_builder_name', 'LIKE', '%' . $escaped . '%')
-             ->orWhere('block_district_name', 'LIKE', '%' . $escaped . '%')
-             ->orWhere('number', 'LIKE', '%' . $escaped . '%');
-        });
-
-        // Apply parsed filters (from natural language)
+        // 1) Apply strict filters FIRST
         if (! empty($parsed['rooms'])) {
             $query->whereIn('room', $parsed['rooms']);
         }
@@ -110,6 +97,29 @@ class SearchService
         if (isset($parsed['area_max']) && $parsed['area_max'] !== null) {
             $query->where('area_total', '<=', (float) $parsed['area_max']);
         }
+
+        // 2) Apply text search (secondary)
+        $text = $parsed['text'];
+        if ($text !== '') {
+            $escaped = addslashes($text);
+            $query->where(function ($q) use ($text, $escaped) {
+                $q->whereRaw(
+                    'MATCH(block_name, block_builder_name, block_district_name) AGAINST(? IN BOOLEAN MODE)',
+                    [$text]
+                )
+                  ->orWhere('block_name', 'LIKE', '%' . $escaped . '%')
+                  ->orWhere('block_builder_name', 'LIKE', '%' . $escaped . '%')
+                  ->orWhere('block_district_name', 'LIKE', '%' . $escaped . '%')
+                  ->orWhere('number', 'LIKE', '%' . $escaped . '%');
+            });
+        }
+
+        // 3) Order by room match priority when rooms filter exists
+        if (! empty($parsed['rooms'])) {
+            $rooms = $parsed['rooms'];
+            $placeholders = implode(',', array_fill(0, count($rooms), '?'));
+            $query->orderByRaw("CASE WHEN room IN ({$placeholders}) THEN 0 ELSE 1 END ASC", $rooms);
+        }
     }
 
     /**
@@ -124,6 +134,7 @@ class SearchService
 
     /**
      * Build apartments query (Eloquent) for live search.
+     * Filters applied first, then text search (same logic as applyApartmentSearch).
      */
     private function searchApartmentsQuery(string $query, array $filters = []): Builder
     {
@@ -132,20 +143,12 @@ class SearchService
 
         $builder = Apartment::query();
 
-        $text = $parsed['text'];
-        if ($text !== '') {
-            $escaped = addslashes($text);
-            $builder->where(function ($q) use ($text, $escaped) {
-                $q->whereRaw(
-                    'MATCH(block_name, block_builder_name, block_district_name) AGAINST(? IN BOOLEAN MODE)',
-                    [$text]
-                )->orWhere('block_name', 'LIKE', '%' . $escaped . '%')
-                 ->orWhere('number', 'LIKE', '%' . $escaped . '%');
-            });
-        }
-
+        // 1) Filters first
         if (! empty($filters['room'])) {
             $builder->whereIn('room', (array) $filters['room']);
+        }
+        if (isset($filters['price_min']) && $filters['price_min'] !== null) {
+            $builder->where('price', '>=', (float) $filters['price_min']);
         }
         if (isset($filters['price_max']) && $filters['price_max'] !== null) {
             $builder->where('price', '<=', (float) $filters['price_max']);
@@ -155,6 +158,21 @@ class SearchService
         }
         if (isset($filters['area_max']) && $filters['area_max'] !== null) {
             $builder->where('area_total', '<=', (float) $filters['area_max']);
+        }
+
+        // 2) Text search
+        $text = $parsed['text'];
+        if ($text !== '') {
+            $escaped = addslashes($text);
+            $builder->where(function ($q) use ($text, $escaped) {
+                $q->whereRaw(
+                    'MATCH(block_name, block_builder_name, block_district_name) AGAINST(? IN BOOLEAN MODE)',
+                    [$text]
+                )->orWhere('block_name', 'LIKE', '%' . $escaped . '%')
+                 ->orWhere('block_builder_name', 'LIKE', '%' . $escaped . '%')
+                 ->orWhere('block_district_name', 'LIKE', '%' . $escaped . '%')
+                 ->orWhere('number', 'LIKE', '%' . $escaped . '%');
+            });
         }
 
         return $builder;
