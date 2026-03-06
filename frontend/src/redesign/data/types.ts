@@ -87,6 +87,25 @@ export const defaultFilters: CatalogFilters = {
   search: '',
 };
 
+/** Apartment catalog filters (API params for GET /apartments) */
+export interface ApartmentCatalogFilters {
+  search: string;
+  district: string[];
+  builder: string[];
+  finishing: string[];
+  room: number[];
+  price_min?: number;
+  price_max?: number;
+  area_min?: number;
+  area_max?: number;
+  deadline_from: string;
+  deadline_to: string;
+  sort: 'price' | 'area_total' | 'building_deadline_at' | 'floor';
+  order: 'asc' | 'desc';
+  page: number;
+  per_page: number;
+}
+
 /** Block catalog filters (API params for GET /blocks) */
 export interface CatalogBlockFilters {
   search: string;

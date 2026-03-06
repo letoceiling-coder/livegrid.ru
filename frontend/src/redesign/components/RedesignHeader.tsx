@@ -8,6 +8,7 @@ import { useSearch } from '@/hooks/useSearch';
 
 const navItems = [
   { label: 'Каталог', href: '/catalog' },
+  { label: 'Квартиры', href: '/apartments' },
   { label: 'На карте', href: '/map' },
   { label: 'Застройщики', href: '/catalog?tab=builders' },
 ];
@@ -272,11 +273,15 @@ const RedesignHeader = () => {
             <LayoutGrid className="w-5 h-5" />
             <span>Каталог</span>
           </Link>
+          <Link to="/apartment" className={cn('flex flex-col items-center gap-0.5 text-[10px] py-1', location.pathname === '/apartment' ? 'text-primary' : 'text-muted-foreground')}>
+            <Building2 className="w-5 h-5" />
+            <span>Квартиры</span>
+          </Link>
           <Link to="/map" className={cn('flex flex-col items-center gap-0.5 text-[10px] py-1', location.pathname === '/map' ? 'text-primary' : 'text-muted-foreground')}>
             <MapIcon className="w-5 h-5" />
             <span>Карта</span>
           </Link>
-          <Link to="/catalog" className={cn('flex flex-col items-center gap-0.5 text-[10px] py-1', 'text-muted-foreground')}>
+          <Link to="/catalog?tab=builders" className={cn('flex flex-col items-center gap-0.5 text-[10px] py-1', 'text-muted-foreground')}>
             <Building2 className="w-5 h-5" />
             <span>Застройщики</span>
           </Link>

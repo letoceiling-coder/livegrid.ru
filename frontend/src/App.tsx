@@ -8,6 +8,7 @@ import { lazy, Suspense } from "react";
 // New UI (strict-template / redesign)
 const RedesignIndex = lazy(() => import("./redesign/pages/RedesignIndex"));
 const RedesignCatalog = lazy(() => import("./redesign/pages/RedesignCatalog"));
+const RedesignApartments = lazy(() => import("./redesign/pages/RedesignApartments"));
 const RedesignComplex = lazy(() => import("./redesign/pages/RedesignComplex"));
 const RedesignApartment = lazy(() => import("./redesign/pages/RedesignApartment"));
 const RedesignMap = lazy(() => import("./redesign/pages/RedesignMap"));
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/catalog" element={<RedesignCatalog />} />
             <Route path="/complex/:slug" element={<RedesignComplex />} />
             <Route path="/apartment/:id" element={<RedesignApartment />} />
+            <Route path="/apartment" element={<RedesignApartments />} />
             <Route path="/map" element={<RedesignMap />} />
             <Route path="/layouts/:complex" element={<RedesignLayouts />} />
             <Route path="/search" element={<SearchPage />} />
