@@ -150,7 +150,7 @@ const ApartmentFilterSidebar = ({ filterOptions, filtersLoading, filters, onChan
             <div className="space-y-2 max-h-44 overflow-y-auto">
               {subways.map(s => (
                 <label key={s.id} className="flex items-center gap-2.5 cursor-pointer text-sm hover:text-foreground">
-                  <Checkbox checked={filters.subway.includes(s.id)} onCheckedChange={checked => onChange({ subway: checked ? [...filters.subway, s.id] : filters.subway.filter(x => x !== s.id) })} />
+                  <Checkbox checked={(filters.subway ?? []).includes(s.id)} onCheckedChange={checked => onChange({ subway: checked ? [...(filters.subway ?? []), s.id] : (filters.subway ?? []).filter(x => x !== s.id) })} />
                   {s.name}
                 </label>
               ))}

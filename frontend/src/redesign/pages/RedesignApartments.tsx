@@ -124,6 +124,7 @@ const RedesignApartments = () => {
   useEffect(() => {
     const parsed = parseFromURL(searchParams);
     const next = { ...defaultFilters, ...parsed };
+    if (!Array.isArray(next.subway)) next.subway = [];
     setFilters(prev => (JSON.stringify(prev) !== JSON.stringify(next) ? next : prev));
     setSearchInput(next.search);
   }, [searchParams]);
@@ -149,11 +150,11 @@ const RedesignApartments = () => {
 
   const apiFilters: ApartmentFilters = useMemo(() => ({
     search: filters.search || undefined,
-    room: filters.room.length ? filters.room : undefined,
-    district: filters.district.length ? filters.district : undefined,
-    builder: filters.builder.length ? filters.builder : undefined,
-    subway: filters.subway.length ? filters.subway : undefined,
-    finishing: filters.finishing.length ? filters.finishing : undefined,
+    room: (filters.room ?? []).length ? filters.room : undefined,
+    district: (filters.district ?? []).length ? filters.district : undefined,
+    builder: (filters.builder ?? []).length ? filters.builder : undefined,
+    subway: (filters.subway ?? []).length ? filters.subway : undefined,
+    finishing: (filters.finishing ?? []).length ? filters.finishing : undefined,
     price_min: filters.price_min,
     price_max: filters.price_max,
     area_min: filters.area_min,
@@ -188,7 +189,7 @@ const RedesignApartments = () => {
     updateURL(defaultFilters);
   }, [updateURL]);
 
-  const hasFilters = filters.search || filters.room.length > 0 || filters.district.length > 0 || filters.builder.length > 0 || filters.subway.length > 0 || filters.finishing.length > 0 || filters.price_min != null || filters.price_max != null || filters.area_min != null || filters.area_max != null || filters.deadline_from || filters.deadline_to;
+  const hasFilters = filters.search || (filters.room ?? []).length > 0 || (filters.district ?? []).length > 0 || (filters.builder ?? []).length > 0 || (filters.subway ?? []).length > 0 || (filters.finishing ?? []).length > 0 || filters.price_min != null || filters.price_max != null || filters.area_min != null || filters.area_max != null || filters.deadline_from || filters.deadline_to;
 
   const { results: searchResults, loading: searchLoading } = useSearch(searchInput);
   const showSuggestions = searchFocused && searchInput.trim().length >= 2;
