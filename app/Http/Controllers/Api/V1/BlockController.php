@@ -141,12 +141,14 @@ class BlockController extends Controller
         $paginator = $query->paginate($perPage)->withQueryString();
 
         // ── Attach room_groups and room_prices for each block (bulk query) ────
+        // Only include valid room counts (0-5); values like 22, 23 are feed errors (e.g. floor/ID)
         $blockIds = $paginator->pluck('id')->all();
         if (count($blockIds) > 0) {
             $roomGroupsRaw = DB::table('apartments')
                 ->leftJoin('rooms', 'apartments.rooms_crm_id', '=', 'rooms.crm_id')
                 ->whereIn('apartments.block_id', $blockIds)
                 ->where('apartments.is_deleted', false)
+                ->whereIn('apartments.room', [0, 1, 2, 3, 4, 5])
                 ->selectRaw('
                     apartments.block_id,
                     apartments.room,
@@ -319,11 +321,12 @@ class BlockController extends Controller
 
         // ── Room type groups ──────────────────────────────────────────────────
         // LEFT JOIN rooms so studios (rooms_crm_id = 0) are still included
-        // if the rooms table entry exists.
+        // Only valid room counts (0-5); 22, 23 etc. are feed errors (floor/ID mix-up)
         $roomGroups = DB::table('apartments')
             ->leftJoin('rooms', 'apartments.rooms_crm_id', '=', 'rooms.crm_id')
             ->where('apartments.block_id', $id)
             ->where('apartments.is_deleted', false)
+            ->whereIn('apartments.room', [0, 1, 2, 3, 4, 5])
             ->selectRaw('
                 apartments.room,
                 apartments.rooms_crm_id,
