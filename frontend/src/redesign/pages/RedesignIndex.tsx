@@ -141,7 +141,7 @@ const RedesignIndex = () => {
                   onKeyDown={e => { if (e.key === 'Enter' && q.trim()) navigate(`/catalog?q=${encodeURIComponent(q.trim())}`); }}
                 />
                 {showSuggestions && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-[100] overflow-hidden">
                     {searchLoading ? (
                       <div className="px-4 py-3 text-sm text-muted-foreground">Поиск...</div>
                     ) : hasSuggestions ? (
