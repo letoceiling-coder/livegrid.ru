@@ -65,6 +65,12 @@ const RedesignComplex = () => {
 
   const layouts = useMemo(() => complex ? getLayoutGroups(complex.id) : [], [complex]);
 
+  const roomCounts = useMemo(() => {
+    const fromBlock = block?.room_groups?.map(g => g.room) ?? [];
+    const fromApts = complex ? [...new Set(complex.buildings.flatMap(b => b.apartments).filter(a => a.status !== 'sold').map(a => a.rooms))] : [];
+    return [...new Set([...fromBlock, ...fromApts])].sort((a, b) => a - b);
+  }, [block?.room_groups, complex]);
+
   const handleSort = (field: SortField) => {
     setSort(prev => ({ field, dir: prev.field === field && prev.dir === 'asc' ? 'desc' : 'asc' }));
   };
@@ -122,12 +128,6 @@ const RedesignComplex = () => {
       </div>
     );
   }
-
-  const roomCounts = useMemo(() => {
-    const fromBlock = block?.room_groups?.map(g => g.room) ?? [];
-    const fromApts = complex ? [...new Set(complex.buildings.flatMap(b => b.apartments).filter(a => a.status !== 'sold').map(a => a.rooms))] : [];
-    return [...new Set([...fromBlock, ...fromApts])].sort((a, b) => a - b);
-  }, [block?.room_groups, complex]);
 
   return (
     <div className="min-h-screen bg-background pb-16 lg:pb-0">
