@@ -49,7 +49,7 @@ export function mapBlockToDisplay(block: BlockListItem): BlockForDisplay {
     subway: firstSubway?.name ?? '',
     subwayDistance: firstSubway?.travel_time != null ? `${firstSubway.travel_time} мин` : '',
     deadline,
-    coords: [lat, lng],
+    coords: [lng, lat],
     unitsCount: block.units_count ?? 0,
     roomGroups: (block.room_groups ?? []).map((g) => ({
       room: g.room,
@@ -74,7 +74,7 @@ export function mapBlockItemToDisplay(b: MapBlockItem): BlockForDisplay {
     subway: '',
     subwayDistance: '',
     deadline: '',
-    coords: [b.lat, b.lng],
+    coords: [b.lng, b.lat],
     unitsCount: b.units_count,
     roomGroups: [],
   };

@@ -161,13 +161,16 @@ const MapSearch = ({ listComplexes, mapComplexes, activeSlug, onSelect, onViewpo
 
   const centerOn = useCallback((slug: string) => {
     const c = listComplexes.find(x => x.slug === slug);
-    if (c && mapInstance.current) mapInstance.current.setCenter(c.coords, 14, { duration: 400 });
+    if (c && mapInstance.current) {
+      const [lng, lat] = c.coords;
+      mapInstance.current.setCenter([lat, lng], 14, { duration: 400 });
+    }
     onSelect?.(slug);
   }, [listComplexes, onSelect]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-4" style={{ height }}>
-      <div ref={mapRef} className="flex-1 rounded-2xl overflow-hidden border border-border bg-muted min-h-[300px]" />
+      <div ref={mapRef} className="flex-1 rounded-2xl overflow-hidden border border-border bg-muted min-h-[400px]" />
       <div className="w-full lg:w-[360px] overflow-y-auto space-y-2 shrink-0">
         {listComplexes.map(c => (
           <button
