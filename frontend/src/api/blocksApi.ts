@@ -18,6 +18,7 @@ export interface BlockListParams {
   district?: string[];
   builder?: string[];
   subway?: string[];
+  room?: number[];
   is_city?: boolean;
   search?: string;
   deadline_from?: string;
@@ -62,7 +63,7 @@ export async function getBlocks(
   params: BlockListParams = {},
   signal?: AbortSignal
 ): Promise<{ data: BlockListItem[]; meta: PaginationMeta }> {
-  const { page = 1, per_page = 20, district, builder, subway, is_city, search, deadline_from, deadline_to, price_max } = params;
+  const { page = 1, per_page = 20, district, builder, subway, room, is_city, search, deadline_from, deadline_to, price_max } = params;
   const requestParams: Record<string, unknown> = {
     page,
     per_page: per_page ?? 20,
@@ -70,6 +71,7 @@ export async function getBlocks(
   if (district?.length) requestParams.district = district;
   if (builder?.length) requestParams.builder = builder;
   if (subway?.length) requestParams.subway = subway;
+  if (room?.length) requestParams.room = room;
   if (is_city !== undefined) requestParams.is_city = is_city;
   if (search) requestParams.search = search;
   if (deadline_from) requestParams.deadline_from = deadline_from;

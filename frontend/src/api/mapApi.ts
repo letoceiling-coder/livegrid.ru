@@ -21,6 +21,7 @@ export interface MapBlocksParams {
   district?: string[];
   builder?: string[];
   subway?: string[];
+  room?: number[];
   is_city?: boolean;
   search?: string;
   deadline_from?: string;

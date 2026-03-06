@@ -93,6 +93,7 @@ export interface CatalogBlockFilters {
   district: string[];
   builder: string[];
   subway: string[];
+  room: number[];
   deadline_from: string;
   deadline_to: string;
   price_max: number | null;

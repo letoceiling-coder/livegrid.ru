@@ -67,6 +67,15 @@ const FilterSidebar = ({ filterOptions, filtersLoading, filters, onChange, onCle
               </button>
             );
           })}
+          {filters.room.map(r => (
+            <button
+              key={r}
+              onClick={() => onChange({ room: filters.room.filter(x => x !== r) })}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20"
+            >
+              {r === 0 ? 'Студия' : r === 4 ? '4+' : `${r}к`} <X className="w-3 h-3" />
+            </button>
+          ))}
           {filters.subway.map(id => {
             const s = subways.find(x => x.id === id);
             return (
@@ -100,6 +109,25 @@ const FilterSidebar = ({ filterOptions, filtersLoading, filters, onChange, onCle
         </div>
       ) : (
         <>
+          {/* Rooms */}
+          <FilterSection title="Количество комнат">
+            <div className="flex flex-wrap gap-2">
+              {([0, 1, 2, 3, 4] as const).map(r => (
+                <label key={r} className="flex items-center gap-2 cursor-pointer text-sm hover:text-foreground">
+                  <Checkbox
+                    checked={filters.room.includes(r)}
+                    onCheckedChange={checked =>
+                      onChange({
+                        room: checked ? [...filters.room, r] : filters.room.filter(x => x !== r),
+                      })
+                    }
+                  />
+                  {r === 0 ? 'Студия' : r === 4 ? '4+' : `${r}к`}
+                </label>
+              ))}
+            </div>
+          </FilterSection>
+
           {/* District */}
           <FilterSection title="Район" defaultOpen={false}>
             <div className="space-y-2 max-h-44 overflow-y-auto">

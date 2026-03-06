@@ -31,9 +31,14 @@ const RedesignComplex = () => {
     enabled: !!slugOrId,
   });
 
+  const [roomFilter, setRoomFilter] = useState<number | null>(null);
+
   const { data: aptsResult } = useQuery({
-    queryKey: ['block-apartments', slugOrId],
-    queryFn: () => getComplexApartments(slugOrId, { per_page: APARTMENTS_PER_PAGE }),
+    queryKey: ['block-apartments', slugOrId, roomFilter],
+    queryFn: () => getComplexApartments(slugOrId, {
+      per_page: APARTMENTS_PER_PAGE,
+      ...(roomFilter !== null && { room: [roomFilter] }),
+    }),
     enabled: !!slugOrId,
   });
 
@@ -42,8 +47,8 @@ const RedesignComplex = () => {
     const apts = aptsResult?.data ?? [];
     return mapBlockDetailToComplex(block, apts);
   }, [block, aptsResult?.data]);
+
   const [sort, setSort] = useState<{ field: SortField; dir: SortDir }>({ field: 'price', dir: 'asc' });
-  const [roomFilter, setRoomFilter] = useState<number | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 
@@ -118,7 +123,11 @@ const RedesignComplex = () => {
     );
   }
 
-  const roomCounts = [...new Set(complex.buildings.flatMap(b => b.apartments).filter(a => a.status !== 'sold').map(a => a.rooms))].sort();
+  const roomCounts = useMemo(() => {
+    const fromBlock = block?.room_groups?.map(g => g.room) ?? [];
+    const fromApts = complex ? [...new Set(complex.buildings.flatMap(b => b.apartments).filter(a => a.status !== 'sold').map(a => a.rooms))] : [];
+    return [...new Set([...fromBlock, ...fromApts])].sort((a, b) => a - b);
+  }, [block?.room_groups, complex]);
 
   return (
     <div className="min-h-screen bg-background pb-16 lg:pb-0">

@@ -23,6 +23,7 @@ const defaultFilters: CatalogBlockFilters = {
   district: [],
   builder: [],
   subway: [],
+  room: [],
   deadline_from: '',
   deadline_to: '',
   price_max: null,
@@ -38,6 +39,8 @@ function parseFromURL(params: URLSearchParams): Partial<CatalogBlockFilters> {
   if (q) f.search = q;
   const district = params.get('district');
   if (district) f.district = district.split(',').filter(Boolean);
+  const room = params.get('room');
+  if (room) f.room = room.split(',').map(Number).filter(n => !isNaN(n) && n >= 0 && n <= 5);
   const builder = params.get('builder');
   if (builder) f.builder = builder.split(',').filter(Boolean);
   const subway = params.get('subway');
@@ -68,6 +71,7 @@ function buildURL(f: CatalogBlockFilters): URLSearchParams {
   if (f.district.length) p.set('district', f.district.join(','));
   if (f.builder.length) p.set('builder', f.builder.join(','));
   if (f.subway.length) p.set('subway', f.subway.join(','));
+  if (f.room.length) p.set('room', f.room.join(','));
   if (f.deadline_from) p.set('deadline_from', f.deadline_from);
   if (f.deadline_to) p.set('deadline_to', f.deadline_to);
   if (f.price_max != null && f.price_max > 0) p.set('price_max', String(f.price_max));
@@ -143,6 +147,7 @@ const RedesignCatalog = () => {
     if (filters.district.length) p.district = filters.district;
     if (filters.builder.length) p.builder = filters.builder;
     if (filters.subway.length) p.subway = filters.subway;
+    if (filters.room.length) p.room = filters.room;
     if (filters.deadline_from) p.deadline_from = filters.deadline_from;
     if (filters.deadline_to) p.deadline_to = filters.deadline_to;
     if (filters.price_max != null && filters.price_max > 0) p.price_max = filters.price_max;
@@ -174,11 +179,12 @@ const RedesignCatalog = () => {
     if (filters.district.length) p.district = filters.district;
     if (filters.builder.length) p.builder = filters.builder;
     if (filters.subway.length) p.subway = filters.subway;
+    if (filters.room.length) p.room = filters.room;
     if (filters.deadline_from) p.deadline_from = filters.deadline_from;
     if (filters.deadline_to) p.deadline_to = filters.deadline_to;
     if (filters.price_max != null && filters.price_max > 0) p.price_max = filters.price_max;
     return p;
-  }, [viewport, filters.search, filters.district, filters.builder, filters.subway, filters.deadline_from, filters.deadline_to, filters.price_max]);
+  }, [viewport, filters.search, filters.district, filters.builder, filters.subway, filters.room, filters.deadline_from, filters.deadline_to, filters.price_max]);
 
   const { objects: mapBlocks } = useMapObjects(mapParams);
   const mapDisplayBlocks = useMemo(() => mapBlocks.map(mapBlockItemToDisplay), [mapBlocks]);
@@ -200,7 +206,7 @@ const RedesignCatalog = () => {
   const updateFilters = useCallback((upd: Partial<CatalogBlockFilters>) => {
     setFilters(prev => {
       const next = { ...prev, ...upd };
-      if (upd.district !== undefined || upd.builder !== undefined || upd.subway !== undefined || upd.deadline_from !== undefined || upd.deadline_to !== undefined || upd.price_max !== undefined || upd.search !== undefined || upd.sort !== undefined || upd.order !== undefined) {
+      if (upd.district !== undefined || upd.builder !== undefined || upd.subway !== undefined || upd.room !== undefined || upd.deadline_from !== undefined || upd.deadline_to !== undefined || upd.price_max !== undefined || upd.search !== undefined || upd.sort !== undefined || upd.order !== undefined) {
         next.page = 1;
       }
       updateURL(next);
@@ -214,7 +220,7 @@ const RedesignCatalog = () => {
     updateURL(defaultFilters);
   }, [updateURL]);
 
-  const hasFilters = filters.search || filters.district.length > 0 || filters.builder.length > 0 || filters.subway.length > 0 || filters.deadline_from || filters.deadline_to || (filters.price_max != null && filters.price_max > 0);
+  const hasFilters = filters.search || filters.district.length > 0 || filters.builder.length > 0 || filters.subway.length > 0 || filters.room.length > 0 || filters.deadline_from || filters.deadline_to || (filters.price_max != null && filters.price_max > 0);
 
   // Live search for suggestions
   const { results: searchResults, loading: searchLoading } = useSearch(searchInput);
