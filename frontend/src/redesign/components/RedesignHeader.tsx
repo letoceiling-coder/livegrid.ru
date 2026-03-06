@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Phone, Menu, X, Search, MapPin, Building2, Home, LayoutGrid, Map as MapIcon, Heart, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -18,6 +19,7 @@ const RedesignHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
 
   const { results: searchResults, loading: searchLoading } = useSearch(query);
   const suggestionComplexes = (searchResults?.residential_complexes ?? []).slice(0, 5);
@@ -27,12 +29,17 @@ const RedesignHeader = () => {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false);
-      }
+      const dropdown = document.getElementById('header-search-dropdown');
+      const inside = searchRef.current?.contains(e.target as Node) || dropdown?.contains(e.target as Node);
+      if (!inside) setSearchOpen(false);
     };
+    const onScroll = () => setSearchOpen(false);
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      window.removeEventListener('scroll', onScroll, true);
+    };
   }, []);
 
   return (
@@ -65,19 +72,31 @@ const RedesignHeader = () => {
             ))}
           </nav>
 
-          {/* Desktop search */}
+          {/* Desktop search — dropdown via Portal (fixed) чтобы не скроллился со страницей */}
           <div ref={searchRef} className="hidden lg:block relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="ЖК, район, метро..."
-              className="pl-9 h-10 bg-muted/50 border-transparent focus:border-border focus:bg-background text-sm"
-              value={query}
-              onFocus={() => setSearchOpen(true)}
-              onChange={e => setQuery(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && query.trim()) { navigate(`/catalog?q=${encodeURIComponent(query.trim())}`); setSearchOpen(false); } }}
-            />
-            {showSuggestions && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg overflow-hidden z-50">
+            <div ref={inputContainerRef} className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="ЖК, район, метро..."
+                className="pl-9 h-10 bg-muted/50 border-transparent focus:border-border focus:bg-background text-sm"
+                value={query}
+                onFocus={() => setSearchOpen(true)}
+                onChange={e => setQuery(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && query.trim()) { navigate(`/catalog?q=${encodeURIComponent(query.trim())}`); setSearchOpen(false); } }}
+              />
+            </div>
+            {showSuggestions && inputContainerRef.current && createPortal(
+              <div
+                id="header-search-dropdown"
+                className="fixed bg-card border border-border rounded-xl shadow-xl overflow-hidden"
+                style={{
+                  zIndex: 99999,
+                  top: inputContainerRef.current.getBoundingClientRect().bottom + 4,
+                  left: inputContainerRef.current.getBoundingClientRect().left,
+                  width: inputContainerRef.current.getBoundingClientRect().width,
+                  maxHeight: 320,
+                }}
+              >
                 {searchLoading ? (
                   <div className="px-4 py-3 text-sm text-muted-foreground">Поиск...</div>
                 ) : hasSuggestions ? (
@@ -118,7 +137,8 @@ const RedesignHeader = () => {
                 ) : (
                   <div className="px-4 py-3 text-sm text-muted-foreground">Ничего не найдено</div>
                 )}
-              </div>
+              </div>,
+              document.body
             )}
           </div>
 

@@ -80,8 +80,13 @@ const RedesignIndex = () => {
       const insideSearch = searchArea?.contains(e.target as Node) || dropdown?.contains(e.target as Node);
       if (!insideSearch) setSearchFocused(false);
     };
+    const onScroll = () => setSearchFocused(false);
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      window.removeEventListener('scroll', onScroll, true);
+    };
   }, []);
 
   return (
