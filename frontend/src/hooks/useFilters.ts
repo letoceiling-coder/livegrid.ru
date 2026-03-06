@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import { getFilters } from '@/api/filtersApi';
 
 // ── Filter data types ─────────────────────────────────────────────────────────
 

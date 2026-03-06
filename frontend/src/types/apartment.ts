@@ -7,6 +7,8 @@ export interface ApartmentListItem {
   crm_id: number | null;
 
   room: number | null;
+  /** Normalized room count for display (e.g. 22→2, 23→3). Use this for UI. */
+  rooms?: number | null;
   /** Resolved room label from the rooms reference table (e.g. "Студия", "2-комнатная") */
   room_label: string | null;
 
