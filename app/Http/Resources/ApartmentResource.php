@@ -17,9 +17,10 @@ class ApartmentResource extends JsonResource
             'id'          => $this->id,
             'crm_id'      => $this->crm_id,
 
-            // Rooms (room = integer count; roomType = related Room model)
+            // Rooms (room = raw from DB; rooms = normalized for display, e.g. 22→2)
             'room'        => $this->room,
-            'room_label'  => $this->whenLoaded('roomType', fn () => $this->roomType?->name),
+            'rooms'       => $this->normalizeRoomForDisplay((int) $this->room),
+            'room_label'  => $this->whenLoaded('roomType', fn () => $this->roomType?->name) ?? $this->resolveRoomLabel(),
 
             // Physical
             'floor'       => $this->floor,
@@ -88,5 +89,27 @@ class ApartmentResource extends JsonResource
                 'banks'        => $this->whenLoaded('building', fn () => $this->building?->banks ?? []),
             ],
         ];
+    }
+
+    /**
+     * Fallback room label when roomType is null. Normalizes 22→2, 23→3 etc.
+     */
+    private function resolveRoomLabel(): string
+    {
+        $room = $this->normalizeRoomForDisplay((int) $this->room);
+        return match ($room) {
+            0 => 'Студия',
+            1 => '1-к. кв.',
+            2 => '2-к. кв.',
+            3 => '3-к. кв.',
+            4 => '4-к. кв.',
+            5 => '5-к. кв.',
+            default => $room . '-к. кв.',
+        };
+    }
+
+    private function normalizeRoomForDisplay(int $room): int
+    {
+        return ($room >= 20 && $room <= 29) ? $room % 10 : $room;
     }
 }
