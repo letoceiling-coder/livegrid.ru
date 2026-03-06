@@ -73,6 +73,7 @@ const App = () => (
             <Route path="/complex/:slug" element={<RedesignComplex />} />
             <Route path="/apartment/:id" element={<RedesignApartment />} />
             <Route path="/apartment" element={<RedesignApartments />} />
+            <Route path="/apartments" element={<Navigate to={`/apartment${window.location.search}`} replace />} />
             <Route path="/map" element={<RedesignMap />} />
             <Route path="/layouts/:complex" element={<RedesignLayouts />} />
             <Route path="/search" element={<SearchPage />} />
