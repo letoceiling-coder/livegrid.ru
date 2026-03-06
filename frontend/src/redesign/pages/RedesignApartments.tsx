@@ -311,6 +311,7 @@ const RedesignApartments = () => {
               />
             </div>
           </aside>
+          )}
 
           <div className="flex-1 min-w-0">
             <div className="relative mb-4">
