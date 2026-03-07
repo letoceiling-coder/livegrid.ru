@@ -13,6 +13,11 @@ use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SimilarController;
 use App\Http\Controllers\Api\V1\StatsController;
 use App\Http\Controllers\Api\V1\LeadController;
+use App\Http\Controllers\Api\V1\CrmUserController;
+use App\Http\Controllers\Api\V1\CrmRoleController;
+use App\Http\Controllers\Api\V1\CrmDictionaryController;
+use App\Http\Controllers\Api\V1\CrmCatalogController;
+use App\Http\Controllers\Api\V1\CrmFeedController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -97,5 +102,34 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('pages', PageController::class);
             Route::apiResource('sections', SectionController::class);
             Route::apiResource('media', MediaController::class);
+        });
+
+    // -------------------------------------------------------------------------
+    // CRM routes (Sanctum token + admin role required)
+    // -------------------------------------------------------------------------
+    Route::middleware(['auth:sanctum', 'admin'])
+        ->prefix('crm')
+        ->group(function () {
+            // Users + roles
+            Route::get('/users', [CrmUserController::class, 'index']);
+            Route::post('/users', [CrmUserController::class, 'store']);
+            Route::put('/users/{user}', [CrmUserController::class, 'update']);
+            Route::delete('/users/{user}', [CrmUserController::class, 'destroy']);
+            Route::get('/roles', [CrmRoleController::class, 'index']);
+
+            // Dictionaries CRUD
+            Route::get('/dictionaries/{entity}', [CrmDictionaryController::class, 'index']);
+            Route::post('/dictionaries/{entity}', [CrmDictionaryController::class, 'store']);
+            Route::put('/dictionaries/{entity}/{id}', [CrmDictionaryController::class, 'update']);
+            Route::delete('/dictionaries/{entity}/{id}', [CrmDictionaryController::class, 'destroy']);
+
+            // Catalog entities CRUD
+            Route::get('/catalog/{entity}', [CrmCatalogController::class, 'index']);
+            Route::post('/catalog/{entity}', [CrmCatalogController::class, 'store']);
+            Route::put('/catalog/{entity}/{id}', [CrmCatalogController::class, 'update']);
+            Route::delete('/catalog/{entity}/{id}', [CrmCatalogController::class, 'destroy']);
+
+            // Feed management
+            Route::post('/feed/run', [CrmFeedController::class, 'run']);
         });
 });

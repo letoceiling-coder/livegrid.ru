@@ -44,6 +44,18 @@ const AdminSettings = lazy(() => import("./admin/pages/AdminSettings"));
 const AdminTokens = lazy(() => import("./admin/pages/AdminTokens"));
 const EditorPage = lazy(() => import("./admin/components/editor/EditorPage"));
 
+// CRM pages
+const CrmLayout = lazy(() => import("./crm/layout/CrmLayout"));
+const CrmDashboard = lazy(() => import("./crm/pages/CrmDashboard"));
+const CrmUsers = lazy(() => import("./crm/pages/CrmUsers"));
+const CrmRoles = lazy(() => import("./crm/pages/CrmRoles"));
+const CrmMedia = lazy(() => import("./crm/pages/CrmMedia"));
+const CrmCatalog = lazy(() => import("./crm/pages/CrmCatalog"));
+const CrmObjectTypes = lazy(() => import("./crm/pages/CrmObjectTypes"));
+const CrmDictionaries = lazy(() => import("./crm/pages/CrmDictionaries"));
+const CrmFilters = lazy(() => import("./crm/pages/CrmFilters"));
+const CrmFeed = lazy(() => import("./crm/pages/CrmFeed"));
+
 const queryClient = new QueryClient();
 
 function LegacyRedirect({ toTemplate, paramKey }: { toTemplate: string; paramKey: string }) {
@@ -157,6 +169,19 @@ const App = () => (
               <Route path="tokens" element={<AdminTokens />} />
             </Route>
             <Route path="/admin/editor/:pageId" element={<RequireAdmin><EditorPage /></RequireAdmin>} />
+
+            {/* CRM routes */}
+            <Route path="/crm" element={<RequireAdmin><CrmLayout /></RequireAdmin>}>
+              <Route index element={<CrmDashboard />} />
+              <Route path="users" element={<CrmUsers />} />
+              <Route path="roles" element={<CrmRoles />} />
+              <Route path="media" element={<CrmMedia />} />
+              <Route path="catalog" element={<CrmCatalog />} />
+              <Route path="object-types" element={<CrmObjectTypes />} />
+              <Route path="dictionaries" element={<CrmDictionaries />} />
+              <Route path="filters" element={<CrmFilters />} />
+              <Route path="feed" element={<CrmFeed />} />
+            </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
