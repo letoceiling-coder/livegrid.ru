@@ -2,9 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import { getMe, isAuthenticated, type AuthUser } from "./lib/auth";
 // New UI (strict-template / redesign)
 const RedesignIndex = lazy(() => import("./redesign/pages/RedesignIndex"));
 const RedesignCatalog = lazy(() => import("./redesign/pages/RedesignCatalog"));
@@ -58,6 +59,60 @@ const Loading = () => (
   </div>
 );
 
+function RequireAdmin({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [hasToken, setHasToken] = useState(isAuthenticated());
+
+  useEffect(() => {
+    let active = true;
+
+    const check = async () => {
+      const tokenPresent = isAuthenticated();
+      if (!tokenPresent) {
+        if (active) {
+          setHasToken(false);
+          setIsAdmin(false);
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (active) {
+        setHasToken(true);
+        setLoading(true);
+      }
+
+      try {
+        const me: AuthUser = await getMe();
+        if (active) {
+          setIsAdmin(me.role === "admin");
+        }
+      } catch {
+        if (active) {
+          setIsAdmin(false);
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void check();
+
+    return () => {
+      active = false;
+    };
+  }, [location.pathname]);
+
+  if (loading) return <Loading />;
+  if (!hasToken) return <Navigate to="/login" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -92,7 +147,7 @@ const App = () => (
             <Route path="/contacts" element={<ContactsPage />} />
 
             {/* Admin routes */}
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
               <Route index element={<AdminDashboard />} />
               <Route path="pages" element={<AdminPages />} />
               <Route path="page-editor/:slug" element={<AdminPageEditor />} />
@@ -101,7 +156,7 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
               <Route path="tokens" element={<AdminTokens />} />
             </Route>
-            <Route path="/admin/editor/:pageId" element={<EditorPage />} />
+            <Route path="/admin/editor/:pageId" element={<RequireAdmin><EditorPage /></RequireAdmin>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

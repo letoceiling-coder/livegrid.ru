@@ -1,19 +1,36 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Header from '@/components/Header';
 import FooterSection from '@/components/FooterSection';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { login } from '@/lib/auth';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // visual only
+    setLoading(true);
+    setError(null);
+    try {
+      const user = await login({ email, password });
+      navigate(user.role === 'admin' ? '/admin' : '/');
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.errors?.email?.[0] ??
+        err?.response?.data?.message ??
+        'Не удалось выполнить вход';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,6 +44,11 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-sm font-medium">Email</label>
               <div className="relative">
@@ -63,7 +85,9 @@ const Login = () => {
                 </button>
               </div>
             </div>
-            <Button type="submit" className="w-full rounded-full">Войти</Button>
+            <Button type="submit" className="w-full rounded-full" disabled={loading}>
+              {loading ? 'Входим...' : 'Войти'}
+            </Button>
           </form>
 
           <div className="relative flex items-center gap-4">

@@ -1,19 +1,44 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
 import Header from '@/components/Header';
 import FooterSection from '@/components/FooterSection';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { register } from '@/lib/auth';
 
 const Register = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const user = await register({
+        name,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      });
+      navigate(user.role === 'admin' ? '/admin' : '/');
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.errors?.email?.[0] ??
+        err?.response?.data?.errors?.password?.[0] ??
+        err?.response?.data?.message ??
+        'Не удалось зарегистрироваться';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,6 +52,11 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-sm font-medium">Имя</label>
               <div className="relative">
@@ -57,7 +87,22 @@ const Register = () => {
                 </button>
               </div>
             </div>
-            <Button type="submit" className="w-full rounded-full">Создать аккаунт</Button>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Подтверждение пароля</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Повторите пароль"
+                  value={passwordConfirmation}
+                  onChange={e => setPasswordConfirmation(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <Button type="submit" className="w-full rounded-full" disabled={loading}>
+              {loading ? 'Создаём аккаунт...' : 'Создать аккаунт'}
+            </Button>
           </form>
 
           <div className="relative flex items-center gap-4">

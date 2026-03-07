@@ -1,20 +1,45 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import Header from '@/components/Header';
 import FooterSection from '@/components/FooterSection';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { resetPassword } from '@/lib/auth';
 
 const ResetPassword = () => {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token') ?? '';
+  const email = searchParams.get('email') ?? '';
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setDone(true);
+    setLoading(true);
+    setError(null);
+    try {
+      await resetPassword({
+        token,
+        email,
+        password,
+        password_confirmation: confirmPassword,
+      });
+      setDone(true);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.errors?.password?.[0] ??
+        err?.response?.data?.errors?.email?.[0] ??
+        err?.response?.data?.message ??
+        'Не удалось изменить пароль';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,7 +53,17 @@ const ResetPassword = () => {
                 <h1 className="text-2xl font-bold">Новый пароль</h1>
                 <p className="text-sm text-muted-foreground">Придумайте новый пароль для вашего аккаунта</p>
               </div>
+              {!token || !email ? (
+                <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                  Невалидная ссылка восстановления. Запросите новую ссылку.
+                </div>
+              ) : null}
               <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                    {error}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Новый пароль</label>
                   <div className="relative">
@@ -58,7 +93,9 @@ const ResetPassword = () => {
                     />
                   </div>
                 </div>
-                <Button type="submit" className="w-full rounded-full">Сохранить пароль</Button>
+                <Button type="submit" className="w-full rounded-full" disabled={loading || !token || !email}>
+                  {loading ? 'Сохраняем...' : 'Сохранить пароль'}
+                </Button>
               </form>
             </>
           ) : (

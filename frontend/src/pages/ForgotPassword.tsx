@@ -5,14 +5,30 @@ import Header from '@/components/Header';
 import FooterSection from '@/components/FooterSection';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { forgotPassword } from '@/lib/auth';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setLoading(true);
+    setError(null);
+    try {
+      await forgotPassword({ email });
+      setSent(true);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.errors?.email?.[0] ??
+        err?.response?.data?.message ??
+        'Не удалось отправить ссылку восстановления';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,6 +47,11 @@ const ForgotPassword = () => {
                 <p className="text-sm text-muted-foreground">Введите email и мы отправим ссылку для восстановления</p>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                    {error}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Email</label>
                   <div className="relative">
@@ -38,7 +59,9 @@ const ForgotPassword = () => {
                     <Input type="email" placeholder="mail@example.com" value={email} onChange={e => setEmail(e.target.value)} className="pl-10" />
                   </div>
                 </div>
-                <Button type="submit" className="w-full rounded-full">Отправить ссылку</Button>
+                <Button type="submit" className="w-full rounded-full" disabled={loading}>
+                  {loading ? 'Отправляем...' : 'Отправить ссылку'}
+                </Button>
               </form>
             </>
           ) : (

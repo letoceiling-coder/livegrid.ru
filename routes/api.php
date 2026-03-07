@@ -79,6 +79,9 @@ Route::prefix('v1')->group(function () {
     // -------------------------------------------------------------------------
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('/reset-password', [AuthController::class, 'resetPassword']);
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::get('/me', [AuthController::class, 'me']);
@@ -88,7 +91,7 @@ Route::prefix('v1')->group(function () {
     // -------------------------------------------------------------------------
     // Admin routes (Sanctum token required)
     // -------------------------------------------------------------------------
-    Route::middleware('auth:sanctum')
+    Route::middleware(['auth:sanctum', 'admin'])
         ->prefix('admin')
         ->group(function () {
             Route::apiResource('pages', PageController::class);
