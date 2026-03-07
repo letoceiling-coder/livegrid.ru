@@ -6,6 +6,8 @@ use Illuminate\Http\JsonResponse;
 
 trait ApiResponse
 {
+    private const JSON_OPTIONS = JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
+
     /**
      * Return a success JSON response.
      */
@@ -19,7 +21,7 @@ trait ApiResponse
 
         $response['data'] = $data;
 
-        return response()->json($response, $code);
+        return response()->json($response, $code, [], self::JSON_OPTIONS);
     }
 
     /**
@@ -36,7 +38,7 @@ trait ApiResponse
             $response['errors'] = $errors;
         }
 
-        return response()->json($response, $code);
+        return response()->json($response, $code, [], self::JSON_OPTIONS);
     }
 
     /**
@@ -52,6 +54,6 @@ trait ApiResponse
      */
     protected function noContent(): JsonResponse
     {
-        return response()->json(['success' => true], 204);
+        return response()->json(['success' => true], 204, [], self::JSON_OPTIONS);
     }
 }
