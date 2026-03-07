@@ -65,6 +65,7 @@ class Apartment extends Model
         'block_lat', 'block_lng', 'block_is_city',
         'building_deadline_at',
         'is_deleted', 'is_hot', 'is_start_sales', 'last_seen_at',
+        'is_active', 'position',
     ];
 
     protected $casts = [
@@ -86,6 +87,8 @@ class Apartment extends Model
         'price_per_meter'      => 'float',
         'block_lat'            => 'float',
         'block_lng'            => 'float',
+        'is_active'            => 'boolean',
+        'position'             => 'integer',
     ];
 
     // ── Relations ────────────────────────────────────────────────────────────

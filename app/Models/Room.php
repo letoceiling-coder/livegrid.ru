@@ -20,7 +20,12 @@ class Room extends Model
     public $incrementing = false;
     protected $keyType = 'int';
 
-    protected $fillable = ['crm_id', 'feed_id', 'name'];
+    protected $fillable = ['crm_id', 'feed_id', 'name', 'is_active', 'position'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'position' => 'integer',
+    ];
 
     // ── Relations ────────────────────────────────────────────────────────────
 

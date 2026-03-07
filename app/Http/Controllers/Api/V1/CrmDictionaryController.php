@@ -25,33 +25,33 @@ class CrmDictionaryController extends Controller
         return match ($entity) {
             'regions' => [
                 'model' => Region::class,
-                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer']],
+                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'is_active' => ['nullable', 'boolean'], 'position' => ['nullable', 'integer']],
                 'key' => 'id',
             ],
             'builders' => [
                 'model' => Builder::class,
-                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'logo_url' => ['nullable', 'string', 'max:2048']],
+                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'logo_url' => ['nullable', 'string', 'max:2048'], 'is_active' => ['nullable', 'boolean'], 'position' => ['nullable', 'integer']],
                 'key' => 'id',
             ],
             'subways' => [
                 'model' => Subway::class,
-                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'line_name' => ['nullable', 'string', 'max:255'], 'line_color' => ['nullable', 'string', 'max:32']],
+                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'line_name' => ['nullable', 'string', 'max:255'], 'line_color' => ['nullable', 'string', 'max:32'], 'is_active' => ['nullable', 'boolean'], 'position' => ['nullable', 'integer']],
                 'key' => 'id',
             ],
             'finishings' => [
                 'model' => Finishing::class,
-                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer']],
+                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'is_active' => ['nullable', 'boolean'], 'position' => ['nullable', 'integer']],
                 'key' => 'id',
             ],
             'building-types' => [
                 'model' => BuildingType::class,
-                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer']],
+                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'is_active' => ['nullable', 'boolean'], 'position' => ['nullable', 'integer']],
                 'key' => 'id',
             ],
             'rooms' => [
                 'model' => Room::class,
-                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'feed_id' => ['nullable', 'integer']],
-                'key' => 'id',
+                'rules' => ['name' => ['required', 'string', 'max:255'], 'crm_id' => ['nullable', 'integer'], 'feed_id' => ['nullable', 'integer'], 'is_active' => ['nullable', 'boolean'], 'position' => ['nullable', 'integer']],
+                'key' => 'crm_id',
             ],
             default => throw new \InvalidArgumentException('Unknown dictionary entity'),
         };
@@ -75,7 +75,13 @@ class CrmDictionaryController extends Controller
             $query->where('name', 'like', '%' . $q . '%');
         }
 
-        return $this->success($query->orderBy('name')->paginate($perPage));
+        return $this->success(
+            $query
+                ->orderByDesc('is_active')
+                ->orderBy('position')
+                ->orderBy('name')
+                ->paginate($perPage)
+        );
     }
 
     public function store(Request $request, string $entity): JsonResponse
@@ -96,6 +102,13 @@ class CrmDictionaryController extends Controller
 
         if ($map['key'] === 'id' && ! $item->getAttribute('id') && ! $item->getIncrementing()) {
             $item->setAttribute('id', (string) Str::uuid());
+        }
+
+        if (! array_key_exists('is_active', $data)) {
+            $item->setAttribute('is_active', true);
+        }
+        if (! array_key_exists('position', $data)) {
+            $item->setAttribute('position', 0);
         }
 
         $item->save();

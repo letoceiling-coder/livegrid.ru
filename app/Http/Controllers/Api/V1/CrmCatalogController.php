@@ -32,6 +32,8 @@ class CrmCatalogController extends Controller
                     'lng' => ['nullable', 'numeric'],
                     'is_city' => ['nullable', 'boolean'],
                     'status' => ['nullable', 'integer'],
+                    'is_active' => ['nullable', 'boolean'],
+                    'position' => ['nullable', 'integer'],
                     'deadline_at' => ['nullable', 'date'],
                 ],
             ],
@@ -49,6 +51,8 @@ class CrmCatalogController extends Controller
                     'finishing_id' => ['nullable', 'string', 'max:64'],
                     'plan_url' => ['nullable', 'string', 'max:2048'],
                     'is_deleted' => ['nullable', 'boolean'],
+                    'is_active' => ['nullable', 'boolean'],
+                    'position' => ['nullable', 'integer'],
                 ],
             ],
             default => throw new \InvalidArgumentException('Unknown catalog entity'),
@@ -79,7 +83,13 @@ class CrmCatalogController extends Controller
             }
         }
 
-        return $this->success($query->orderByDesc('updated_at')->paginate($perPage));
+        return $this->success(
+            $query
+                ->orderByDesc('is_active')
+                ->orderBy('position')
+                ->orderByDesc('updated_at')
+                ->paginate($perPage)
+        );
     }
 
     public function store(Request $request, string $entity): JsonResponse
@@ -100,6 +110,13 @@ class CrmCatalogController extends Controller
 
         if (! $item->getAttribute('id') && ! $item->getIncrementing()) {
             $item->setAttribute('id', (string) Str::uuid());
+        }
+
+        if (! array_key_exists('is_active', $data)) {
+            $item->setAttribute('is_active', true);
+        }
+        if (! array_key_exists('position', $data)) {
+            $item->setAttribute('position', 0);
         }
 
         $item->save();

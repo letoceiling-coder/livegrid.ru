@@ -19,7 +19,12 @@ class Subway extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['id', 'crm_id', 'name', 'line_name', 'line_color'];
+    protected $fillable = ['id', 'crm_id', 'name', 'line_name', 'line_color', 'is_active', 'position'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'position' => 'integer',
+    ];
 
     // ── Relations ────────────────────────────────────────────────────────────
 

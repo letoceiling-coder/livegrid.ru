@@ -20,14 +20,29 @@ class MediaController extends Controller
     public function index(Request $request): JsonResponse
     {
         $type = $request->query('type');
+        $folder = $request->query('folder');
+        $q = trim((string) $request->query('q', ''));
 
         $query = Media::query();
 
         if ($type) {
             $query->where('type', $type);
         }
+        if ($folder) {
+            $query->where('folder', $folder);
+        }
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q): void {
+                $sub->where('path', 'like', '%' . $q . '%')
+                    ->orWhere('alt', 'like', '%' . $q . '%');
+            });
+        }
 
-        $media = $query->orderBy('created_at', 'desc')->paginate(30);
+        $media = $query
+            ->orderByDesc('is_active')
+            ->orderBy('position')
+            ->orderBy('created_at', 'desc')
+            ->paginate(30);
 
         return $this->success($media);
     }
@@ -50,6 +65,11 @@ class MediaController extends Controller
             'file' => ['required', 'file', 'max:20480'], // 20MB max
             'alt'  => ['nullable', 'string', 'max:255'],
             'type' => ['nullable', 'string', 'in:image,video,document'],
+            'folder' => ['nullable', 'string', 'max:255'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['string', 'max:100'],
+            'is_active' => ['nullable', 'boolean'],
+            'position' => ['nullable', 'integer'],
         ]);
 
         $file = $request->file('file');
@@ -60,9 +80,13 @@ class MediaController extends Controller
             'path' => $path,
             'alt'  => $request->input('alt'),
             'type' => $type,
+            'folder' => $request->input('folder'),
+            'tags' => $request->input('tags', []),
+            'is_active' => $request->boolean('is_active', true),
+            'position' => (int) $request->input('position', 0),
         ]);
 
-        return $this->created($media, 'Media uploaded successfully');
+        return $this->created($media, 'Файл загружен');
     }
 
     /**
@@ -74,11 +98,16 @@ class MediaController extends Controller
         $validated = $request->validate([
             'alt'  => ['nullable', 'string', 'max:255'],
             'type' => ['nullable', 'string', 'in:image,video,document'],
+            'folder' => ['nullable', 'string', 'max:255'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['string', 'max:100'],
+            'is_active' => ['nullable', 'boolean'],
+            'position' => ['nullable', 'integer'],
         ]);
 
         $media->update($validated);
 
-        return $this->success($media, 'Media updated successfully');
+        return $this->success($media, 'Файл обновлен');
     }
 
     /**
@@ -90,6 +119,6 @@ class MediaController extends Controller
         Storage::disk('public')->delete($media->path);
         $media->delete();
 
-        return $this->success(null, 'Media deleted successfully');
+        return $this->success(null, 'Файл удален');
     }
 }

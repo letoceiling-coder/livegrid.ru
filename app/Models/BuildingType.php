@@ -18,7 +18,12 @@ class BuildingType extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['id', 'crm_id', 'name'];
+    protected $fillable = ['id', 'crm_id', 'name', 'is_active', 'position'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'position' => 'integer',
+    ];
 
     // ── Relations ────────────────────────────────────────────────────────────
 

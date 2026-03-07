@@ -9,7 +9,7 @@ export default function CrmCatalog() {
   const [rows, setRows] = useState<Record<string, any>[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState('');
-  const [form, setForm] = useState<Record<string, any>>({ id: '', name: '' });
+  const [form, setForm] = useState<Record<string, any>>({ id: '', name: '', position: 0, is_active: true });
 
   const load = async () => {
     setError(null);
@@ -30,7 +30,7 @@ export default function CrmCatalog() {
     e.preventDefault();
     try {
       await crmCreateCatalog(entity, form);
-      setForm(entity === 'blocks' ? { id: '', name: '' } : { id: '', building_id: '', block_id: '' });
+      setForm(entity === 'blocks' ? { id: '', name: '', position: 0, is_active: true } : { id: '', building_id: '', block_id: '', position: 0, is_active: true });
       await load();
     } catch (e: any) {
       setError(e?.response?.data?.message ?? 'Ошибка создания записи');
@@ -71,7 +71,7 @@ export default function CrmCatalog() {
           onChange={e => {
             const next = e.target.value as Entity;
             setEntity(next);
-            setForm(next === 'blocks' ? { id: '', name: '' } : { id: '', building_id: '', block_id: '' });
+            setForm(next === 'blocks' ? { id: '', name: '', position: 0, is_active: true } : { id: '', building_id: '', block_id: '', position: 0, is_active: true });
           }}
         >
           <option value="blocks">ЖК / комплексы</option>
@@ -86,12 +86,22 @@ export default function CrmCatalog() {
         {entity === 'blocks' ? (
           <>
             <input className="border rounded-lg px-3 py-2 text-sm md:col-span-2" placeholder="name" value={form.name ?? ''} onChange={e => setForm({ ...form, name: e.target.value })} required />
+            <input className="border rounded-lg px-3 py-2 text-sm" type="number" placeholder="position" value={form.position ?? 0} onChange={e => setForm({ ...form, position: Number(e.target.value) || 0 })} />
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={Boolean(form.is_active ?? true)} onChange={e => setForm({ ...form, is_active: e.target.checked })} />
+              Активен
+            </label>
             <Button type="submit">Создать ЖК</Button>
           </>
         ) : (
           <>
             <input className="border rounded-lg px-3 py-2 text-sm" placeholder="building_id" value={form.building_id ?? ''} onChange={e => setForm({ ...form, building_id: e.target.value })} required />
             <input className="border rounded-lg px-3 py-2 text-sm" placeholder="block_id" value={form.block_id ?? ''} onChange={e => setForm({ ...form, block_id: e.target.value })} required />
+            <input className="border rounded-lg px-3 py-2 text-sm" type="number" placeholder="position" value={form.position ?? 0} onChange={e => setForm({ ...form, position: Number(e.target.value) || 0 })} />
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={Boolean(form.is_active ?? true)} onChange={e => setForm({ ...form, is_active: e.target.checked })} />
+              Активен
+            </label>
             <Button type="submit">Создать квартиру</Button>
           </>
         )}
@@ -104,7 +114,9 @@ export default function CrmCatalog() {
           <div key={String(row.id)} className="p-4 flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium">{row.name ?? row.number ?? row.id}</div>
-              <div className="text-xs text-muted-foreground truncate">id: {String(row.id)}</div>
+              <div className="text-xs text-muted-foreground truncate">
+                id: {String(row.id)} · {row.is_active ? 'активен' : 'неактивен'} · pos:{row.position ?? 0}
+              </div>
             </div>
             <Button variant="outline" size="sm" onClick={() => void update(row)}>Редактировать JSON</Button>
             <Button variant="destructive" size="sm" onClick={() => void remove(row)}>Удалить</Button>

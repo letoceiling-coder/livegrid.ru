@@ -18,7 +18,12 @@ class Builder extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['id', 'crm_id', 'name', 'logo_url'];
+    protected $fillable = ['id', 'crm_id', 'name', 'logo_url', 'is_active', 'position'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'position' => 'integer',
+    ];
 
     // ── Relations ────────────────────────────────────────────────────────────
 

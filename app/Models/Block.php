@@ -53,6 +53,7 @@ class Block extends Model
         'min_price', 'max_price', 'min_area', 'max_area', 'images',
         // Materialized aggregates — updated by FeedSyncService::updateBlockAggregates()
         'price_from', 'units_count', 'nearest_deadline_at',
+        'is_active', 'position',
     ];
 
     protected $casts = [
@@ -71,6 +72,8 @@ class Block extends Model
         // Materialized aggregate columns
         'price_from'           => 'float',
         'units_count'          => 'integer',
+        'is_active'           => 'boolean',
+        'position'            => 'integer',
     ];
 
     // ── Accessors ────────────────────────────────────────────────────────────

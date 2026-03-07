@@ -13,6 +13,16 @@ class Media extends Model
         'path',
         'alt',
         'type',
+        'folder',
+        'tags',
+        'is_active',
+        'position',
+    ];
+
+    protected $casts = [
+        'tags' => 'array',
+        'is_active' => 'boolean',
+        'position' => 'integer',
     ];
 
     protected $appends = ['url'];
