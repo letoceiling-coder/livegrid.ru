@@ -28,7 +28,7 @@ Discovered 10 endpoints, total payload ~155.57 MB:
 
 ### Collection history
 - `storage/feed/raw/manifest.json` contains 20 entries (2 snapshots per endpoint).
-- `feed:collect --list` currently reports no snapshots because collector writes through `FeedFileStorage` manifest path and list state differs from manual discovery sequence; requires normalization (see findings).
+- `php artisan feed:collect --list` now correctly reflects snapshot history per endpoint.
 
 ### Scheduling
 Configured in `app/Console/Kernel.php`:
@@ -39,73 +39,87 @@ Configured in `app/Console/Kernel.php`:
 
 ## 2) Data Quality Audit (feed + API)
 
-## 2.1 Positive
+### 2.1 Positive
 - Discovery completed without endpoint fetch errors when probing was disabled (`--no-probe`).
 - All core dictionary endpoints are present and non-empty.
-- Filters endpoint confirms rich dictionary/range availability:
-  - rooms, districts, subways, builders, finishings, price min/max, area min/max, floor min/max, deadline range.
+- Filters endpoint confirms rich dictionary/range availability.
 
-## 2.2 High-risk findings
+Measured from `/api/v1/filters`:
+- districts total: 122
+- districts with `name = null`: 2
+- builders total: 198
+- builders with `name = null`: 0
+- finishings total: 6
 
-1. **False confidence in data-quality aggregate metrics**  
-`report.json` shows `nullable_ratio=0`, `mixed_type_fields=0`, which is unrealistically perfect for this domain and payload size.  
-Root cause: report aggregation in current analyzer path is optimistic and does not fully reflect optional/missing field behavior across large arrays.
+### 2.2 High-risk findings
+
+1. **False confidence in aggregate quality metrics**  
+`storage/feed/analysis/report.json` reports:
+- `nullable_ratio=0`
+- `mixed_type_fields=0`  
+For a 155+ MB multi-entity feed this is unrealistic and indicates current quality aggregation underestimates optional/dirty fields.
 
 2. **Probe strategy pollutes logs with expected 404**  
-Feed discovery with probe mode produces many 404 errors in `feed-2026-03-07.log` for synthetic endpoints like:
-- `/about/decoration`, `/about/projects`, `/about/amenities`, etc.  
-This is noisy and masks real incidents.
+When probe mode is enabled, `FeedDiscoveryService` generates many expected 404 errors (e.g. `/about/projects`, `/about/amenities`) in `feed-2026-03-07.log`.  
+This increases alert fatigue and obscures true failures.
 
-3. **Inconsistent analysis artifacts**  
-`report.json` exists, but combined `relationships.json` is missing for this run context.  
-This creates partial observability for downstream architecture decisions.
+3. **Analysis artifact contract is inconsistent**  
+`report.json` exists, but combined `relationships.json` is absent for the same run context.  
+Architecture and migration planning consumers get incomplete metadata.
 
-4. **Encoding robustness issue already observed on CRM serialization**  
-Previously reproduced production 500 (`Malformed UTF-8 characters`) confirms real risk from feed/domain string payloads.  
-A defensive JSON response fix is now in place, but the root quality control layer (ingest validation + normalization) is still absent.
+4. **Encoding robustness remains an ingestion concern**  
+CRM already hit production error `Malformed UTF-8 characters` during JSON serialization. Response-layer mitigation is applied, but input-quality normalization is still missing.
 
-## 2.3 Data consistency snapshot (public API)
+### 2.3 Public API consistency snapshot
 - `/api/v1/blocks?per_page=1&page=1` -> `meta.total=490`
 - `/api/v1/apartments?per_page=1&page=1` -> `meta.total=62214`
-- Feed source has 1,289 blocks and 62,976 apartments.
+- Source feed totals: blocks `1,289`, apartments `62,976`
 
 Interpretation:
-- Apartments delta is expected from soft-delete/live filtering mechanics.
-- Blocks delta is large and must be explained explicitly in analytics (e.g. `units_count > 0`, status filters, inactive blocks). This logic is currently implicit.
+- apartments delta (`762`) and blocks delta (`799`) are large enough to require explicit, traceable publication rules in CRM (now implicit in backend logic).
 
 ## 3) ETL / DB Write Correctness Audit
 
-## 3.1 What is implemented correctly
-- Streaming ingest for large apartments feed in `FeedSyncService` (memory-safe design).
-- Reference data upsert before core entities (order is mostly correct).
-- Soft-delete based on `last_seen_at` threshold.
-- Post-sync aggregate materialization (`price_from`, `units_count`, `nearest_deadline_at`) and filter cache invalidation.
+### 3.1 What is implemented correctly
+- Memory-safe streaming design in `FeedSyncService` (chunk upsert for apartments).
+- Correct stage order at design level: dictionaries -> blocks/buildings -> apartments -> soft-delete -> aggregate refresh.
+- `feed:sync --dry-run` returns coherent reference counts:
+  - regions 181, subways 447, builders 561, finishings 7, building_types 11, rooms 28, blocks 1289, buildings 9269.
 
-## 3.2 Critical/important findings
+### 3.2 Critical findings
 
-1. **Silent sync skip behavior is operationally dangerous**  
-Running `php artisan feed:sync` returned almost empty summary with `Duration: 0s`.  
-Given lock-based design (`Cache::lock`), this likely means "skipped due lock", but command UX does not clearly report skip reason in console.  
-Impact: operations team can think sync succeeded while no data was updated.
+1. **Production sync is currently broken (P0 blocker)**  
+Running `php artisan feed:sync` fails with:
+`Class "JsonMachine\Items" not found`
 
-2. **Historic referential-integrity failures were real**  
-`feed-2026-02-26.log` contains multiple production failures:
-- FK violation on `blocks.district_id`
-- FK violation on `block_subway.subway_id`
-- FK violation on `apartments.building_id`
-- json-machine API misuse error (later fixed)  
-This indicates ingestion order and feed anomalies historically broke consistency and should be continuously guarded by pre-upsert validators.
+Impact:
+- Full incremental sync pipeline does not execute.
+- Production operational tables drift from feed source.
 
-3. **Manual-vs-feed ownership is not encoded in schema**  
-Current writes upsert directly into operational tables (`blocks`, `buildings`, `apartments`, dictionaries) without field-level ownership metadata.  
-Any manual corrections in feed-managed fields risk being overwritten at next sync.
+Root cause:
+- `FeedSyncService` uses `JsonMachine\Items` but `composer.json` does not include `halaxa/json-machine`.
 
-4. **Analyzer and sync are still partially disconnected**  
-There is no hard gate: poor-quality feed can still proceed to sync if discovery/analyze uncovered structural anomalies.
+2. **Observed source-vs-DB divergence**
+- Feed reports: blocks 1289 / buildings 9269 / apartments 62976.
+- Current DB/API state:
+  - `App\Models\Block::count()` -> 1284
+  - `App\Models\Building::count()` -> 2444
+  - `App\Models\Apartment::count()` -> 62214
+  - `App\Models\Apartment::whereIsDeleted(true)->count()` -> 0
+
+This confirms incomplete alignment between feed and persisted catalog.
+
+3. **No hard data-quality gate before upsert**
+- Discovery/analyze outputs are informational only.
+- Sync does not stop on structural anomalies (except runtime failures), increasing risk of silent corruption.
+
+4. **Manual-vs-feed ownership not encoded**
+- No field-level source policy (`feed/manual/import`) and no lock semantics.
+- Manual corrections can be overwritten by next sync once sync is restored.
 
 ## 4) CRM Gap Analysis (current vs modern CRM baseline)
 
-Assessed files:
+Assessed:
 - `frontend/src/crm/pages/CrmCatalog.tsx`
 - `frontend/src/crm/pages/CrmDictionaries.tsx`
 - `frontend/src/crm/pages/CrmMedia.tsx`
@@ -114,70 +128,53 @@ Assessed files:
 - `app/Http/Controllers/Api/V1/Crm*Controller.php`
 
 ### 4.1 Current strengths
-- Base CRUD for users/roles/dictionaries/catalog/media is present.
+- Base CRUD exists for users/roles/dictionaries/catalog/media.
+- `is_active` + `position` are exposed in API/UI.
 - Feed commands can be launched from CRM UI.
-- `is_active` and `position` now propagated in key entities.
 
-### 4.2 Major product gaps
-
-1. **No source governance model (feed/manual/import)**  
-- Missing: source priority, lock rules, override strategy, protected fields.
-
-2. **No revision history / no audit trail**  
-- Missing: who changed what, when, and why; no rollback point.
-
-3. **No moderation workflow**
-- Missing draft/review/publish/archive states and approvals.
-
-4. **Weak editing UX for core catalog**
-- JSON prompt editing for catalog objects is not production-grade.
-- No typed forms, no field-level validation UX, no dependent-field logic.
-
-5. **No conflict resolution layer**
-- Feed update and manual edit conflicts are not surfaced or resolvable in UI.
-
-6. **No bulk operations / no automation**
-- Missing mass update, mass status changes, conditional automations.
-
-7. **No DQ observability in CRM**
-- Missing dashboards: feed health, schema drift, sync failures, stale entities.
+### 4.2 Major product/architecture gaps
+1. No source governance model (`feed/manual/import`) with priority and lock policies.
+2. No revision history / audit trail / rollback.
+3. No moderation lifecycle (`draft/review/publish/archive`).
+4. Weak editing UX for catalog (JSON prompt editing still used).
+5. No conflict resolution center for feed-vs-manual collisions.
+6. No bulk operations / automation workflows.
+7. No DQ observability dashboard in CRM.
+8. `CrmFeedController` always returns `exit_code=0` even if command fails (false-positive UX/ops signal).
 
 ## 5) Root Causes
-
-- Architecture is currently feed-ingest-centric, not governance-centric.
-- No canonical separation between:
-  - raw ingestion,
-  - normalized data,
-  - published content.
-- CRM controls are operational CRUD screens, not a full lifecycle management system.
+- Platform is ingest-oriented, not governance-oriented.
+- No strict separation between `raw`, `normalized`, `published` layers.
+- CRM currently acts as CRUD shell, not as controlled data lifecycle system.
 
 ## 6) Priority Backlog (P0/P1/P2)
 
-## P0 (must do first)
-- P0.1 Add explicit sync outcome contract (`success|skipped|failed`, reason) in `feed:sync` and CRM feed runner.
-- P0.2 Introduce ingest validation gate before upsert (FK precheck, enum/type checks, mandatory-key checks).
-- P0.3 Add field ownership strategy for feed-managed entities (`source`, `is_locked_by_feed`, manual override flag).
-- P0.4 Reduce discovery probe noise (do not log expected 404 as error; classify as debug/info).
-- P0.5 Unify analysis artifacts contract (`report.json` + `relationships.json` always generated atomically).
+### P0 (must do first)
+- P0.1 Install/lock required sync dependency (`halaxa/json-machine`) and verify `feed:sync` e2e.
+- P0.2 Return truthful feed command status in CRM (`success|skipped|failed`, real exit code, reason).
+- P0.3 Add ingest validation gate (FK/type/required fields) before write stages.
+- P0.4 Add minimal source governance (`source_type`, `manual_override`, `locked_by_feed`).
+- P0.5 Reclassify expected discovery probe 404 logs to non-error severity.
+- P0.6 Enforce complete analysis artifact set (`report.json` + `relationships.json`) atomically.
 
-## P1 (core modern CRM)
-- P1.1 Replace JSON-prompt editing with typed schema-driven forms for catalog entities.
-- P1.2 Add change history tables and UI timeline for every entity.
-- P1.3 Add draft/publish workflow with role-based approvals.
-- P1.4 Add conflict center: feed-vs-manual diffs, accept/reject/merge actions.
-- P1.5 Add bulk actions and saved views/filters in CRM.
+### P1 (core modern CRM)
+- P1.1 Replace JSON prompt editing with typed schema-driven forms.
+- P1.2 Add entity revision tables + timeline UI.
+- P1.3 Add role-based publish workflow and state machine.
+- P1.4 Add conflict center for feed/manual merge decisions.
+- P1.5 Add bulk actions + saved views.
 
-## P2 (advanced)
+### P2 (advanced)
 - P2.1 Data quality dashboard + SLO/SLA alerts.
-- P2.2 Rule engine (auto-tagging, auto-prioritization, lifecycle rules).
-- P2.3 Data lineage UI (where value came from, last sync, transformed by).
-- P2.4 Scenario-safe rollback for feed imports.
+- P2.2 Rule engine (auto-tagging, lifecycle automations).
+- P2.3 Field-level lineage view.
+- P2.4 Safe rollback/import framework with deterministic idempotency.
 
 ## 7) Audit Conclusion
+Production has a valuable feed foundation but is currently not at the level of a modern managed CRM.
 
-Production feed pipeline is functionally working for core ingestion but not yet at "modern managed CRM" maturity.  
-The system needs a governance layer (source ownership, lifecycle, auditability, conflict resolution) to safely support both feed and manual object creation/editing at scale.
+Main immediate blocker is operational: `feed:sync` fails in production due missing runtime dependency, so data freshness and integrity guarantees are not met.
 
-This report is the baseline for implementation phases in roadmap file:
+Roadmap and implementation sequence are detailed in:
 - `docs/audit/2026-03-07_feed_crm_roadmap.md`
 

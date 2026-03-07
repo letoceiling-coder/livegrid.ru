@@ -26,6 +26,11 @@ flowchart TD
 
 Target: 1-2 weeks.
 
+### A0. Restore feed sync operability
+- Add required dependency `halaxa/json-machine` to backend `composer.json`.
+- Rebuild autoload and verify `php artisan feed:sync` succeeds in production.
+- Add smoke-check command in deploy flow: dry-run + one non-destructive sync health check.
+
 ### A1. Sync outcome transparency
 - Update `FeedSyncService::sync()` return contract:
   - `status`: `success | skipped | failed`
@@ -147,6 +152,7 @@ Target: 6-12 weeks.
 ## Acceptance Criteria
 
 ### For Phase A
+- `feed:sync` is operational in production (no missing class/runtime dependency).
 - `feed:sync` clearly reports skipped runs and reasons.
 - Failed FK/type validations are visible in CRM and logs.
 - Discovery run produces complete artifact set with low-noise logging.

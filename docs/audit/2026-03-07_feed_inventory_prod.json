@@ -77,8 +77,26 @@
     "blocks_total": 490,
     "apartments_total": 62214
   },
+  "db_snapshot": {
+    "blocks_total": 1284,
+    "buildings_total": 2444,
+    "apartments_total": 62214,
+    "apartments_deleted_total": 0,
+    "regions_total": 181,
+    "subways_total": 447,
+    "builders_total": 559,
+    "finishings_total": 7,
+    "building_types_total": 11,
+    "rooms_total": 28
+  },
+  "etl_runtime_check": {
+    "feed_sync_status": "failed",
+    "error": "Class JsonMachine\\\\Items not found",
+    "dry_run_status": "ok"
+  },
   "notes": [
-    "Manifest history currently has 20 entries (2 snapshots per endpoint).",
-    "Difference between feed and public API totals reflects publication/live filters and soft-delete logic."
+    "Manifest history has 20 entries (2 snapshots per endpoint).",
+    "Difference between feed and public API totals reflects publication/live filters and soft-delete logic.",
+    "Current production feed sync is not operational until json-machine dependency is installed."
   ]
 }
