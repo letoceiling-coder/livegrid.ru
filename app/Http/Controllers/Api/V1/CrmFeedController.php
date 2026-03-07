@@ -15,7 +15,7 @@ class CrmFeedController extends Controller
     public function run(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'command' => ['required', 'string', 'in:feed:collect,feed:inspect,feed:analyze,feed:sync'],
+            'command' => ['required', 'string', 'in:feed:collect,feed:inspect,feed:analyze,feed:sync,catalog:sync-from-legacy'],
         ]);
 
         Artisan::call($data['command']);

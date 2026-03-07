@@ -285,7 +285,7 @@ export const crmSaveObjectPropertyValues = async (
   return data;
 };
 
-export const crmRunFeed = async (command: 'feed:collect' | 'feed:inspect' | 'feed:analyze' | 'feed:sync') => {
+export const crmRunFeed = async (command: 'feed:collect' | 'feed:inspect' | 'feed:analyze' | 'feed:sync' | 'catalog:sync-from-legacy') => {
   const { data } = await api.post<{ command: string; output: string; exit_code: number }>('/crm/feed/run', { command });
   return data;
 };

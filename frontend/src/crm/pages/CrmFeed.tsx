@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { crmRunFeed } from '@/crm/api';
 import { Button } from '@/components/ui/button';
 
-const COMMANDS: Array<'feed:collect' | 'feed:inspect' | 'feed:analyze' | 'feed:sync'> = [
+const COMMANDS = [
   'feed:collect',
   'feed:inspect',
   'feed:analyze',
   'feed:sync',
-];
+  'catalog:sync-from-legacy',
+] as const;
 
 export default function CrmFeed() {
   const [command, setCommand] = useState<typeof COMMANDS[number]>('feed:sync');
