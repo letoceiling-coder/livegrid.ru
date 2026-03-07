@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-03-07",
+  "environment": "production",
+  "configured": {
+    "primary_endpoint": "https://dataout.trendagent.ru/msk/about.json",
+    "auth_mode": "none"
+  },
+  "discovery": {
+    "total_files": 10,
+    "total_endpoints": 10,
+    "total_size_mb": 155.572,
+    "errors": 0
+  },
+  "endpoints": [
+    {
+      "label": "primary",
+      "url": "https://dataout.trendagent.ru/msk/about.json",
+      "items": 9,
+      "size": "3.2 KB"
+    },
+    {
+      "label": "blocks",
+      "url": "https://dataout.trendagent.ru/msk/blocks.json",
+      "items": 1289,
+      "size": "4.88 MB"
+    },
+    {
+      "label": "builders",
+      "url": "https://dataout.trendagent.ru/msk/builders.json",
+      "items": 561,
+      "size": "58.6 KB"
+    },
+    {
+      "label": "regions",
+      "url": "https://dataout.trendagent.ru/msk/regions.json",
+      "items": 181,
+      "size": "19.5 KB"
+    },
+    {
+      "label": "subways",
+      "url": "https://dataout.trendagent.ru/msk/subways.json",
+      "items": 447,
+      "size": "48.2 KB"
+    },
+    {
+      "label": "rooms",
+      "url": "https://dataout.trendagent.ru/msk/rooms.json",
+      "items": 28,
+      "size": "2.6 KB"
+    },
+    {
+      "label": "finishings",
+      "url": "https://dataout.trendagent.ru/msk/finishings.json",
+      "items": 7,
+      "size": "722 B"
+    },
+    {
+      "label": "buildingtypes",
+      "url": "https://dataout.trendagent.ru/msk/buildingtypes.json",
+      "items": 11,
+      "size": "1.1 KB"
+    },
+    {
+      "label": "buildings",
+      "url": "https://dataout.trendagent.ru/msk/buildings.json",
+      "items": 9269,
+      "size": "11.5 MB"
+    },
+    {
+      "label": "apartments",
+      "url": "https://dataout.trendagent.ru/msk/apartments.json",
+      "items": 62976,
+      "size": "139.06 MB"
+    }
+  ],
+  "public_api": {
+    "blocks_total": 490,
+    "apartments_total": 62214
+  },
+  "notes": [
+    "Manifest history currently has 20 entries (2 snapshots per endpoint).",
+    "Difference between feed and public API totals reflects publication/live filters and soft-delete logic."
+  ]
+}
