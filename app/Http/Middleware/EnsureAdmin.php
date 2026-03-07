@@ -18,7 +18,7 @@ class EnsureAdmin
         if (! $user || $user->role !== 'admin') {
             return response()->json([
                 'success' => false,
-                'message' => 'Forbidden',
+                'message' => __('auth.forbidden'),
             ], 403);
         }
 
