@@ -18,6 +18,9 @@ use App\Http\Controllers\Api\V1\CrmRoleController;
 use App\Http\Controllers\Api\V1\CrmDictionaryController;
 use App\Http\Controllers\Api\V1\CrmCatalogController;
 use App\Http\Controllers\Api\V1\CrmFeedController;
+use App\Http\Controllers\Api\V1\CrmObjectController;
+use App\Http\Controllers\Api\V1\CrmObjectTypeController;
+use App\Http\Controllers\Api\V1\CrmPropertyController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -128,6 +131,32 @@ Route::prefix('v1')->group(function () {
             Route::post('/catalog/{entity}', [CrmCatalogController::class, 'store']);
             Route::put('/catalog/{entity}/{id}', [CrmCatalogController::class, 'update']);
             Route::delete('/catalog/{entity}/{id}', [CrmCatalogController::class, 'destroy']);
+
+            // Object types CRUD
+            Route::get('/object-types', [CrmObjectTypeController::class, 'index']);
+            Route::post('/object-types', [CrmObjectTypeController::class, 'store']);
+            Route::put('/object-types/{objectType}', [CrmObjectTypeController::class, 'update']);
+            Route::delete('/object-types/{objectType}', [CrmObjectTypeController::class, 'destroy']);
+
+            // Internal CRM objects CRUD
+            Route::get('/objects', [CrmObjectController::class, 'index']);
+            Route::post('/objects', [CrmObjectController::class, 'store']);
+            Route::put('/objects/{object}', [CrmObjectController::class, 'update']);
+            Route::delete('/objects/{object}', [CrmObjectController::class, 'destroy']);
+
+            // Property definitions + options + object values
+            Route::get('/properties/definitions', [CrmPropertyController::class, 'indexDefinitions']);
+            Route::post('/properties/definitions', [CrmPropertyController::class, 'storeDefinition']);
+            Route::put('/properties/definitions/{definition}', [CrmPropertyController::class, 'updateDefinition']);
+            Route::delete('/properties/definitions/{definition}', [CrmPropertyController::class, 'destroyDefinition']);
+
+            Route::get('/properties/definitions/{definition}/options', [CrmPropertyController::class, 'listOptions']);
+            Route::post('/properties/definitions/{definition}/options', [CrmPropertyController::class, 'storeOption']);
+            Route::put('/properties/definitions/{definition}/options/{option}', [CrmPropertyController::class, 'updateOption']);
+            Route::delete('/properties/definitions/{definition}/options/{option}', [CrmPropertyController::class, 'destroyOption']);
+
+            Route::get('/objects/{object}/properties', [CrmPropertyController::class, 'listObjectValues']);
+            Route::post('/objects/{object}/properties', [CrmPropertyController::class, 'upsertObjectValues']);
 
             // Feed management
             Route::post('/feed/run', [CrmFeedController::class, 'run']);

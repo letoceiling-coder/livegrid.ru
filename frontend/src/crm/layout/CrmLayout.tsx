@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, ShieldCheck, Image, Building2, Layers, BookOpen, Filter, RefreshCw, ChevronLeft, ChevronRight,
+  LayoutDashboard, Users, ShieldCheck, Image, Building2, Layers, Boxes, BookOpen, Filter, SlidersHorizontal, RefreshCw, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +12,8 @@ const navItems = [
   { to: '/crm/media', icon: Image, label: 'Медиаменеджер' },
   { to: '/crm/catalog', icon: Building2, label: 'Каталог объектов' },
   { to: '/crm/object-types', icon: Layers, label: 'Типы объектов' },
+  { to: '/crm/objects', icon: Boxes, label: 'Объекты (новая модель)' },
+  { to: '/crm/properties', icon: SlidersHorizontal, label: 'Свойства объектов' },
   { to: '/crm/dictionaries', icon: BookOpen, label: 'Справочники' },
   { to: '/crm/filters', icon: Filter, label: 'Фильтры' },
   { to: '/crm/feed', icon: RefreshCw, label: 'Обновление Feed' },

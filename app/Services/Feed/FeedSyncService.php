@@ -6,8 +6,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use JsonMachine\Items as JsonMachineItems;
-use JsonMachine\JsonDecoder\ExtJsonDecoder;
 use Throwable;
 
 /**
@@ -272,21 +270,11 @@ class FeedSyncService
      */
     private function streamUpsertApartments(string $filePath, Carbon $syncAt): void
     {
-        // ExtJsonDecoder(true) → assoc arrays (same as json_decode $assoc=true)
-        // New json-machine API: second arg is options array, not positional
-        $items = JsonMachineItems::fromFile(
-            $filePath,
-            [
-                'pointer' => '',              // JSON Pointer: '' = root array
-                'decoder' => new ExtJsonDecoder(true),
-            ]
-        );
-
         $chunk = [];
         $total = 0;
         $batch = 0;
 
-        foreach ($items as $row) {
+        foreach ($this->iterateApartmentRows($filePath) as $row) {
             $id = (string) ($row['_id'] ?? '');
             if (empty($id)) {
                 continue;
@@ -325,6 +313,54 @@ class FeedSyncService
             'batches'   => $batch + (!empty($chunk) ? 1 : 0),
             'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
+    }
+
+    /**
+     * Iterate apartment rows from the downloaded JSON file.
+     *
+     * Uses json-machine when available, falls back to full decode when missing.
+     *
+     * @return \Generator<int, array<string, mixed>>
+     */
+    private function iterateApartmentRows(string $filePath): \Generator
+    {
+        if (class_exists(\JsonMachine\Items::class) && class_exists(\JsonMachine\JsonDecoder\ExtJsonDecoder::class)) {
+            $items = \JsonMachine\Items::fromFile(
+                $filePath,
+                [
+                    'pointer' => '',
+                    'decoder' => new \JsonMachine\JsonDecoder\ExtJsonDecoder(true),
+                ]
+            );
+
+            foreach ($items as $row) {
+                if (is_array($row)) {
+                    yield $row;
+                }
+            }
+
+            return;
+        }
+
+        Log::channel('feed')->warning('FeedSyncService: json-machine not installed, using fallback decoder');
+
+        $raw = @file_get_contents($filePath);
+        if ($raw === false) {
+            throw new \RuntimeException('Не удалось прочитать временный файл apartments.json');
+        }
+
+        $decoded = json_decode($raw, true, 512, JSON_INVALID_UTF8_SUBSTITUTE);
+        unset($raw);
+
+        if (!is_array($decoded)) {
+            throw new \RuntimeException('Некорректный JSON в apartments.json');
+        }
+
+        foreach ($decoded as $row) {
+            if (is_array($row)) {
+                yield $row;
+            }
+        }
     }
 
     /**

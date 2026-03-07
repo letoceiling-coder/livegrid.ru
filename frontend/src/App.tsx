@@ -52,6 +52,8 @@ const CrmRoles = lazy(() => import("./crm/pages/CrmRoles"));
 const CrmMedia = lazy(() => import("./crm/pages/CrmMedia"));
 const CrmCatalog = lazy(() => import("./crm/pages/CrmCatalog"));
 const CrmObjectTypes = lazy(() => import("./crm/pages/CrmObjectTypes"));
+const CrmObjects = lazy(() => import("./crm/pages/CrmObjects"));
+const CrmProperties = lazy(() => import("./crm/pages/CrmProperties"));
 const CrmDictionaries = lazy(() => import("./crm/pages/CrmDictionaries"));
 const CrmFilters = lazy(() => import("./crm/pages/CrmFilters"));
 const CrmFeed = lazy(() => import("./crm/pages/CrmFeed"));
@@ -178,6 +180,8 @@ const App = () => (
               <Route path="media" element={<CrmMedia />} />
               <Route path="catalog" element={<CrmCatalog />} />
               <Route path="object-types" element={<CrmObjectTypes />} />
+              <Route path="objects" element={<CrmObjects />} />
+              <Route path="properties" element={<CrmProperties />} />
               <Route path="dictionaries" element={<CrmDictionaries />} />
               <Route path="filters" element={<CrmFilters />} />
               <Route path="feed" element={<CrmFeed />} />

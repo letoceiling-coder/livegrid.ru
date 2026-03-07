@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.1",
         "guzzlehttp/guzzle": "^7.2",
+        "halaxa/json-machine": "^1.2",
         "laravel/framework": "^10.0",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8"
@@ -59,6 +60,11 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "audit": {
+            "ignore": [
+                "PKSA-2cx9-ynrq-qdk3"
+            ]
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
